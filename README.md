@@ -80,6 +80,51 @@ Users can view calculated story progress, such as how many scenes are completed 
 
 [gif goes here]
 
+### Dynamic Detail Pages
+
+Users can navigate to individual story, scene, character, and location pages. These pages use dynamic React Router routes based on the selected item's ID.
+
+Example routes include:
+
+/projects/:projectId
+/projects/:projectId/scenes/:sceneId
+/characters/:characterId
+/locations/:locationId
+
+[gif goes here]
+
+### Form Validation
+
+The app checks required form fields before creating or updating database records. Invalid or incomplete information is not submitted, and the user receives a clear error message.
+
+[gif goes here]
+
+### Confirmation Modal
+
+Before deleting a story project, scene, character, or location, the app displays a confirmation modal to prevent accidental deletion.
+
+[gif goes here]
+
+### Notifications
+
+The app displays temporary success or error messages after important actions, such as creating, updating, or deleting content.
+
+Examples include:
+
+“Scene created successfully.”
+“Character updated successfully.”
+“Unable to delete location.”
+
+[gif goes here]
+
+### Loading and Submission States
+
+The app displays a loading spinner while retrieving data. Form inputs and submission buttons are temporarily disabled while a request is being processed to prevent duplicate submissions.
+
+For example, a submit button may change from Save Scene to Saving... until the request is completed.
+
+[gif goes here]
+
 ### [ADDITIONAL FEATURES GO HERE - ADD ALL FEATURES HERE IN THE FORMAT ABOVE; you will check these off and add gifs as you complete them]
 
 ### [Name of Feature]
