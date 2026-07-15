@@ -10,7 +10,7 @@ Reference the Writing User Stories final project guide in the course portal for 
 
 ## Draft User Stories
 
-1. As a [user role], I want to [what], so that [why].
+1. As a Story Creator, I want to delete a scene I no longer need, so that my project only contains relevant scenes.
 2. As a Story Creator, I want to create a new story project, so that I can organize all of my story ideas in one place.
 3. As a Story Creator, I want to add scenes to a story project, so that I can plan the major events in my story.
 4. As a Story Creator, I want to create character profiles, so that I can keep track of each character's role, background, and purpose.
