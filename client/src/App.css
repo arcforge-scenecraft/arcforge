@@ -42,7 +42,7 @@
   font-weight: 600;
 }
 
-.navbar button,
+.nav-button,
 .primary-button {
   border: none;
   border-radius: 10px;
@@ -248,6 +248,245 @@ footer {
   }
 
   .preview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.app-container {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgba(239, 133, 0, 0.16), transparent 28%),
+    radial-gradient(circle at left center, rgba(23, 36, 59, 0.08), transparent 26%),
+    #f8fafc;
+}
+
+.main-content {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 64px;
+}
+
+.page-shell {
+  padding: 28px;
+  border: 1px solid rgba(23, 36, 59, 0.08);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 22px 60px rgba(23, 36, 59, 0.1);
+  backdrop-filter: blur(12px);
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: #ef8500;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.page-title {
+  margin: 0;
+  color: #17243b;
+  font-size: clamp(2rem, 4vw, 3.3rem);
+  letter-spacing: -0.05em;
+}
+
+.page-copy {
+  max-width: 68ch;
+  margin: 14px 0 0;
+  color: #5d6878;
+  line-height: 1.7;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.toolbar a,
+.project-link,
+.back-link {
+  color: #17243b;
+  font-weight: 700;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.project-card,
+.empty-state,
+.notice-card {
+  padding: 22px;
+  border: 1px solid rgba(23, 36, 59, 0.08);
+  border-radius: 22px;
+  background: white;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.project-card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.project-card p,
+.empty-state p,
+.notice-card p {
+  margin: 0;
+  color: #5d6878;
+  line-height: 1.65;
+}
+
+.badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fff1dc;
+  color: #b96500;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.project-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.meta-pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f3f6fa;
+  color: #4e5a6b;
+  font-size: 0.8rem;
+}
+
+.project-link {
+  width: fit-content;
+}
+
+.project-detail {
+  max-width: 860px;
+}
+
+.project-hero {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.project-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.detail-stat {
+  padding: 18px;
+  border-radius: 18px;
+  background: #f5f7fa;
+}
+
+.detail-stat span {
+  display: block;
+  margin-bottom: 6px;
+  color: #ef8500;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.detail-stat strong {
+  color: #17243b;
+  font-size: 1rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.detail-panel {
+  padding: 20px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid rgba(23, 36, 59, 0.08);
+}
+
+.detail-panel h3 {
+  margin: 0 0 10px;
+}
+
+.skeleton-line {
+  display: block;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #edf1f6, #f7f9fb, #edf1f6);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+}
+
+.skeleton-line + .skeleton-line {
+  margin-top: 12px;
+}
+
+.error-message {
+  color: #c0392b;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 780px) {
+  .main-content {
+    width: min(100% - 20px, 1120px);
+    padding-top: 20px;
+  }
+
+  .page-shell {
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .project-hero-grid,
+  .detail-grid {
     grid-template-columns: 1fr;
   }
 }
