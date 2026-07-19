@@ -1,0 +1,147 @@
+{
+  "title": "The Lantern Map",
+  "description": "A small group follows a glowing map to find a missing archive before a rival faction reaches it first.",
+  "genre": "Fantasy Adventure",
+  "status": "Draft",
+  "locations": [
+    {
+      "key": "harbor",
+      "name": "Mistfall Harbor",
+      "description": "A foggy dock district where smugglers, scholars, and sailors trade secrets.",
+      "atmosphere": "Foggy and tense"
+    },
+    {
+      "key": "archive",
+      "name": "The Sunken Archive",
+      "description": "An underground library sealed beneath the old city canals.",
+      "atmosphere": "Quiet and eerie"
+    }
+  ],
+  "characters": [
+    {
+      "key": "mara",
+      "name": "Mara Venn",
+      "story_role": "Protagonist",
+      "description": "A young cartographer who can read magical routes hidden in old maps.",
+      "goal": "Find the missing archive before its records are destroyed.",
+      "knowledge_notes": "Knows the map reacts to moonlight."
+    },
+    {
+      "key": "tobin",
+      "name": "Tobin Reed",
+      "story_role": "Ally",
+      "description": "Mara's older brother and a former canal guard.",
+      "goal": "Protect Mara and make up for abandoning the city guard.",
+      "knowledge_notes": "Knows hidden maintenance paths under the harbor."
+    },
+    {
+      "key": "selene",
+      "name": "Selene Cross",
+      "story_role": "Rival",
+      "description": "A treasure broker searching for the archive's ownership records.",
+      "goal": "Claim the archive records and sell them to the highest bidder.",
+      "knowledge_notes": "Knows someone inside the archive left a false trail."
+    }
+  ],
+  "items": [
+    {
+      "key": "lantern_map",
+      "name": "Lantern Map",
+      "description": "A folded map that reveals hidden paths when held near flame.",
+      "significance": "Points the group toward the Sunken Archive."
+    },
+    {
+      "key": "brass_key",
+      "name": "Brass Tide Key",
+      "description": "A heavy key stamped with an old harbor seal.",
+      "significance": "Unlocks the archive gate during low tide."
+    }
+  ],
+  "scenes": [
+    {
+      "key": "dock_meeting",
+      "location_key": "harbor",
+      "title": "The Map Wakes",
+      "summary": "Mara and Tobin discover the Lantern Map glowing near the harbor watchtower.",
+      "scene_order": 1,
+      "timeline_order": 1,
+      "status": "Draft",
+      "mood": "Mysterious",
+      "notes": "Selene watches from a nearby rooftop."
+    },
+    {
+      "key": "archive_gate",
+      "location_key": "archive",
+      "title": "The Gate Below",
+      "summary": "The group reaches the Sunken Archive and finds Selene waiting at the sealed gate.",
+      "scene_order": 2,
+      "timeline_order": 2,
+      "status": "Draft",
+      "mood": "Suspenseful",
+      "notes": "The Brass Tide Key must be used before the water rises."
+    }
+  ],
+  "scene_characters": [
+    {
+      "scene_key": "dock_meeting",
+      "character_key": "mara",
+      "role_in_scene": "Discovers the map",
+      "knowledge_gained": "Learns the map responds to lantern flame."
+    },
+    {
+      "scene_key": "dock_meeting",
+      "character_key": "tobin",
+      "role_in_scene": "Warns Mara",
+      "knowledge_gained": "Realizes the map points below the harbor."
+    },
+    {
+      "scene_key": "archive_gate",
+      "character_key": "mara",
+      "role_in_scene": "Leads the search",
+      "knowledge_gained": "Learns the archive gate requires the Brass Tide Key."
+    },
+    {
+      "scene_key": "archive_gate",
+      "character_key": "selene",
+      "role_in_scene": "Blocks the entrance",
+      "knowledge_gained": "Discovers Mara has the real map."
+    }
+  ],
+  "scene_items": [
+    {
+      "scene_key": "dock_meeting",
+      "item_key": "lantern_map",
+      "purpose_in_scene": "Reveals the first hidden route."
+    },
+    {
+      "scene_key": "archive_gate",
+      "item_key": "lantern_map",
+      "purpose_in_scene": "Confirms they found the correct gate."
+    },
+    {
+      "scene_key": "archive_gate",
+      "item_key": "brass_key",
+      "purpose_in_scene": "Unlocks the archive entrance."
+    }
+  ],
+  "character_relationships": [
+    {
+      "character_key": "mara",
+      "related_character_key": "tobin",
+      "relationship_type": "family",
+      "description": "Mara and Tobin are siblings who trust each other despite old arguments."
+    },
+    {
+      "character_key": "mara",
+      "related_character_key": "selene",
+      "relationship_type": "rival",
+      "description": "Selene wants the same archive and keeps trying to outmaneuver Mara."
+    },
+    {
+      "character_key": "tobin",
+      "related_character_key": "selene",
+      "relationship_type": "rival",
+      "description": "Tobin once arrested Selene, and neither has forgotten it."
+    }
+  ]
+}
