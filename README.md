@@ -154,18 +154,6 @@ The backend provides REST API routes for retrieving story projects. Users can re
 
 ![Project API Read Routes Demo](./gifs/project-api-read.gif)
 
-### ✅ Project API Write Routes
-
-The backend provides REST API routes for creating, updating, and deleting story projects. The API includes input validation, consistent JSON responses, and controlled error handling for invalid or missing projects.
-
-![Project API Write Routes Demo](./gifs/project-api-write.gif)
-
-### ✅ Database Reset and Seed Commands
-
-The project includes database reset and seed functionality that allows developers to recreate the PostgreSQL database structure and populate it with sample data for development and testing.
-
-![Database Reset and Seed Demo](./gifs/database-seed.gif)
-
 ### [ADDITIONAL FEATURES GO HERE - ADD ALL FEATURES HERE IN THE FORMAT ABOVE; you will check these off and add gifs as you complete them]
 
 ### [Name of Feature]
