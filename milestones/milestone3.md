@@ -23,10 +23,10 @@ You will need to reference the GitHub Project Management guide in the course por
     1. Milestone 3 - Unit 7
     2. Milestone 4 - Unit 8
     3. Final Milestone - Unit 9
-  - [ ] Set the completion percentage of each milestone. The GitHub Milestone for this unit (Milestone 3 - Unit 7) should be 100% completed when you submit for full points.
-- [ ] In `readme.md`, check off the features you have completed in this unit by adding a ✅ emoji in front of the feature's name.
-  - [ ] Under each feature you have completed, include a GIF showing feature functionality.
-- [] In this documents, complete all five questions in the **Reflection** section below.
+  - [x] Set the completion percentage of each milestone. The GitHub Milestone for this unit (Milestone 3 - Unit 7) should be 100% completed when you submit for full points.
+- [x] In `readme.md`, check off the features you have completed in this unit by adding a ✅ emoji in front of the feature's name.
+  - [x] Under each feature you have completed, include a GIF showing feature functionality.
+- [x] In this documents, complete all five questions in the **Reflection** section below.
 
 ## Reflection
 

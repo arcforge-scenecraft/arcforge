@@ -142,6 +142,30 @@ A project template, containing placholder scenes and characters, is automaticall
 
 [gif goes here]
 
+### ✅ Core PostgreSQL Database Schema
+
+ArcForge includes a PostgreSQL database schema for managing story projects, scenes, characters, locations, items, and relationships between these entities. The database supports one-to-many, many-to-many, and self-referencing relationships.
+
+![Core PostgreSQL Database Schema Demo](./gifs/database-schema.gif)
+
+### ✅ Project API Read Routes
+
+The backend provides REST API routes for retrieving story projects. Users can retrieve all projects or request information for a specific project using its project ID.
+
+![Project API Read Routes Demo](./gifs/project-api-read.gif)
+
+### ✅ Project API Write Routes
+
+The backend provides REST API routes for creating, updating, and deleting story projects. The API includes input validation, consistent JSON responses, and controlled error handling for invalid or missing projects.
+
+![Project API Write Routes Demo](./gifs/project-api-write.gif)
+
+### ✅ Database Reset and Seed Commands
+
+The project includes database reset and seed functionality that allows developers to recreate the PostgreSQL database structure and populate it with sample data for development and testing.
+
+![Database Reset and Seed Demo](./gifs/database-seed.gif)
+
 ### [ADDITIONAL FEATURES GO HERE - ADD ALL FEATURES HERE IN THE FORMAT ABOVE; you will check these off and add gifs as you complete them]
 
 ### [Name of Feature]
