@@ -1,11 +1,13 @@
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { StateLayout } from "./StateLayout";
 
-export const Loader = ({ text = "Loading..." }) => (
-  <article className="flex flex-col items-center justify-center" style={{ textAlign: 'center', padding: '2rem' }}>
-    <ArrowPathIcon 
-      className="spinner" 
-      style={{ width: '48px', height: '48px', color: '#6200ee', marginBottom: '1rem' }} 
+export const Loader = ({ text = "Loading..." }) => {
+  return (
+    <StateLayout
+      variant="loading"
+      role="status"
+      icon={<ArrowPathIcon className="ui-state__spinner" />}
+      description={text}
     />
-    <small>{text}</small>
-  </article>
-);
+  );
+};
