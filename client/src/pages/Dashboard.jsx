@@ -1,109 +1,102 @@
-// src/pages/Dashboard.jsx
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import ProjectCard from "../components/projects/ProjectCard";
+import { EmptyState, ErrorState, Loader } from "../components/ui";
+import { getProjects } from "../services/projectApi";
+import "../styles/Dashboard.css";
 
-function Dashboard() {
+const Dashboard = () => {
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const controller = new AbortController();
+  const loadProjects = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError("");
 
-    async function getAllProjects() {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/projects', { signal: controller.signal });
-        
-        if (!response.ok) throw new Error("Could not fetch projects.");
-        
-        const data = await response.json();
-        setProjects(data);
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          setError("Unable to load project dashboard.");
-        }
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
-      }
+      const projectData = await getProjects();
+      setProjects(projectData);
+    } catch (error) {
+      console.error("Failed to load projects:", error);
+
+      setError(
+        error.message || "Something went wrong while loading your projects.",
+      );
+    } finally {
+      setIsLoading(false);
     }
-
-    getAllProjects();
-
-    return () => controller.abort();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="page-shell">
-        <div className="page-header">
-          <p className="eyebrow">Dashboard</p>
-          <h1 className="page-title">Loading your projects...</h1>
-          <p className="page-copy">Fetching the latest story workspaces from the API.</p>
-        </div>
-        <div className="projects-grid">
-          <div className="notice-card">
-            <span className="skeleton-line" />
-            <span className="skeleton-line" />
-            <span className="skeleton-line" style={{ width: "70%" }} />
-          </div>
-          <div className="notice-card">
-            <span className="skeleton-line" />
-            <span className="skeleton-line" />
-            <span className="skeleton-line" style={{ width: "60%" }} />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="page-shell">
-        <div className="page-header">
-          <p className="eyebrow">Dashboard</p>
-          <h1 className="page-title">Project loading failed</h1>
-        </div>
-        <div className="notice-card error-message">{error}</div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects]);
 
   return (
-    <div className="page-shell">
-      <div className="page-header">
-        <p className="eyebrow">Dashboard</p>
-        <h1 className="page-title">ArcForge projects</h1>
-        <p className="page-copy">
-          Open a project workspace to review the selected story world.
-        </p>
-      </div>
+    <main className="dashboard">
+      <header className="dashboard__header">
+        <div>
+          <p className="dashboard__eyebrow">Story workspace</p>
+          <h1>Dashboard</h1>
+          <p className="dashboard__subtitle">
+            Manage your projects and continue building your stories.
+          </p>
+        </div>
 
-      {projects.length === 0 ? (
-        <div className="empty-state">
-          <h2 style={{ marginTop: 0 }}>No story projects yet</h2>
-          <p>Start by creating one in the API or database, then it will appear here.</p>
+        <Link to="/projects/new" className="button button--primary">
+          Create Project
+        </Link>
+      </header>
+
+      <section
+        className="dashboard__section"
+        aria-labelledby="projects-heading"
+      >
+        <div className="dashboard__section-header">
+          <div>
+            <h2 id="projects-heading">Your Projects</h2>
+            <p>Choose a project to continue working on your story.</p>
+          </div>
+
+          {!isLoading && !error && projects.length > 0 && (
+            <span className="dashboard__project-count">
+              {projects.length} {projects.length === 1 ? "project" : "projects"}
+            </span>
+          )}
         </div>
-      ) : (
-        <div className="projects-grid">
-          {projects.map((project) => (
-            <article key={project.id} className="project-card">
-              <span className="badge">Project {project.id}</span>
-              <h3>{project.title}</h3>
-              <p>{project.description}</p>
-              <div className="project-meta">
-                <span className="meta-pill">Scenes ready</span>
-                <span className="meta-pill">Draft status</span>
-              </div>
-              <Link to={`/projects/${project.id}`} className="project-link">
-                Open project workspace →
+
+        {isLoading && <Loader text="Loading your projects..." />}
+
+        {!isLoading && error && (
+          <ErrorState
+            title="Unable to load projects"
+            message={error}
+            onRetry={loadProjects}
+          />
+        )}
+
+        {!isLoading && !error && projects.length === 0 && (
+          <EmptyState
+            title="No projects yet"
+            description="Create your first story project to start building characters, scenes, and locations."
+            action={
+              <Link to="/projects/new" className="button button--primary">
+                Create Your First Project
               </Link>
-            </article>
-          ))}
-        </div>
-      )}
-    </div>
+            }
+          />
+        )}
+
+        {!isLoading && !error && projects.length > 0 && (
+          <div className="dashboard__project-grid">
+            {projects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
   );
-}
+};
 
 export default Dashboard;
