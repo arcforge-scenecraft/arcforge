@@ -1,6 +1,7 @@
 // src/pages/ProjectDetail.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { api } from "../api/apiClient"; // 1. Import the centralized client
 
 function ProjectDetail() {
   const { projectId } = useParams();
@@ -18,21 +19,15 @@ function ProjectDetail() {
         setLoading(true);
         setError(null);
         
-        // FUTURE: Replace this string with your shared API utility route
-        const response = await fetch(`/api/projects/${projectId}`, { signal });
+        // 2. Use the apiClient! Pass the signal for cleanup
+        const projectData = await api.get(`/projects/${projectId}`, { signal });
         
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error("Project not found.");
-          }
+        // 3. Set the data directly (apiClient already unwrapped json.data)
+        setProject(projectData);
 
-          throw new Error(`Project fetch failed with status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        setProject(data);
       } catch (err) {
         if (err.name !== 'AbortError') {
+          // err.message comes from the backend or the apiClient's fallback
           setError(err.message || "Failed to load project details.");
           console.error("Error fetching project:", err);
         }

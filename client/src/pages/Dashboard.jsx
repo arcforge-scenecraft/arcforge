@@ -1,6 +1,7 @@
 // src/pages/Dashboard.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { api } from "../api/apiClient"; // 1. Import the client
 
 function Dashboard() {
   const [projects, setProjects] = useState([]);
@@ -13,15 +14,17 @@ function Dashboard() {
     async function getAllProjects() {
       try {
         setLoading(true);
-        const response = await fetch('/api/projects', { signal: controller.signal });
         
-        if (!response.ok) throw new Error("Could not fetch projects.");
+        // 2. Use the apiClient! Pass the signal for cleanup
+        const projectsData = await api.get('/projects', { signal: controller.signal });
         
-        const data = await response.json();
-        setProjects(data);
+        // 3. Since apiClient returns json.data, projectsData is directly the array
+        setProjects(projectsData || []);
+        
       } catch (err) {
         if (err.name !== 'AbortError') {
-          setError("Unable to load project dashboard.");
+          // err.message comes cleanly from the backend now!
+          setError(err.message || "Unable to load project dashboard.");
         }
       } finally {
         if (!controller.signal.aborted) setLoading(false);

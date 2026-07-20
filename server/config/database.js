@@ -7,9 +7,7 @@ const config = {
   host: process.env.PGHOST,
   port: process.env.PGPORT,
   database: process.env.PGDATABASE,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
 };
 
 export const pool = new pg.Pool(config);
