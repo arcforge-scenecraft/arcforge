@@ -18,15 +18,15 @@ You will need to reference the GitHub Project Management guide in the course por
     4.Add scene API read routes
     5.Add character REST API
 - [x] In your repo, update the status of issues in your project board.
-- [ ] In your repo, create a GitHub Milestone for each final project unit, corresponding to each of the 5 milestones in your `milestones/` directory.
+- [x] In your repo, create a GitHub Milestone for each final project unit, corresponding to each of the 5 milestones in your `milestones/` directory.
   - List the name of each milestone you created:
-    1.
-    2.
-    3.
-  - [ ] Set the completion percentage of each milestone. The GitHub Milestone for this unit (Milestone 3 - Unit 7) should be 100% completed when you submit for full points.
-- [ ] In `readme.md`, check off the features you have completed in this unit by adding a ✅ emoji in front of the feature's name.
-  - [ ] Under each feature you have completed, include a GIF showing feature functionality.
-- [] In this documents, complete all five questions in the **Reflection** section below.
+    1. Milestone 3 - Unit 7
+    2. Milestone 4 - Unit 8
+    3. Final Milestone - Unit 9
+  - [x] Set the completion percentage of each milestone. The GitHub Milestone for this unit (Milestone 3 - Unit 7) should be 100% completed when you submit for full points.
+- [x] In `readme.md`, check off the features you have completed in this unit by adding a ✅ emoji in front of the feature's name.
+  - [x] Under each feature you have completed, include a GIF showing feature functionality.
+- [x] In this documents, complete all five questions in the **Reflection** section below.
 
 ## Reflection
 
@@ -36,11 +36,11 @@ Our group made good progress in organizing the project and beginning the impleme
 
 ### 2. What were some challenges your group faced in this unit?
 
-[👉🏾👉🏾👉🏾 your answer here]
+One challenge our group faced was uneven participation among team members. Some members were more actively involved in completing issues and contributing to the project, while others contributed less consistently. This made it more difficult to divide the workload evenly and coordinate progress across the team. We also faced some technical challenges with database configuration, API testing, and integrating different parts of the project. To address these issues, we used the GitHub project board to track responsibilities more clearly and focused on completing the most important backend tasks first.
 
 ### Did you finish all of your tasks in your sprint plan for this week? If you did not finish all of the planned tasks, how would you prioritize the remaining tasks on your list?
 
-[👉🏾👉🏾👉🏾 your answer here]
+We completed several important tasks from our sprint plan, including project organization, database setup, and some backend API functionality. However, not all planned tasks were completed because some team members contributed less actively and some technical issues required additional time to resolve. We will prioritize the remaining core backend API routes and frontend integration tasks first. After the main user stories are functional, we will focus on additional features, testing, and UI improvements.
 
 ### Which features and user stories would you consider “at risk”? How will you change your plan if those items remain “at risk”?
 
@@ -48,4 +48,4 @@ Features that involve relationships between multiple entities, such as assigning
 
 ### 5. What additional support will you need in upcoming units as you continue to work on your final project?
 
-[👉🏾👉🏾👉🏾 your answer here]
+In upcoming units, our group may need additional support with coordinating team responsibilities and ensuring that work is distributed more evenly among members. We may also need guidance with frontend and backend integration, API testing, database deployment, and resolving Git merge conflicts. Clear feedback on feature prioritization would also help us focus on the most important requirements and complete the core functionality before the final deadline.
