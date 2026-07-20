@@ -1,5 +1,5 @@
-import "./dotenv.js";
-import { pool } from "./database.js";
+import "../config/dotenv.js";
+import { pool } from "../config/database.js";
 
 try {
   // 1. Create test project

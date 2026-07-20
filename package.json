@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"cd client && vite\" \"cd server && nodemon server\"",
-    "start": "cd server && node server",
+    "start": "npm run reset && cd server && nodemon server.js",
     "build": "cd client && vite build",
     "reset": "cd server && node config/reset.js",
     "lint": "eslint ."
@@ -20,7 +20,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-modal": "^3.16.1",
-    "react-router-dom": "^6.9.0",
+    "react-router-dom": "^6.30.4",
     "serve-favicon": "^2.5.0"
   },
   "devDependencies": {
