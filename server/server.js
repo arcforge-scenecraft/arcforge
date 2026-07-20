@@ -2,28 +2,18 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import projectsRouter from "./routes/projects.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const projects = [
-  {
-    id: "1",
-    title: "Sci-Fi Space Opera",
-    description: "An epic galactic war story.",
-  },
-  {
-    id: "2",
-    title: "Cyberpunk Detective",
-    description: "Neo-Tokyo noir investigation.",
-  },
-];
-
 app.use(express.json());
 app.use(cors());
 
+// Kept both middleware lines from the conflict
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/api/projects", projectsRouter);
 
 app.get("/", (req, res) => {
   res
@@ -36,20 +26,6 @@ app.get("/api/health", (req, res) => {
     status: "ok",
     message: "ArcForge server is running",
   });
-});
-
-app.get("/api/projects", (req, res) => {
-  res.status(200).json(projects);
-});
-
-app.get("/api/projects/:projectId", (req, res) => {
-  const project = projects.find((item) => item.id === req.params.projectId);
-
-  if (!project) {
-    return res.status(404).json({ message: "Project not found" });
-  }
-
-  return res.status(200).json(project);
 });
 
 app.get("*", (req, res, next) => {
