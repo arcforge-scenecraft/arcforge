@@ -1,17 +1,23 @@
+import { Link, Navigate, Route, Routes } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import ProjectDetail from "./pages/ProjectDetail";
+import NotFound from "./pages/NotFound";
 import "./App.css";
 
-function App() {
+function LandingPage() {
   return (
     <div className="app">
       <header className="navbar">
-        <a className="brand" href="/">
+        <Link className="brand" to="/">
           <img src="/arcforge-logo.png" alt="ArcForge logo" />
           <span>ArcForge</span>
-        </a>
+        </Link>
 
         <nav>
           <a href="#features">Features</a>
-          <button type="button">Get Started</button>
+          <Link to="/dashboard" className="nav-button">
+            Get Started
+          </Link>
         </nav>
       </header>
 
@@ -28,9 +34,9 @@ function App() {
             </p>
 
             <div className="hero-actions">
-              <button type="button" className="primary-button">
+              <Link to="/dashboard" className="primary-button">
                 Start Planning
-              </button>
+              </Link>
 
               <a href="#features" className="secondary-button">
                 Explore Features
@@ -106,6 +112,17 @@ function App() {
         <p>ArcForge — Forge ideas into stories.</p>
       </footer>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/projects/:projectId" element={<ProjectDetail />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 
