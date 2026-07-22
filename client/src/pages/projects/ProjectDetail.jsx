@@ -17,22 +17,26 @@ function ProjectDetail() {
       try {
         setLoading(true);
         setError(null);
-        
+
         // FUTURE: Replace this string with your shared API utility route
         const response = await fetch(`/api/projects/${projectId}`, { signal });
-        
+
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error("Project not found.");
           }
 
-          throw new Error(`Project fetch failed with status: ${response.status}`);
+          throw new Error(
+            `Project fetch failed with status: ${response.status}`,
+          );
         }
-        
-        const data = await response.json();
-        setProject(data);
+
+        /*const data = await response.json();
+        setProject(data);*/
+        const responseBody = await response.json();
+        setProject(responseBody.data);
       } catch (err) {
-        if (err.name !== 'AbortError') {
+        if (err.name !== "AbortError") {
           setError(err.message || "Failed to load project details.");
           console.error("Error fetching project:", err);
         }
@@ -61,7 +65,9 @@ function ProjectDetail() {
         <div className="page-header">
           <p className="eyebrow">Project detail</p>
           <h1 className="page-title">Loading workspace...</h1>
-          <p className="page-copy">Fetching the selected story project by route ID.</p>
+          <p className="page-copy">
+            Fetching the selected story project by route ID.
+          </p>
         </div>
         <div className="detail-grid">
           <div className="detail-panel">
@@ -134,17 +140,24 @@ function ProjectDetail() {
         <section className="detail-panel">
           <h3>What this route confirms</h3>
           <p>
-            This page reads <strong>/projects/:projectId</strong>, fetches the selected project,
-            and stays functional on refresh because the server returns the SPA shell.
+            This page reads <strong>/projects/:projectId</strong>, fetches the
+            selected project, and stays functional on refresh because the server
+            returns the SPA shell.
           </p>
         </section>
 
         <section className="detail-panel">
           <h3>Navigation</h3>
           <p>
-            Use the back link to return to the dashboard. The dashboard cards link here with
-            client-side navigation.
+            Use the back link to return to the dashboard. The dashboard cards
+            link here with client-side navigation.
           </p>
+          <Link
+            to={`/projects/${projectId}/locations`}
+            className="button button--secondary"
+          >
+            View locations
+          </Link>
         </section>
       </div>
     </div>
