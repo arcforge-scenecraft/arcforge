@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ProjectCard from "../components/projects/ProjectCard";
 import { EmptyState, ErrorState, Loader } from "../components/ui";
-import { getProjects } from "../services/projectApi";
+import { deleteProject, getProjects } from "../services/projectApi";
 
 const Dashboard = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleteMessage, setDeleteMessage] = useState("");
 
   const loadProjects = useCallback(async () => {
     try {
@@ -15,12 +19,14 @@ const Dashboard = () => {
       setError("");
 
       const projectData = await getProjects();
-      setProjects(projectData);
-    } catch (error) {
-      console.error("Failed to load projects:", error);
+      setProjects(Array.isArray(projectData) ? projectData : []);
+    } catch (loadError) {
+      console.error("Failed to load projects:", loadError);
 
       setError(
-        error.message || "Something went wrong while loading your projects.",
+        loadError instanceof Error
+          ? loadError.message
+          : "Something went wrong while loading your projects.",
       );
     } finally {
       setIsLoading(false);
@@ -31,6 +37,44 @@ const Dashboard = () => {
     loadProjects();
   }, [loadProjects]);
 
+  /*
+   * Displays a success message when the user deletes a project
+   * from the project detail page and returns to the dashboard.
+   */
+  useEffect(() => {
+    const message = location.state?.message;
+
+    if (!message) {
+      return;
+    }
+
+    setDeleteMessage(message);
+
+    // Remove the message from browser history so it does not
+    // appear again after refreshing or navigating back.
+    navigate(location.pathname, {
+      replace: true,
+      state: null,
+    });
+  }, [location.pathname, location.state, navigate]);
+
+  const handleDeleteProject = useCallback(async (projectId, projectTitle) => {
+    /*
+     * Do not catch the error here.
+     * ProjectDeleteButton catches it and displays it beside
+     * the correct project.
+     */
+    await deleteProject(projectId);
+
+    setProjects((currentProjects) =>
+      currentProjects.filter(
+        (project) => String(project.id) !== String(projectId),
+      ),
+    );
+
+    setDeleteMessage(`"${projectTitle}" was deleted successfully.`);
+  }, []);
+
   return (
     <main className="dashboard">
       <section
@@ -40,10 +84,13 @@ const Dashboard = () => {
         <header className="dashboard__header">
           <div className="dashboard__header-content">
             <p className="dashboard__eyebrow">Your workspace</p>
-            <h1>Story Projects</h1>
+
+            <h1 id="projects-heading">Story Projects</h1>
+
             <p className="dashboard__header-description">
               Create, organize, and continue building your story worlds.
             </p>
+
             {!isLoading && !error && projects.length > 0 && (
               <span className="dashboard__project-count">
                 You have {projects.length}{" "}
@@ -58,6 +105,21 @@ const Dashboard = () => {
             </Link>
           </div>
         </header>
+
+        {deleteMessage && (
+          <div className="dashboard__message" role="status">
+            <span>{deleteMessage}</span>
+
+            <button
+              type="button"
+              className="dashboard__message-close"
+              onClick={() => setDeleteMessage("")}
+              aria-label="Dismiss deletion message"
+            >
+              ×
+            </button>
+          </div>
+        )}
 
         {isLoading && <Loader text="Loading your projects..." />}
 
@@ -84,7 +146,11 @@ const Dashboard = () => {
         {!isLoading && !error && projects.length > 0 && (
           <div className="dashboard__project-grid">
             {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onDelete={handleDeleteProject}
+              />
             ))}
           </div>
         )}
