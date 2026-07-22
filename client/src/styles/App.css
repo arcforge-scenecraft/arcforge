@@ -1,0 +1,23 @@
+/* ========================================
+   Global and shared styles
+======================================== */
+
+@import "./Global.css";
+
+/* ========================================
+   Reusable UI components
+======================================== */
+
+@import "./UIStates.css";
+@import "./ProjectCard.css";
+@import "./ProjectForm.css";
+@import "./ProjectFormHeader.css";
+
+/* ========================================
+   Page layouts
+======================================== */
+
+@import "./Dashboard.css";
+@import "./Landing.css";
+@import "./NotFound.css";
+@import "./ProjectDetail.css";

@@ -3,6 +3,8 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import projectsRouter from "./routes/projects.js";
+import locationsRouter from "./routes/locations.js"
+import scenesRouter from "./routes/scenes.js"
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -14,6 +16,8 @@ app.use(cors());
 // Kept both middleware lines from the conflict
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/projects", projectsRouter);
+app.use("/api/projects/:projectId/locations", locationsRouter)
+app.use("/api/projects/:projectId/scenes", scenesRouter)
 
 app.get("/", (req, res) => {
   res

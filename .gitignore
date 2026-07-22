@@ -28,3 +28,6 @@ Thumbs.db
 # Editor settings
 .vscode/
 .idea/
+
+# Testing files
+Sandbox.jsx

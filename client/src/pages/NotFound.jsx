@@ -1,18 +1,37 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { NotFoundState } from "../components/ui";
 
 function NotFound() {
+  const navigate = useNavigate();
+
   return (
-    <div className="page-shell" style={{ textAlign: "center" }}>
-      <div className="page-header">
-        <p className="eyebrow">404</p>
-        <h1 className="page-title">Page not found</h1>
-        <p className="page-copy">The story timeline or path you followed does not exist.</p>
+    <main className="not-found-page">
+      <div className="not-found-page__content">
+        <p className="not-found-page__code" aria-hidden="true">
+          404
+        </p>
+
+        <NotFoundState
+          title="This page is off the map"
+          description="The story path you followed does not exist, may have moved, or is no longer available."
+          action={
+            <div className="not-found-page__actions">
+              <Link to="/dashboard" className="button button--primary">
+                Return to Dashboard
+              </Link>
+
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => navigate(-1)}
+              >
+                Go Back
+              </button>
+            </div>
+          }
+        />
       </div>
-      <Link to="/dashboard" className="project-link">
-        Return to dashboard →
-      </Link>
-    </div>
+    </main>
   );
 }
 

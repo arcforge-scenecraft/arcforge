@@ -1,112 +1,148 @@
-// src/pages/Dashboard.jsx
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { api } from "../api/apiClient"; // 1. Import the client
+import { useCallback, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import ProjectCard from "../components/projects/ProjectCard";
+import { EmptyState, ErrorState, Loader } from "../components/ui";
+import { deleteProject, getProjects } from "../services/projectApi";
 
-function Dashboard() {
+const Dashboard = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [deleteMessage, setDeleteMessage] = useState("");
 
-  useEffect(() => {
-    const controller = new AbortController();
+  const loadProjects = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError("");
 
-    async function getAllProjects() {
-      try {
-        setLoading(true);
-        
-        // 2. Use the apiClient! Pass the signal for cleanup
-        const projectsData = await api.get('/projects', { signal: controller.signal });
-        
-        // 3. Since apiClient returns json.data, projectsData is directly the array
-        setProjects(projectsData || []);
-        
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          // err.message comes cleanly from the backend now!
-          setError(err.message || "Unable to load project dashboard.");
-        }
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
-      }
+      const projectData = await getProjects();
+      setProjects(Array.isArray(projectData) ? projectData : []);
+    } catch (loadError) {
+      console.error("Failed to load projects:", loadError);
+
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Something went wrong while loading your projects.",
+      );
+    } finally {
+      setIsLoading(false);
     }
-
-    getAllProjects();
-
-    return () => controller.abort();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="page-shell">
-        <div className="page-header">
-          <p className="eyebrow">Dashboard</p>
-          <h1 className="page-title">Loading your projects...</h1>
-          <p className="page-copy">Fetching the latest story workspaces from the API.</p>
-        </div>
-        <div className="projects-grid">
-          <div className="notice-card">
-            <span className="skeleton-line" />
-            <span className="skeleton-line" />
-            <span className="skeleton-line" style={{ width: "70%" }} />
-          </div>
-          <div className="notice-card">
-            <span className="skeleton-line" />
-            <span className="skeleton-line" />
-            <span className="skeleton-line" style={{ width: "60%" }} />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects]);
 
-  if (error) {
-    return (
-      <div className="page-shell">
-        <div className="page-header">
-          <p className="eyebrow">Dashboard</p>
-          <h1 className="page-title">Project loading failed</h1>
-        </div>
-        <div className="notice-card error-message">{error}</div>
-      </div>
+  useEffect(() => {
+    const message = location.state?.message;
+
+    if (!message) {
+      return;
+    }
+
+    setDeleteMessage(message);
+
+    navigate(location.pathname, {
+      replace: true,
+      state: null,
+    });
+  }, [location.pathname, location.state, navigate]);
+
+  const handleDeleteProject = useCallback(async (projectId, projectTitle) => {
+    await deleteProject(projectId);
+
+    setProjects((currentProjects) =>
+      currentProjects.filter(
+        (project) => String(project.id) !== String(projectId),
+      ),
     );
-  }
+
+    setDeleteMessage(`"${projectTitle}" was deleted successfully.`);
+  }, []);
 
   return (
-    <div className="page-shell">
-      <div className="page-header">
-        <p className="eyebrow">Dashboard</p>
-        <h1 className="page-title">ArcForge projects</h1>
-        <p className="page-copy">
-          Open a project workspace to review the selected story world.
-        </p>
-      </div>
+    <main className="dashboard">
+      <section className="dashboard__section" aria-labelledby="projects-heading">
+        <header className="dashboard__header">
+          <div className="dashboard__header-content">
+            <p className="dashboard__eyebrow">Your workspace</p>
 
-      {projects.length === 0 ? (
-        <div className="empty-state">
-          <h2 style={{ marginTop: 0 }}>No story projects yet</h2>
-          <p>Start by creating one in the API or database, then it will appear here.</p>
-        </div>
-      ) : (
-        <div className="projects-grid">
-          {projects.map((project) => (
-            <article key={project.id} className="project-card">
-              <span className="badge">Project {project.id}</span>
-              <h3>{project.title}</h3>
-              <p>{project.description}</p>
-              <div className="project-meta">
-                <span className="meta-pill">Scenes ready</span>
-                <span className="meta-pill">Draft status</span>
-              </div>
-              <Link to={`/projects/${project.id}`} className="project-link">
-                Open project workspace →
+            <h1 id="projects-heading">Story Projects</h1>
+
+            <p className="dashboard__header-description">
+              Create, organize, and continue building your story worlds.
+            </p>
+
+            {!isLoading && !error && projects.length > 0 && (
+              <span className="dashboard__project-count">
+                You have {projects.length}{" "}
+                {projects.length === 1 ? "project" : "projects"}
+              </span>
+            )}
+          </div>
+
+          <div className="dashboard__actions">
+            <Link to="/projects/new" className="dashboard__create-link">
+              Create Project
+            </Link>
+          </div>
+        </header>
+
+        {deleteMessage && (
+          <div className="dashboard__message" role="status">
+            <span>{deleteMessage}</span>
+
+            <button
+              type="button"
+              className="dashboard__message-close"
+              onClick={() => setDeleteMessage("")}
+              aria-label="Dismiss deletion message"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {isLoading && <Loader text="Loading your projects..." />}
+
+        {!isLoading && error && (
+          <ErrorState
+            title="Unable to load projects"
+            message={error}
+            onRetry={loadProjects}
+          />
+        )}
+
+        {!isLoading && !error && projects.length === 0 && (
+          <EmptyState
+            title="No projects yet"
+            description="Create your first story project to start building characters, scenes, and locations."
+            action={
+              <Link to="/projects/new" className="button button--primary">
+                Create Your First Project
               </Link>
-            </article>
-          ))}
-        </div>
-      )}
-    </div>
+            }
+          />
+        )}
+
+        {!isLoading && !error && projects.length > 0 && (
+          <div className="dashboard__project-grid">
+            {projects.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onDelete={handleDeleteProject}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
   );
-}
+};
 
 export default Dashboard;
