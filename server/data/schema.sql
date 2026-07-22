@@ -2,8 +2,8 @@ CREATE TABLE IF NOT EXISTS story_projects (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    genre VARCHAR(100),
-    status VARCHAR(50),
+    genre TEXT[] NOT NULL DEFAULT '{}',
+    status VARCHAR(50) NOT NULL DEFAULT 'Planning',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

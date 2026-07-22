@@ -1,7 +1,7 @@
 {
   "title": "The Lantern Map",
   "description": "A small group follows a glowing map to find a missing archive before a rival faction reaches it first.",
-  "genre": "Fantasy Adventure",
+  "genre": ["Fantasy", "Adventure"],
   "status": "Draft",
   "locations": [
     {

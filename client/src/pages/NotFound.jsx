@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { NotFoundState } from "../components/ui";
-import "../styles/NotFound.css";
 
 function NotFound() {
   const navigate = useNavigate();
