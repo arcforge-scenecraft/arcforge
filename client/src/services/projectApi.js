@@ -4,8 +4,8 @@ export const getProjects = () => {
   return apiRequest("/api/projects");
 };
 
-export const getProjectById = (projectId) => {
-  return apiRequest(`/api/projects/${projectId}`);
+export const getProjectById = (projectId, options = {}) => {
+  return apiRequest(`/api/projects/${projectId}`, options);
 };
 
 export const createProject = (projectData) => {

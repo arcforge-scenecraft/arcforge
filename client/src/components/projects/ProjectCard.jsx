@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
+import ProjectDeleteButton from "./ProjectDeleteButton";
 
-const ProjectCard = ({ project }) => {
-  const genres = Array.isArray(project.genre) ? project.genre : [];
+const ProjectCard = ({ project, onDelete }) => {
+  const genres = Array.isArray(project.genre)
+    ? project.genre
+    : project.genre
+      ? [project.genre]
+      : [];
 
   return (
     <article className="project-card">
@@ -34,16 +39,23 @@ const ProjectCard = ({ project }) => {
       </div>
 
       <div className="project-card-actions">
-        <Link to={`/projects/${project.id}`} className="project-card-link">
-          View project
-        </Link>
+        <div className="project-card-primary-actions">
+          <Link to={`/projects/${project.id}`} className="project-card-link">
+            View project
+          </Link>
 
-        <Link
-          to={`/projects/${project.id}/edit`}
-          className="project-card-edit-link"
-        >
-          Edit
-        </Link>
+          <Link
+            to={`/projects/${project.id}/edit`}
+            className="project-card-edit-link"
+          >
+            Edit
+          </Link>
+        </div>
+
+        <ProjectDeleteButton
+          projectTitle={project.title}
+          onDelete={() => onDelete(project.id, project.title)}
+        />
       </div>
     </article>
   );
