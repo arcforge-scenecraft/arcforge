@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import ProjectCard from "../components/projects/ProjectCard";
 import { EmptyState, ErrorState, Loader } from "../components/ui";
 import { getProjects } from "../services/projectApi";
-import "../styles/Dashboard.css";
 
 const Dashboard = () => {
   const [projects, setProjects] = useState([]);
@@ -34,36 +33,31 @@ const Dashboard = () => {
 
   return (
     <main className="dashboard">
-      <header className="dashboard__header">
-        <div>
-          <p className="dashboard__eyebrow">Story workspace</p>
-          <h1>Dashboard</h1>
-          <p className="dashboard__subtitle">
-            Manage your projects and continue building your stories.
-          </p>
-        </div>
-
-        <Link to="/projects/new" className="button button--primary">
-          Create Project
-        </Link>
-      </header>
-
       <section
         className="dashboard__section"
         aria-labelledby="projects-heading"
       >
-        <div className="dashboard__section-header">
-          <div>
-            <h2 id="projects-heading">Your Projects</h2>
-            <p>Choose a project to continue working on your story.</p>
+        <header className="dashboard__header">
+          <div className="dashboard__header-content">
+            <p className="dashboard__eyebrow">Your workspace</p>
+            <h1>Story Projects</h1>
+            <p className="dashboard__header-description">
+              Create, organize, and continue building your story worlds.
+            </p>
+            {!isLoading && !error && projects.length > 0 && (
+              <span className="dashboard__project-count">
+                You have {projects.length}{" "}
+                {projects.length === 1 ? "project" : "projects"}
+              </span>
+            )}
           </div>
 
-          {!isLoading && !error && projects.length > 0 && (
-            <span className="dashboard__project-count">
-              {projects.length} {projects.length === 1 ? "project" : "projects"}
-            </span>
-          )}
-        </div>
+          <div className="dashboard__actions">
+            <Link to="/projects/new" className="dashboard__create-link">
+              Create Project
+            </Link>
+          </div>
+        </header>
 
         {isLoading && <Loader text="Loading your projects..." />}
 

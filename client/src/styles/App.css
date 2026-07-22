@@ -9,6 +9,9 @@
 ======================================== */
 
 @import "./UIStates.css";
+@import "./ProjectCard.css";
+@import "./ProjectForm.css";
+@import "./ProjectFormHeader.css";
 
 /* ========================================
    Page layouts
@@ -17,3 +20,4 @@
 @import "./Dashboard.css";
 @import "./Landing.css";
 @import "./NotFound.css";
+@import "./ProjectForm.css";
