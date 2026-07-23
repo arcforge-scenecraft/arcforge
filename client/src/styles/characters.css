@@ -1,0 +1,99 @@
+.character-section {
+  margin-top: 2.5rem;
+}
+
+.character-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.character-section__header h2 {
+  margin: 0;
+}
+
+.character-section__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.character-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+  padding: 1.25rem;
+  border: 1px solid #d8d8d8;
+  border-radius: 12px;
+  background: white;
+}
+
+.character-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.character-card__header h3 {
+  margin: 0;
+}
+
+.character-card__role {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #bdbdbd;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.character-card__description {
+  flex-grow: 1;
+  margin: 0.75rem 0;
+  line-height: 1.5;
+}
+
+.character-card__link {
+  align-self: flex-start;
+  font-weight: 700;
+}
+
+.character-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 640px;
+}
+
+.character-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.character-form__field label {
+  font-weight: 700;
+}
+
+.character-form__field input,
+.character-form__field textarea {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #bdbdbd;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
+
+.character-form__field-error {
+  margin: 0;
+  color: #b3261e;
+  font-size: 0.85rem;
+}
+
+.character-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
