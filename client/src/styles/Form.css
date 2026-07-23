@@ -1,4 +1,4 @@
-.project-form {
+.form {
   width: min(100%, 760px);
   margin-inline: auto;
   padding: clamp(1.25rem, 4vw, 2.25rem);
@@ -14,7 +14,7 @@
     0 3px 10px rgba(43, 35, 72, 0.05);
 }
 
-.project-form-fields {
+.form-fields {
   display: grid;
   gap: 1.5rem;
   min-width: 0;
@@ -315,24 +315,24 @@
   outline-offset: 2px;
 }
 
-.project-form-fields:disabled {
+.form-fields:disabled {
   opacity: 0.72;
 }
 
-.project-form button:disabled,
-.project-form input:disabled,
-.project-form textarea:disabled,
-.project-form select:disabled {
+.form button:disabled,
+.form input:disabled,
+.form textarea:disabled,
+.form select:disabled {
   cursor: not-allowed;
 }
 
-.project-form button:disabled {
+.form button:disabled {
   box-shadow: none;
   transform: none;
 }
 
 @media (max-width: 600px) {
-  .project-form {
+  .form {
     border-radius: 1rem;
   }
 
