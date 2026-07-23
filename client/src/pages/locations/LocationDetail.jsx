@@ -1,50 +1,66 @@
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Link, useParams } from "react-router-dom";
 
+import { ErrorState, Loader } from "../../components/ui";
 import useLocation from "../../hooks/locations/useLocation";
+import NotFound from "../NotFound";
 
 function LocationDetail() {
   const { projectId, locationId } = useParams();
 
-  const { location, loading, error } = useLocation(projectId, locationId);
+  const { location, loading, error, notFound, retry } = useLocation(
+    projectId,
+    locationId,
+  );
 
   if (loading) {
     return (
-      <main className="page-shell">
-        <Link to={`/projects/${projectId}/locations`} className="back-link">
-          ← Back to locations
-        </Link>
+      <main className="project-detail-page">
+        <section className="project-detail">
+          <Link
+            to={`/projects/${projectId}/locations`}
+            className="project-detail__back-link"
+          >
+            <ArrowLeftIcon aria-hidden="true" />
+            Back to locations
+          </Link>
 
-        <div className="notice-card">Loading location...</div>
+          <div className="project-detail__state">
+            <Loader text="Loading location details..." />
+          </div>
+        </section>
       </main>
     );
+  }
+
+  if (notFound) {
+    return <NotFound />;
   }
 
   if (error) {
     return (
-      <main className="page-shell">
-        <Link to={`/projects/${projectId}/locations`} className="back-link">
-          ← Back to locations
-        </Link>
+      <main className="project-detail-page">
+        <section className="project-detail">
+          <Link
+            to={`/projects/${projectId}/locations`}
+            className="project-detail__back-link"
+          >
+            <ArrowLeftIcon aria-hidden="true" />
+            Back to locations
+          </Link>
 
-        <div className="notice-card error-message" role="alert">
-          <h1>Unable to load location</h1>
-          <p>{error}</p>
-        </div>
-      </main>
-    );
-  }
+          <header className="project-detail__error-header">
+            <p className="project-detail__eyebrow">Location workspace</p>
 
-  if (!location) {
-    return (
-      <main className="page-shell">
-        <Link to={`/projects/${projectId}/locations`} className="back-link">
-          ← Back to locations
-        </Link>
+            <h1>Unable to open location</h1>
 
-        <div className="notice-card">
-          <h1>Location not found</h1>
-          <p>This location does not exist or may have been removed.</p>
-        </div>
+            <p>We could not retrieve the selected story location.</p>
+          </header>
+
+          <div className="project-detail__state">
+            <ErrorState message={error} onRetry={retry} />
+          </div>
+        </section>
       </main>
     );
   }
