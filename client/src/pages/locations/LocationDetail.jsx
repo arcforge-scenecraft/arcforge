@@ -15,7 +15,7 @@ function LocationDetail() {
 
   if (loading) {
     return (
-      <main className="project-detail-page">
+      <main className="detail-page">
         <section className="project-detail">
           <Link
             to={`/projects/${projectId}/locations`}
@@ -25,7 +25,7 @@ function LocationDetail() {
             Back to locations
           </Link>
 
-          <div className="project-detail__state">
+          <div className="detail__state">
             <Loader text="Loading location details..." />
           </div>
         </section>
@@ -39,25 +39,25 @@ function LocationDetail() {
 
   if (error) {
     return (
-      <main className="project-detail-page">
+      <main className="detail-page">
         <section className="project-detail">
           <Link
             to={`/projects/${projectId}/locations`}
-            className="project-detail__back-link"
+            className="detail__back-link"
           >
             <ArrowLeftIcon aria-hidden="true" />
             Back to locations
           </Link>
 
-          <header className="project-detail__error-header">
-            <p className="project-detail__eyebrow">Location workspace</p>
+          <header className="detail__error-header">
+            <p className="detail__eyebrow">Location workspace</p>
 
             <h1>Unable to open location</h1>
 
             <p>We could not retrieve the selected story location.</p>
           </header>
 
-          <div className="project-detail__state">
+          <div className="detail__state">
             <ErrorState message={error} onRetry={retry} />
           </div>
         </section>
