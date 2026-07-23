@@ -1,14 +1,14 @@
-.project-detail-page {
+.detail-page {
   min-height: 100%;
   padding: clamp(1.25rem, 4vw, 3rem);
 }
 
-.project-detail {
+.detail {
   width: min(1120px, 100%);
   margin: 0 auto;
 }
 
-.project-detail__back-link {
+.detail__back-link {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -21,24 +21,24 @@
     transform 0.2s ease;
 }
 
-.project-detail__back-link svg {
+.detail__back-link svg {
   width: 1.1rem;
   height: 1.1rem;
 }
 
-.project-detail__back-link:hover {
+.detail__back-link:hover {
   color: var(--primary-color, #6200ee);
   transform: translateX(-2px);
 }
 
-.project-detail__back-link:focus-visible {
+.detail__back-link:focus-visible {
   border-radius: 0.25rem;
   outline: 3px solid
     color-mix(in srgb, var(--primary-color, #6200ee) 30%, transparent);
   outline-offset: 4px;
 }
 
-.project-detail__hero {
+.detail__hero {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -54,12 +54,12 @@
   box-shadow: 0 18px 45px rgb(16 24 40 / 8%);
 }
 
-.project-detail__hero-content {
+.detail__hero-content {
   min-width: 0;
   max-width: 720px;
 }
 
-.project-detail__heading-row {
+.detail__heading-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -67,7 +67,7 @@
   flex-wrap: wrap;
 }
 
-.project-detail__eyebrow {
+.detail__eyebrow {
   margin: 0;
   color: var(--primary-color, #6200ee);
   font-size: 0.78rem;
@@ -76,7 +76,7 @@
   text-transform: uppercase;
 }
 
-.project-detail__status {
+.detail__status {
   display: inline-flex;
   align-items: center;
   min-height: 1.75rem;
@@ -90,7 +90,7 @@
   font-weight: 700;
 }
 
-.project-detail__hero h1 {
+.detail__hero h1 {
   margin: 0;
   color: var(--heading-color, #101828);
   font-size: clamp(2rem, 5vw, 3.5rem);
@@ -98,7 +98,7 @@
   overflow-wrap: anywhere;
 }
 
-.project-detail__description {
+.detail__description {
   max-width: 65ch;
   margin: 1rem 0 0;
   color: var(--muted-color, #667085);
@@ -107,7 +107,7 @@
   overflow-wrap: anywhere;
 }
 
-.project-detail__actions {
+.detail__actions {
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
@@ -116,7 +116,7 @@
   flex-wrap: wrap;
 }
 
-.project-detail__edit-link {
+.detail__edit-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -134,30 +134,30 @@
     transform 0.2s ease;
 }
 
-.project-detail__edit-link svg {
+.detail__edit-link svg {
   width: 1.1rem;
   height: 1.1rem;
 }
 
-.project-detail__edit-link:hover {
+.detail__edit-link:hover {
   opacity: 0.9;
   transform: translateY(-1px);
 }
 
-.project-detail__edit-link:focus-visible {
+.detail__edit-link:focus-visible {
   outline: 3px solid
     color-mix(in srgb, var(--primary-color, #6200ee) 30%, transparent);
   outline-offset: 3px;
 }
 
-.project-detail__metadata {
+.detail__metadata {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   margin-top: 1.25rem;
 }
 
-.project-detail__metadata-card {
+.detail__metadata-card {
   display: flex;
   align-items: flex-start;
   gap: 0.8rem;
@@ -168,7 +168,7 @@
   background: var(--surface-color, #ffffff);
 }
 
-.project-detail__metadata-icon {
+.detail__metadata-icon {
   display: grid;
   width: 2.5rem;
   height: 2.5rem;
@@ -179,12 +179,12 @@
   color: var(--primary-color, #6200ee);
 }
 
-.project-detail__metadata-icon svg {
+.detail__metadata-icon svg {
   width: 1.25rem;
   height: 1.25rem;
 }
 
-.project-detail__metadata-label {
+.detail__metadata-label {
   display: block;
   margin-bottom: 0.25rem;
   color: var(--muted-color, #667085);
@@ -194,19 +194,19 @@
   text-transform: uppercase;
 }
 
-.project-detail__metadata-value {
+.detail__metadata-value {
   color: var(--heading-color, #101828);
   font-size: 0.95rem;
   overflow-wrap: anywhere;
 }
 
-.project-detail__genres {
+.detail__genres {
   display: flex;
   gap: 0.4rem;
   flex-wrap: wrap;
 }
 
-.project-detail__genre {
+.detail__genre {
   display: inline-flex;
   padding: 0.25rem 0.55rem;
   border-radius: 999px;
@@ -216,7 +216,7 @@
   font-weight: 600;
 }
 
-.project-detail__overview {
+.detail__overview {
   display: grid;
   grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr);
   gap: clamp(1.5rem, 4vw, 3rem);
@@ -227,23 +227,23 @@
   background: var(--surface-color, #ffffff);
 }
 
-.project-detail__section-heading h2 {
+.detail__section-heading h2 {
   margin: 0.5rem 0 0;
   color: var(--heading-color, #101828);
   font-size: clamp(1.4rem, 3vw, 1.9rem);
 }
 
-.project-detail__section-heading > p:last-child {
+.detail__section-heading > p:last-child {
   margin: 0.8rem 0 0;
   color: var(--muted-color, #667085);
   line-height: 1.65;
 }
 
-.project-detail__information-list {
+.detail__information-list {
   margin: 0;
 }
 
-.project-detail__information-row {
+.detail__information-row {
   display: grid;
   grid-template-columns: minmax(110px, 0.35fr) minmax(0, 1fr);
   gap: 1rem;
@@ -251,21 +251,21 @@
   border-bottom: 1px solid var(--border-color, #e4e7ec);
 }
 
-.project-detail__information-row:first-child {
+.detail__information-row:first-child {
   padding-top: 0;
 }
 
-.project-detail__information-row:last-child {
+.detail__information-row:last-child {
   padding-bottom: 0;
   border-bottom: 0;
 }
 
-.project-detail__information-row dt {
+.detail__information-row dt {
   color: var(--muted-color, #667085);
   font-weight: 600;
 }
 
-.project-detail__information-row dd {
+.detail__information-row dd {
   min-width: 0;
   margin: 0;
   color: var(--heading-color, #101828);
@@ -273,7 +273,7 @@
   overflow-wrap: anywhere;
 }
 
-.project-detail__state {
+.detail__state {
   margin-top: 1rem;
   padding: clamp(1.5rem, 4vw, 3rem);
   border: 1px solid var(--border-color, #e4e7ec);
@@ -281,74 +281,74 @@
   background: var(--surface-color, #ffffff);
 }
 
-.project-detail__error-header {
+.detail__error-header {
   max-width: 680px;
   margin-bottom: 1.25rem;
 }
 
-.project-detail__error-header h1 {
+.detail__error-header h1 {
   margin: 0.5rem 0;
   color: var(--heading-color, #101828);
 }
 
-.project-detail__error-header > p:last-child {
+.detail__error-header > p:last-child {
   margin: 0;
   color: var(--muted-color, #667085);
 }
 
 /* The reusable delete component sits cleanly inside the hero. */
-.project-detail__actions .project-delete {
+.detail__actions .delete {
   align-items: flex-end;
 }
 
-.project-detail__actions .project-delete__error {
+.detail__actions .delete__error {
   max-width: 240px;
 }
 
 @media (max-width: 820px) {
-  .project-detail__hero {
+  .detail__hero {
     flex-direction: column;
   }
 
-  .project-detail__actions {
+  .detail__actions {
     width: 100%;
     justify-content: flex-start;
   }
 
-  .project-detail__metadata {
+  .detail__metadata {
     grid-template-columns: 1fr;
   }
 
-  .project-detail__overview {
+  .detail__overview {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 520px) {
-  .project-detail-page {
+  .detail-page {
     padding: 1rem;
   }
 
-  .project-detail__hero {
+  .detail__hero {
     padding: 1.25rem;
   }
 
-  .project-detail__actions {
+  .detail__actions {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .project-detail__edit-link,
-  .project-detail__actions .project-delete__button {
+  .detail__edit-link,
+  .detail__actions .delete__button {
     width: 100%;
   }
 
-  .project-detail__actions .project-delete {
+  .detail__actions .delete {
     align-items: stretch;
     width: 100%;
   }
 
-  .project-detail__information-row {
+  .detail__information-row {
     grid-template-columns: 1fr;
     gap: 0.35rem;
   }

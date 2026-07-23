@@ -144,14 +144,14 @@ const ProjectForm = ({
   };
 
   return (
-    <form className="project-form" onSubmit={handleSubmit} noValidate>
+    <form className="form" onSubmit={handleSubmit} noValidate>
       {apiError && (
         <div className="form-api-error" role="alert" aria-live="polite">
           {apiError}
         </div>
       )}
 
-      <fieldset className="project-form-fields" disabled={isSubmitting}>
+      <fieldset className="form-fields" disabled={isSubmitting}>
         <div className="form-field">
           <label htmlFor="title">
             Project title <span aria-hidden="true">*</span>

@@ -37,22 +37,22 @@ const ProjectDeleteButton = ({ projectTitle, onDelete }) => {
   };
 
   return (
-    <div className="project-delete">
+    <div className="delete">
       <button
         type="button"
-        className="project-delete__button"
+        className="delete__button"
         onClick={handleDelete}
         disabled={isDeleting}
         aria-busy={isDeleting}
         aria-label={`Delete ${projectTitle}`}
       >
-        <TrashIcon className="project-delete__icon" aria-hidden="true" />
+        <TrashIcon className="delete__icon" aria-hidden="true" />
 
         <span>{isDeleting ? "Deleting..." : "Delete"}</span>
       </button>
 
       {deleteError && (
-        <p className="project-delete__error" role="alert">
+        <p className="delete__error" role="alert">
           {deleteError}
         </p>
       )}
