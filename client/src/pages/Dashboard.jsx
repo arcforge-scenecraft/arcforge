@@ -37,10 +37,6 @@ const Dashboard = () => {
     loadProjects();
   }, [loadProjects]);
 
-  /*
-   * Displays a success message when the user deletes a project
-   * from the project detail page and returns to the dashboard.
-   */
   useEffect(() => {
     const message = location.state?.message;
 
@@ -50,8 +46,6 @@ const Dashboard = () => {
 
     setDeleteMessage(message);
 
-    // Remove the message from browser history so it does not
-    // appear again after refreshing or navigating back.
     navigate(location.pathname, {
       replace: true,
       state: null,
@@ -59,11 +53,6 @@ const Dashboard = () => {
   }, [location.pathname, location.state, navigate]);
 
   const handleDeleteProject = useCallback(async (projectId, projectTitle) => {
-    /*
-     * Do not catch the error here.
-     * ProjectDeleteButton catches it and displays it beside
-     * the correct project.
-     */
     await deleteProject(projectId);
 
     setProjects((currentProjects) =>
@@ -77,10 +66,7 @@ const Dashboard = () => {
 
   return (
     <main className="dashboard">
-      <section
-        className="dashboard__section"
-        aria-labelledby="projects-heading"
-      >
+      <section className="dashboard__section" aria-labelledby="projects-heading">
         <header className="dashboard__header">
           <div className="dashboard__header-content">
             <p className="dashboard__eyebrow">Your workspace</p>
