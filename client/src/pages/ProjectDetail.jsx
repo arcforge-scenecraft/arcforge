@@ -1,7 +1,7 @@
 // src/pages/ProjectDetail.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api } from "../api/apiClient"; // 1. Import the centralized client
+import { getProjectById } from "../services/projectApi";
 
 function ProjectDetail() {
   const { projectId } = useParams();
@@ -19,10 +19,8 @@ function ProjectDetail() {
         setLoading(true);
         setError(null);
         
-        // 2. Use the apiClient! Pass the signal for cleanup
-        const projectData = await api.get(`/projects/${projectId}`, { signal });
-        
-        // 3. Set the data directly (apiClient already unwrapped json.data)
+        const projectData = await getProjectById(projectId, { signal });
+
         setProject(projectData);
 
       } catch (err) {
