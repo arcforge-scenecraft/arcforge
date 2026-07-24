@@ -45,8 +45,8 @@ function LocationLibrary() {
   }, [projectId]);
 
   return (
-    <main className="page-shell">
-      <Link to={`/projects/${projectId}`} className="back-link">
+    <main className="detail-page">
+      <Link to={`/projects/${projectId}`} className="detail__back-link">
         ← Back to project
       </Link>
 

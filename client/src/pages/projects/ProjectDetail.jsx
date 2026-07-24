@@ -7,9 +7,11 @@ import {
   TagIcon,
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate, useParams } from "react-router-dom";
+
 import ProjectDeleteButton from "../../components/projects/ProjectDeleteButton";
 import { ErrorState, Loader } from "../../components/ui";
 import { deleteProject, getProjectById } from "../../services/projectApi";
+import { getLocations } from "../../services/locationApi";
 
 const formatLabel = (value, fallback) => {
   if (!value) {
@@ -44,6 +46,7 @@ const ProjectDetail = () => {
   const navigate = useNavigate();
 
   const [project, setProject] = useState(null);
+  const [locations, setLocations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
@@ -56,15 +59,19 @@ const ProjectDetail = () => {
         setIsLoading(true);
         setError("");
 
-        const projectData = await getProjectById(projectId, {
-          signal: controller.signal,
-        });
+        const [projectData, locationData] = await Promise.all([
+          getProjectById(projectId, {
+            signal: controller.signal,
+          }),
+          getLocations(projectId),
+        ]);
 
         if (!projectData) {
           throw new Error("Project not found.");
         }
 
         setProject(projectData);
+        setLocations(locationData || []);
       } catch (loadError) {
         if (loadError.name === "AbortError") {
           return;
@@ -73,6 +80,8 @@ const ProjectDetail = () => {
         console.error("Failed to load project:", loadError);
 
         setProject(null);
+        setLocations([]);
+
         setError(
           loadError instanceof Error
             ? loadError.message
@@ -156,6 +165,10 @@ const ProjectDetail = () => {
   const status = formatLabel(project.status, "Planning");
   const createdDate = formatDate(project.created_at);
   const updatedDate = formatDate(project.updated_at);
+
+  const latestLocations = [...locations]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 2);
 
   return (
     <main className="detail-page">
@@ -247,6 +260,7 @@ const ProjectDetail = () => {
           </article>
         </section>
 
+        {/* Project Overview */}
         <section className="detail__overview">
           <div className="detail__section-heading">
             <p className="detail__eyebrow">Project overview</p>
@@ -285,6 +299,56 @@ const ProjectDetail = () => {
               </dd>
             </div>
           </dl>
+        </section>
+
+        {/* Latest Locations */}
+        <section className="detail__overview">
+          <div className="detail__section-heading">
+            <p className="detail__eyebrow">Locations</p>
+
+            <h2>Latest locations</h2>
+
+            <p>Explore the latest locations created for this story project.</p>
+          </div>
+
+          {latestLocations.length > 0 ? (
+            <div className="detail__location-grid">
+              {latestLocations.map((location) => (
+                <article key={location.id} className="detail__location-card">
+                  <h3>{location.name}</h3>
+
+                  <p>
+                    {location.description ||
+                      "No description has been added yet."}
+                  </p>
+
+                  {location.atmosphere && (
+                    <p className="detail__location-atmosphere">
+                      <strong>Atmosphere:</strong> {location.atmosphere}
+                    </p>
+                  )}
+
+                  <Link
+                    to={`/projects/${projectId}/locations/${location.id}`}
+                    className="detail__location-link"
+                  >
+                    View location
+                  </Link>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="detail__empty">No locations have been added yet.</p>
+          )}
+
+          <div className="detail__section-actions">
+            <Link
+              to={`/projects/${projectId}/locations`}
+              className="detail__view-all-link"
+            >
+              View all locations
+            </Link>
+          </div>
         </section>
       </article>
     </main>

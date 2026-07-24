@@ -16,13 +16,10 @@ function LocationDetail() {
   if (loading) {
     return (
       <main className="detail-page">
-        <section className="project-detail">
-          <Link
-            to={`/projects/${projectId}/locations`}
-            className="project-detail__back-link"
-          >
+        <section className="detail">
+          <Link to="/dashboard" className="detail__back-link">
             <ArrowLeftIcon aria-hidden="true" />
-            Back to locations
+            Back to dashboard
           </Link>
 
           <div className="detail__state">
@@ -40,7 +37,7 @@ function LocationDetail() {
   if (error) {
     return (
       <main className="detail-page">
-        <section className="project-detail">
+        <section className="detail">
           <Link
             to={`/projects/${projectId}/locations`}
             className="detail__back-link"
