@@ -6,6 +6,7 @@ import projectsRouter from "./routes/projects.js";
 import locationsRouter from "./routes/locations.js";
 import scenesRouter from "./routes/scenes.js";
 import charactersRouter from "./routes/characters.js";
+import sceneCharacterRouter from "./routes/scene-character.js"
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -20,6 +21,8 @@ app.use("/api/projects", projectsRouter);
 app.use("/api/projects/:projectId/locations", locationsRouter);
 app.use("/api/projects/:projectId/scenes", scenesRouter);
 app.use("/api/projects/:projectId/characters", charactersRouter);
+app.use("/api/projects/:projectId/scenes/:sceneId/scene-characters", sceneCharacterRouter)
+
 
 app.get("/", (req, res) => {
   res
