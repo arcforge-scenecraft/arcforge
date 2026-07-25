@@ -1,3 +1,5 @@
+/*useLocation.js is responsible for fetching one specific location using both projectId and locationId. It is used by the Location Detail page.*/
+
 import { useEffect, useState } from "react";
 
 import { getLocation } from "../../services/locationApi";

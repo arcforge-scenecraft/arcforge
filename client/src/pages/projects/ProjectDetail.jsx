@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   ArrowLeftIcon,
   CalendarDaysIcon,
@@ -8,10 +7,13 @@ import {
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import LatestLocations from "../../components/locations/LatestLocations";
 import ProjectDeleteButton from "../../components/projects/ProjectDeleteButton";
+import ProjectOverview from "../../components/projects/ProjectOverview";
 import { ErrorState, Loader } from "../../components/ui";
-import { deleteProject, getProjectById } from "../../services/projectApi";
-import { getLocations } from "../../services/locationApi";
+import useProject from "../../hooks/projects/useProject";
+import useLocations from "../../hooks/locations/useLocations";
+import { deleteProject } from "../../services/projectApi";
 
 const formatLabel = (value, fallback) => {
   if (!value) {
@@ -45,64 +47,26 @@ const ProjectDetail = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
 
-  const [project, setProject] = useState(null);
-  const [locations, setLocations] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [retryCount, setRetryCount] = useState(0);
+  const {
+    project,
+    loading: projectLoading,
+    error: projectError,
+    retry: retryProject,
+  } = useProject(projectId);
 
-  useEffect(() => {
-    const controller = new AbortController();
+  const {
+    locations,
+    loading: locationsLoading,
+    error: locationsError,
+    retry: retryLocations,
+  } = useLocations(projectId);
 
-    const loadProject = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
+  const loading = projectLoading || locationsLoading;
+  const error = projectError || locationsError;
 
-        const [projectData, locationData] = await Promise.all([
-          getProjectById(projectId, {
-            signal: controller.signal,
-          }),
-          getLocations(projectId),
-        ]);
-
-        if (!projectData) {
-          throw new Error("Project not found.");
-        }
-
-        setProject(projectData);
-        setLocations(locationData || []);
-      } catch (loadError) {
-        if (loadError.name === "AbortError") {
-          return;
-        }
-
-        console.error("Failed to load project:", loadError);
-
-        setProject(null);
-        setLocations([]);
-
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : "Unable to load this project.",
-        );
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadProject();
-
-    return () => {
-      controller.abort();
-    };
-  }, [projectId, retryCount]);
-
-  const handleRetry = () => {
-    setRetryCount((currentCount) => currentCount + 1);
+  const retry = () => {
+    retryProject();
+    retryLocations();
   };
 
   const handleDeleteProject = async () => {
@@ -116,7 +80,7 @@ const ProjectDetail = () => {
     });
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <main className="detail-page">
         <section className="detail">
@@ -149,7 +113,7 @@ const ProjectDetail = () => {
           </header>
 
           <div className="detail__state">
-            <ErrorState message={error} onRetry={handleRetry} />
+            <ErrorState message={error} onRetry={retry} />
           </div>
         </section>
       </main>
@@ -165,10 +129,6 @@ const ProjectDetail = () => {
   const status = formatLabel(project.status, "Planning");
   const createdDate = formatDate(project.created_at);
   const updatedDate = formatDate(project.updated_at);
-
-  const latestLocations = [...locations]
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    .slice(0, 2);
 
   return (
     <main className="detail-page">
@@ -261,95 +221,10 @@ const ProjectDetail = () => {
         </section>
 
         {/* Project Overview */}
-        <section className="detail__overview">
-          <div className="detail__section-heading">
-            <p className="detail__eyebrow">Project overview</p>
-
-            <h2>About this story</h2>
-
-            <p>
-              Review the project’s core information before developing its
-              scenes, characters, locations, and story details.
-            </p>
-          </div>
-
-          <dl className="detail__information-list">
-            <div className="detail__information-row">
-              <dt>Project title</dt>
-              <dd>{project.title}</dd>
-            </div>
-
-            <div className="detail__information-row">
-              <dt>Status</dt>
-              <dd>{status}</dd>
-            </div>
-
-            <div className="detail__information-row">
-              <dt>Genre</dt>
-              <dd>
-                {genres.length > 0 ? genres.join(", ") : "Genre undecided"}
-              </dd>
-            </div>
-
-            <div className="detail__information-row">
-              <dt>Description</dt>
-              <dd>
-                {project.description ||
-                  "No project description has been added yet."}
-              </dd>
-            </div>
-          </dl>
-        </section>
+        <ProjectOverview project={project} status={status} genres={genres} />
 
         {/* Latest Locations */}
-        <section className="detail__overview">
-          <div className="detail__section-heading">
-            <p className="detail__eyebrow">Locations</p>
-
-            <h2>Latest locations</h2>
-
-            <p>Explore the latest locations created for this story project.</p>
-          </div>
-
-          {latestLocations.length > 0 ? (
-            <div className="detail__location-grid">
-              {latestLocations.map((location) => (
-                <article key={location.id} className="detail__location-card">
-                  <h3>{location.name}</h3>
-
-                  <p>
-                    {location.description ||
-                      "No description has been added yet."}
-                  </p>
-
-                  {location.atmosphere && (
-                    <p className="detail__location-atmosphere">
-                      <strong>Atmosphere:</strong> {location.atmosphere}
-                    </p>
-                  )}
-
-                  <Link
-                    to={`/projects/${projectId}/locations/${location.id}`}
-                    className="detail__location-link"
-                  >
-                    View location
-                  </Link>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className="detail__empty">No locations have been added yet.</p>
-          )}
-
-          <div className="detail__section-actions">
-            <Link
-              to={`/projects/${projectId}/locations`}
-              className="detail__view-all-link"
-            >
-              View all locations
-            </Link>
-          </div>
-        </section>
+        <LatestLocations projectId={projectId} locations={locations} />
       </article>
     </main>
   );
