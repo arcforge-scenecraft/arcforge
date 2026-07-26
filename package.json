@@ -2,10 +2,10 @@
   "name": "arcforge",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"cd client && vite\" \"cd server && nodemon server\"",
-    "start": "cd server && node server.js",
+    "dev": "concurrently \"cd client && vite\" \"cd server && nodemon server.js\"",
+    "start": "node server/server.js",
     "build": "cd client && vite build",
-    "reset": "cd server && node config/reset.js",
+    "reset": "node server/config/reset.js",
     "lint": "eslint ."
   },
   "dependencies": {
