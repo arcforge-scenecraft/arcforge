@@ -1,8 +1,16 @@
 import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const currentPath = fileURLToPath(import.meta.url);
-const currentDir = path.dirname(currentPath);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.join(currentDir, "../.env") });
+const rootEnvPath = path.resolve(__dirname, "../../.env");
+
+const result = dotenv.config({
+  path: rootEnvPath,
+});
+
+if (result.error && process.env.NODE_ENV !== "production") {
+  throw new Error(`Unable to load the root .env file: ${result.error.message}`);
+}
