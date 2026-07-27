@@ -5,6 +5,100 @@ import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { ErrorState, Loader } from "../../components/ui";
 
 const EditScene = () => {
-}
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+
+  const [project, setProject] = useState(null);
+  const [characters, setCharacters] = useState(null); // currently no characters api routes
+  const [locations, setLocations] = useState(null);
+  const [scene, setScene] = useState(null);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [apiError, setApiError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const loadInfo = async () => {
+    try {
+      setIsLoading(true);
+      setLoadError("");
+
+      const projectData = await getProjectById(projectId);
+      setProject(projectData);
+      const locationData = await getLocations(projectId);
+      setLocations(locationData);
+      // add real character data from api when available
+      const characterData = ["Character 1", "Character 2"]; 
+      setCharacters(characterData)
+    } catch (error) {
+      setLoadError(error.message || "Unable to load the project.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadInfo();
+  }, [projectId]);
+
+  const handleUpdateProject = async (projectData) => {
+    if (isSubmitting) {
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setApiError("");
+
+      const updatedProject = await updateProject(projectId, projectData);
+
+      console.log("Updated project:", updatedProject);
+
+      if (!updatedProject?.id) {
+        throw new Error(
+          "The project was updated, but the API did not return its ID.",
+        );
+      }
+
+      navigate(`/projects/${updatedProject.id}`, {
+        replace: true,
+        state: {
+          message: "Project updated successfully.",
+        },
+      });
+    } catch (error) {
+      setApiError(error.message || "Unable to update the project.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading) {
+    return <Loader text="Loading project..." />;
+  }
+
+  if (loadError) {
+    return <ErrorState message={loadError} onRetry={loadProject} />;
+  }
+
+  return (
+    <main className="page-container">
+      <ProjectFormHeader
+        eyebrow="Project settings"
+        title={`Edit ${project.title}`}
+        description="Update the basic information for this story project."
+      />
+
+      <SceneForm
+        initialValues={project}
+        onSubmit={handleUpdateProject}
+        onCancel={() => navigate(`/projects/${projectId}`)}
+        submitLabel="Save Changes"
+        isSubmitting={isSubmitting}
+        apiError={apiError}
+      />
+    </main>
+  );
+};
 
 export default EditScene;

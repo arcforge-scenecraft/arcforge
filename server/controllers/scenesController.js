@@ -22,9 +22,14 @@ const sceneSelect = `
       ELSE json_build_object(
         'id', l.id,
         'project_id', l.project_id,
-        'name', l.name,
-        'description', l.description,
-        'atmosphere', l.atmosphere,
+        'title', l.title,
+        'summary', l.summary,
+        'sceneOrder', l.sceneOrder,
+        'timelineOrder', l.timelineOrder,
+        'notes', l.notes,
+        'location', l.location,
+        'characters', l.characters,
+        'status', l.status,
         'created_at', l.created_at,
         'updated_at', l.updated_at
       )

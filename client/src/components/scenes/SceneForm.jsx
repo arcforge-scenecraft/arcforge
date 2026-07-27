@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
+import { getCharacters } from "../services/CharactersAPI";
+import { getLocations } from "../services/LocationsAPI";
 
 const EMPTY_SCENE = {
-  title: "",
-  summary: "",
-  sceneOrder: 0,
-  timelineOrder: 0,
-  notes: "",
-  location: "",
-  characters: [],
-  status: "Planning",
+    project_id: "",
+    title: "",
+    summary: "",
+    sceneOrder: 0,
+    timelineOrder: 0,
+    notes: "",
+    location: "",
+    characters: [],
+    status: "Planning",
 };
 
 const normalizeSceneValues = (values = {}) => ({
@@ -25,19 +28,42 @@ const SceneForm = ({
   initialValues = EMPTY_SCENE,
   onSubmit,
   onCancel,
-  submitLabel = "Save Project",
+  submitLabel = "Save Scene",
   isSubmitting = false,
   apiError = "",
 }) => {
   const [formData, setFormData] = useState(() =>
-    normalizeProjectValues(initialValues),
+    normalizeSceneValues(initialValues),
   );
 
   const [validationErrors, setValidationErrors] = useState({});
+  const [characterOptions, setCharacterOptions] = useState([]);
+  const [locationOptions, setLocationOptions] = useState([]);
+
 
   useEffect(() => {
-    setFormData(normalizeProjectValues(initialValues));
+    setFormData(normalizeSceneValues(initialValues));
   }, [initialValues]);
+
+  useEffect(() => {
+  const fetchOptions = async () => {
+    try {
+        const [characters, locations] = await Promise.all([
+            getCharacters(),
+            getLocations(),
+        ]);
+
+        setCharacterOptions(...characters, "Undecided");
+        setLocationOptions(...locations, "Undecided");
+    } catch (err) {
+        setCharacterOptions(["Undecided"]);
+        setLocationOptions(["Uncdecided"]);
+        console.error("Error loading form options:", err);
+    }
+  };
+
+  fetchOptions();
+}, []);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -55,44 +81,44 @@ const SceneForm = ({
     }
   };
 
-  const handleGenreChange = (selectedGenre) => {
+  const handleGenreChange = (selectedCharacter) => {
     setFormData((currentData) => {
-      const currentGenres = Array.isArray(currentData.genre)
-        ? currentData.genre
+      const currentCharacters = Array.isArray(currentData.characters)
+        ? currentData.characters
         : [];
 
       /*
        * Undecided is exclusive:
-       * - Selecting it removes all specific genres.
-       * - Selecting a specific genre removes Undecided.
+       * - Selecting it removes all specific characters.
+       * - Selecting a specific character removes Undecided.
        */
-      if (selectedGenre === "Undecided") {
+      if (selectedCharacter === "Undecided") {
         return {
           ...currentData,
-          genre: currentGenres.includes("Undecided") ? [] : ["Undecided"],
+          genre: currentCharacters.includes("Undecided") ? [] : ["Undecided"],
         };
       }
 
-      const genresWithoutUndecided = currentGenres.filter(
-        (genre) => genre !== "Undecided",
+      const charactersWithoutUndecided = currentCharacters.filter(
+        (character) => character !== "Undecided",
       );
 
-      const isAlreadySelected = genresWithoutUndecided.includes(selectedGenre);
+      const isAlreadySelected = charactersWithoutUndecided.includes(selectedCharacter);
 
-      const updatedGenres = isAlreadySelected
-        ? genresWithoutUndecided.filter((genre) => genre !== selectedGenre)
-        : [...genresWithoutUndecided, selectedGenre];
+      const updatedCharacters = isAlreadySelected
+        ? charactersWithoutUndecided.filter((genre) => genre !== selectedCharacter)
+        : [...charactersWithoutUndecided, selectedCharacter];
 
       return {
         ...currentData,
-        genre: updatedGenres,
+        genre: updatedCharacters,
       };
     });
 
-    if (validationErrors.genre) {
+    if (validationErrors.characters) {
       setValidationErrors((currentErrors) => ({
         ...currentErrors,
-        genre: "",
+        characters: "",
       }));
     }
   };
@@ -102,13 +128,13 @@ const SceneForm = ({
     const trimmedTitle = formData.title.trim();
 
     if (!trimmedTitle) {
-      errors.title = "Project title is required.";
+      errors.title = "Scene title is required.";
     } else if (trimmedTitle.length > 255) {
-      errors.title = "Project title must be 255 characters or fewer.";
+      errors.title = "Scene title must be 255 characters or fewer.";
     }
 
-    if (!Array.isArray(formData.genre)) {
-      errors.genre = "Genres must be provided as a list.";
+    if (!Array.isArray(formData.characters)) {
+      errors.characters = "Characters must be provided as a list.";
     }
 
     setValidationErrors(errors);
@@ -124,10 +150,14 @@ const SceneForm = ({
     }
 
     onSubmit({
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      genre: formData.genre,
-      status: formData.status,
+        title: formData.title.trim(),
+        summary: formData.summary.trim(),
+        sceneOrder: parseInt(formData.sceneOrder.trim(), 10),
+        timelineOrder: parseInt(formData.timelineOrder.trim(), 10),
+        notes: formData.notes.trim(),
+        location: formData.location,
+        characters: formData.characters,
+        status: formData.status
     });
   };
 
@@ -142,7 +172,7 @@ const SceneForm = ({
       <fieldset className="project-form-fields" disabled={isSubmitting}>
         <div className="form-field">
           <label htmlFor="title">
-            Project title <span aria-hidden="true">*</span>
+            Scene title <span aria-hidden="true">*</span>
           </label>
 
           <input
@@ -152,7 +182,7 @@ const SceneForm = ({
             value={formData.title}
             onChange={handleChange}
             maxLength={255}
-            placeholder="Enter your story project title"
+            placeholder="Enter your scene title"
             aria-invalid={Boolean(validationErrors.title)}
             aria-describedby={
               validationErrors.title ? "title-error" : undefined
@@ -167,15 +197,54 @@ const SceneForm = ({
         </div>
 
         <div className="form-field">
-          <label htmlFor="description">Description</label>
+          <label htmlFor="summary">Summary</label>
 
           <textarea
-            id="description"
-            name="description"
+            id="summary"
+            name="summary"
             rows="6"
-            value={formData.description}
+            value={formData.summary}
             onChange={handleChange}
-            placeholder="Describe the story, setting, characters, or main idea."
+            placeholder="Describe the main event(s) of the scene."
+          />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="sceneOrder">Scene Order</label>
+
+          <textarea
+            id="sceneOrder"
+            name="sceneOrder"
+            rows="1"
+            value={formData.sceneOrder}
+            onChange={handleChange}
+            placeholder="0"
+          />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="timelineOrder">Timeline Order</label>
+
+          <textarea
+            id="timelineOrder"
+            name="timelineOrder"
+            rows="1"
+            value={formData.timelineOrder}
+            onChange={handleChange}
+            placeholder="0"
+          />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="notes">Notes</label>
+
+          <textarea
+            id="notes"
+            name="notes"
+            rows="3"
+            value={formData.notes}
+            onChange={handleChange}
+            placeholder="Add any relevant notes about the scene."
           />
         </div>
 
@@ -183,30 +252,30 @@ const SceneForm = ({
           className="genre-field"
           aria-describedby="genre-help selected-genres"
         >
-          <legend>Genres</legend>
+          <legend>Characters</legend>
 
           <p id="genre-help" className="field-hint">
-            Select all genres that apply. Choose Undecided when you are not sure
+            Select all characters in the scene. Choose Undecided when you are not sure
             yet.
           </p>
 
           <div className="genre-options">
-            {GENRE_OPTIONS.map((genreOption) => {
-              const isSelected = formData.genre.includes(genreOption);
+            {characterOptions.map((character) => {
+              const isSelected = formData.characters.includes(character);
 
               return (
                 <label
-                  key={genreOption}
+                  key={characterOption}
                   className={`genre-option ${
                     isSelected ? "genre-option-selected" : ""
                   }`}
                 >
                   <input
                     type="checkbox"
-                    name="genre"
-                    value={genreOption}
+                    name="characters"
+                    value={character}
                     checked={isSelected}
-                    onChange={() => handleGenreChange(genreOption)}
+                    onChange={() => handleGenreChange(character)}
                   />
 
                   <span className="genre-option-content">
@@ -214,7 +283,7 @@ const SceneForm = ({
                       {isSelected ? "✓" : ""}
                     </span>
 
-                    {genreOption}
+                    {character}
                   </span>
                 </label>
               );
@@ -228,22 +297,22 @@ const SceneForm = ({
           >
             <span className="selected-genres-label">Selected:</span>
 
-            {formData.genre.length > 0 ? (
+            {formData.characters.length > 0 ? (
               <div className="selected-genre-list">
-                {formData.genre.map((genre) => (
-                  <span key={genre} className="selected-genre">
-                    {genre}
+                {formData.characters.map((character) => (
+                  <span key={character} className="selected-genre">
+                    {character}
                   </span>
                 ))}
               </div>
             ) : (
-              <span className="selected-genres-empty">No genres selected</span>
+              <span className="selected-genres-empty">No characters selected</span>
             )}
           </div>
 
-          {validationErrors.genre && (
+          {validationErrors.characters && (
             <small className="field-error" role="alert">
-              {validationErrors.genre}
+              {validationErrors.characters}
             </small>
           )}
         </fieldset>
