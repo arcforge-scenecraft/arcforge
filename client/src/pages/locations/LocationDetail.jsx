@@ -64,8 +64,12 @@ function LocationDetail() {
 
   return (
     <main className="page-shell">
-      <Link to={`/projects/${projectId}/locations`} className="back-link">
-        ← Back to locations
+      <Link
+        to={`/projects/${projectId}/locations`}
+        className="detail__back-link"
+      >
+        <ArrowLeftIcon aria-hidden="true" />
+        Back to locations
       </Link>
 
       <header className="page-header">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import LocationList from "../../components/locations/LocationList";
 import { getLocations } from "../../services/locationApi";
 
@@ -47,7 +47,8 @@ function LocationLibrary() {
   return (
     <main className="detail-page">
       <Link to={`/projects/${projectId}`} className="detail__back-link">
-        ← Back to project
+        <ArrowLeftIcon aria-hidden="true" />
+        Back to project
       </Link>
 
       <header className="page-header">
