@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 
-function LocationCard({ location, projectId }) {
+import LocationDeleteButton from "./LocationDeleteButton";
+
+function LocationCard({ location, projectId, onDelete }) {
   return (
     <article className="detail-panel">
       <h3>{location.name}</h3>
@@ -11,12 +13,19 @@ function LocationCard({ location, projectId }) {
         <strong>Atmosphere:</strong> {location.atmosphere || "Not specified"}
       </p>
 
-      <Link
-        to={`/projects/${projectId}/locations/${location.id}`}
-        className="button button--secondary"
-      >
-        View location
-      </Link>
+      <div className="page-actions">
+        <Link
+          to={`/projects/${projectId}/locations/${location.id}`}
+          className="button button--secondary"
+        >
+          View location
+        </Link>
+
+        <LocationDeleteButton
+          locationName={location.name}
+          onDelete={onDelete}
+        />
+      </div>
     </article>
   );
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import LocationList from "../../components/locations/LocationList";
-import { getLocations } from "../../services/locationApi";
+import { deleteLocation, getLocations } from "../../services/locationApi";
 
 function LocationLibrary() {
   const { projectId } = useParams();
@@ -44,6 +44,16 @@ function LocationLibrary() {
     };
   }, [projectId]);
 
+  const handleDeleteLocation = async (locationId) => {
+    await deleteLocation(projectId, locationId);
+
+    setLocations((currentLocations) =>
+      currentLocations.filter(
+        (location) => String(location.id) !== String(locationId),
+      ),
+    );
+  };
+
   return (
     <main className="detail-page">
       <Link to={`/projects/${projectId}`} className="detail__back-link">
@@ -60,6 +70,15 @@ function LocationLibrary() {
           Browse reusable locations that belong to this story project.
         </p>
       </header>
+
+      <div className="page-actions page-actions--header">
+        <Link
+          to={`/projects/${projectId}/locations/new`}
+          className="button button--primary"
+        >
+          Create location
+        </Link>
+      </div>
 
       {loading && (
         <div className="notice-card">
@@ -80,7 +99,11 @@ function LocationLibrary() {
       )}
 
       {!loading && !error && locations.length > 0 && (
-        <LocationList locations={locations} projectId={projectId} />
+        <LocationList
+          locations={locations}
+          projectId={projectId}
+          onDeleteLocation={handleDeleteLocation}
+        />
       )}
     </main>
   );

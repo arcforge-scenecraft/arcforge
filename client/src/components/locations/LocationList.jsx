@@ -1,6 +1,6 @@
 import LocationCard from "./LocationCard";
 
-function LocationList({ locations, projectId }) {
+function LocationList({ locations, projectId, onDeleteLocation }) {
   return (
     <div className="detail-grid">
       {locations.map((location) => (
@@ -8,6 +8,7 @@ function LocationList({ locations, projectId }) {
           key={location.id}
           location={location}
           projectId={projectId}
+          onDelete={() => onDeleteLocation(location.id)}
         />
       ))}
     </div>

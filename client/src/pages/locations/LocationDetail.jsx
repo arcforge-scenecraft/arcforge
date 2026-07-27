@@ -1,17 +1,27 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { Link, useParams } from "react-router-dom";
-
+import { Link, useNavigate, useParams } from "react-router-dom";
+import LocationDeleteButton from "../../components/locations/LocationDeleteButton";
+import { deleteLocation } from "../../services/locationApi";
 import { ErrorState, Loader } from "../../components/ui";
 import useLocation from "../../hooks/locations/useLocation";
 import NotFound from "../NotFound";
 
 function LocationDetail() {
   const { projectId, locationId } = useParams();
+  const navigate = useNavigate();
 
   const { location, loading, error, notFound, retry } = useLocation(
     projectId,
     locationId,
   );
+
+  const handleDeleteLocation = async () => {
+    await deleteLocation(projectId, locationId);
+
+    navigate(`/projects/${projectId}/locations`, {
+      replace: true,
+    });
+  };
 
   if (loading) {
     return (
@@ -94,6 +104,13 @@ function LocationDetail() {
 
       <div className="page-actions">
         <Link
+          to={`/projects/${projectId}/locations/${locationId}/edit`}
+          className="button button--primary"
+        >
+          Edit location
+        </Link>
+
+        <Link
           to={`/projects/${projectId}`}
           className="button button--secondary"
         >
@@ -106,6 +123,11 @@ function LocationDetail() {
         >
           View all locations
         </Link>
+
+        <LocationDeleteButton
+          locationName={location.name}
+          onDelete={handleDeleteLocation}
+        />
       </div>
     </main>
   );
