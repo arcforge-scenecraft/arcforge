@@ -3,18 +3,21 @@ const API_BASE_URL =
 
 export const apiRequest = async (endpoint, options = {}) => {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
     },
-    ...options,
   });
 
-  const responseBody = await response.json();
+  const contentType = response.headers.get("content-type");
+  const responseBody = contentType?.includes("application/json")
+    ? await response.json()
+    : null;
 
   if (!response.ok) {
-    throw new Error(responseBody.message || "API request failed.");
+    throw new Error(responseBody?.message || "API request failed.");
   }
 
-  return responseBody.data;
+  return responseBody?.data ?? null;
 };

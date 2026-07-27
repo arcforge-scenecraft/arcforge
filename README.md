@@ -1,10 +1,18 @@
 # ArcForge
 
+ArcForge is a full-stack story planning application for organizing projects, characters, scenes, locations, and character appearances.
+
 CodePath WEB103 Final Project
 
-Designed and developed by: Jingyi He, Bingying Li, Adeline Greene, Abdelrahman Mohamed, Allen Ramirez, and Salman Khan
+Designed and developed by Jingyi He, Bingying Li, Adeline Greene, Abdelrahman Mohamed, Allen Ramirez, and Salman Khan.
 
-🔗 Link to deployed app:
+## Live Application
+
+- [Launch ArcForge](https://arcforge-client.onrender.com)
+- [View the ArcForge API](https://arcforge-api.onrender.com)
+- [Check API Health](https://arcforge-api.onrender.com/api/health)
+
+> The free API service may take longer to respond after a period of inactivity.
 
 ## About
 
@@ -22,13 +30,22 @@ We wanted to build an app that feels both creative and practical: something that
 
 ## Tech Stack
 
-Frontend: React, React Router, JavaScript, HTML, CSS
+- **Frontend:** React, React Router, Vite, JavaScript, HTML, CSS
+- **Backend:** Node.js, Express.js, RESTful API
+- **Database:** PostgreSQL, `pg`
+- **Configuration:** dotenv
+- **Deployment:** Render and Neon
+- **Version Control:** Git and GitHub
 
-Backend: Node.js, Express.js, PostgreSQL, RESTful API, pg, dotenv
+## Deployment
 
-Deployment: Render
+ArcForge is deployed using:
 
-Version Control: Git and GitHub
+- **Render Static Site** for the React/Vite client
+- **Render Web Service** for the Express API
+- **Neon PostgreSQL** for persistent application data
+
+The client and API are automatically deployed from the project’s GitHub repository.
 
 ## Features
 
