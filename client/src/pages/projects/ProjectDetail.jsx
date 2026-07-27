@@ -147,6 +147,25 @@ const ProjectDetail = () => {
     );
   }
 
+  if (!project) {
+    return (
+      <main className="detail-page">
+        <section className="detail">
+          <Link to="/dashboard" className="detail__back-link">
+            <ArrowLeftIcon aria-hidden="true" />
+            Back to dashboard
+          </Link>
+
+          <header className="detail__error-header">
+            <p className="detail__eyebrow">Project workspace</p>
+            <h1>Project not found</h1>
+            <p>The selected project could not be located.</p>
+          </header>
+        </section>
+      </main>
+    );
+  }
+
   const genres = Array.isArray(project.genre)
     ? project.genre
     : project.genre
