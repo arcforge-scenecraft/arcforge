@@ -1,4 +1,4 @@
-.project-form-header {
+.form-header {
   position: relative;
   width: min(100%, 760px);
   margin: 0 auto 1.5rem;
@@ -22,7 +22,7 @@
     0 3px 9px rgba(43, 35, 72, 0.04);
 }
 
-.project-form-header::before {
+.form-header::before {
   position: absolute;
   top: 0;
   left: clamp(1.4rem, 4vw, 2rem);
@@ -33,7 +33,7 @@
   content: "";
 }
 
-.project-form-header::after {
+.form-header::after {
   position: absolute;
   right: -3.5rem;
   bottom: -4.5rem;
@@ -45,13 +45,13 @@
   content: "";
 }
 
-.project-form-header__content {
+.form-header__content {
   position: relative;
   z-index: 1;
   max-width: 620px;
 }
 
-.project-form-header__eyebrow {
+.form-header__eyebrow {
   margin: 0;
   color: var(--primary-color, #7055b8);
   font-size: 0.75rem;
@@ -61,7 +61,7 @@
   text-transform: uppercase;
 }
 
-.project-form-header__title {
+.form-header__title {
   margin: 0.45rem 0 0;
   color: var(--heading-color, #29243b);
   font-size: clamp(1.8rem, 5vw, 2.65rem);
@@ -71,7 +71,7 @@
   overflow-wrap: anywhere;
 }
 
-.project-form-header__description {
+.form-header__description {
   max-width: 580px;
   margin: 0.75rem 0 0;
   color: var(--muted-text-color, #716b80);
@@ -80,17 +80,17 @@
 }
 
 @media (max-width: 600px) {
-  .project-form-header {
+  .form-header {
     margin-bottom: 1rem;
     padding: 1.25rem;
     border-radius: 1rem;
   }
 
-  .project-form-header::before {
+  .form-header::before {
     left: 1.25rem;
   }
 
-  .project-form-header__title {
+  .form-header__title {
     font-size: 1.8rem;
   }
 }

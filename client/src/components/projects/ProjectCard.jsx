@@ -9,45 +9,42 @@ const ProjectCard = ({ project, onDelete }) => {
       : [];
 
   return (
-    <article className="project-card">
-      <div className="project-card-header">
-        <span className="project-status">{project.status || "Planning"}</span>
+    <article className="card">
+      <div className="card-header">
+        <span className="status">{project.status || "Planning"}</span>
       </div>
 
-      <div className="project-card-content">
-        <h2 className="project-card-title">
+      <div className="card-content">
+        <h2 className="card-title">
           <Link to={`/projects/${project.id}`}>{project.title}</Link>
         </h2>
 
-        <p className="project-card-description">
+        <p className="card-description">
           {project.description || "No description added yet."}
         </p>
 
-        <div className="project-card-genres">
+        <div className="card-genres">
           {genres.length > 0 ? (
             genres.map((genre) => (
-              <span key={genre} className="project-card-genre">
+              <span key={genre} className="card-genre">
                 {genre}
               </span>
             ))
           ) : (
-            <span className="project-card-genre project-card-genre-empty">
+            <span className="card-genre project-card-genre-empty">
               Genre undecided
             </span>
           )}
         </div>
       </div>
 
-      <div className="project-card-actions">
-        <div className="project-card-primary-actions">
-          <Link to={`/projects/${project.id}`} className="project-card-link">
+      <div className="card-actions">
+        <div className="card-primary-actions">
+          <Link to={`/projects/${project.id}`} className="card-link">
             View project
           </Link>
 
-          <Link
-            to={`/projects/${project.id}/edit`}
-            className="project-card-edit-link"
-          >
+          <Link to={`/projects/${project.id}/edit`} className="card-edit-link">
             Edit
           </Link>
         </div>
