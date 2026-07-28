@@ -23,15 +23,77 @@ const GENRE_OPTIONS = [
   "Other",
 ];
 
-const normalizeProjectValues = (values = {}) => ({
-  ...EMPTY_PROJECT,
-  ...values,
+const STATUS_OPTIONS = ["Planning", "In Progress", "On Hold", "Completed"];
 
-  // Ensures genre is always an array when editing.
-  genre: Array.isArray(values.genre) ? values.genre : [],
+const normalizeText = (value) => {
+  return typeof value === "string" ? value : "";
+};
 
-  status: values.status || "Planning",
-});
+const normalizeGenre = (value) => {
+  if (Array.isArray(value)) {
+    return [
+      ...new Set(
+        value
+          .filter((genre) => typeof genre === "string")
+          .map((genre) => genre.trim())
+          .filter(Boolean),
+      ),
+    ];
+  }
+
+  if (typeof value !== "string") {
+    return [];
+  }
+
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return [];
+  }
+
+  // Support a JSON string such as:
+  // '["Fantasy","Adventure"]'
+  if (trimmedValue.startsWith("[") && trimmedValue.endsWith("]")) {
+    try {
+      const parsedValue = JSON.parse(trimmedValue);
+
+      if (Array.isArray(parsedValue)) {
+        return normalizeGenre(parsedValue);
+      }
+    } catch {
+      // Continue and treat the value as a regular string.
+    }
+  }
+
+  // Support a PostgreSQL-style array string such as:
+  // "{Fantasy,Adventure}"
+  if (trimmedValue.startsWith("{") && trimmedValue.endsWith("}")) {
+    return normalizeGenre(
+      trimmedValue
+        .slice(1, -1)
+        .split(",")
+        .map((genre) => genre.replace(/^"|"$/g, "")),
+    );
+  }
+
+  // Support comma-separated text or a single genre.
+  return normalizeGenre(trimmedValue.split(","));
+};
+
+const normalizeStatus = (value) => {
+  return STATUS_OPTIONS.includes(value) ? value : "Planning";
+};
+
+const normalizeProjectValues = (values = {}) => {
+  const project = values && typeof values === "object" ? values : {};
+
+  return {
+    title: normalizeText(project.title),
+    description: normalizeText(project.description),
+    genre: normalizeGenre(project.genre),
+    status: normalizeStatus(project.status),
+  };
+};
 
 const ProjectForm = ({
   initialValues = EMPTY_PROJECT,
@@ -49,7 +111,21 @@ const ProjectForm = ({
 
   useEffect(() => {
     setFormData(normalizeProjectValues(initialValues));
+    setValidationErrors({});
   }, [initialValues]);
+
+  const clearValidationError = (fieldName) => {
+    setValidationErrors((currentErrors) => {
+      if (!currentErrors[fieldName]) {
+        return currentErrors;
+      }
+
+      const updatedErrors = { ...currentErrors };
+      delete updatedErrors[fieldName];
+
+      return updatedErrors;
+    });
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -59,19 +135,12 @@ const ProjectForm = ({
       [name]: value,
     }));
 
-    if (validationErrors[name]) {
-      setValidationErrors((currentErrors) => ({
-        ...currentErrors,
-        [name]: "",
-      }));
-    }
+    clearValidationError(name);
   };
 
   const handleGenreChange = (selectedGenre) => {
     setFormData((currentData) => {
-      const currentGenres = Array.isArray(currentData.genre)
-        ? currentData.genre
-        : [];
+      const currentGenres = normalizeGenre(currentData.genre);
 
       /*
        * Undecided is exclusive:
@@ -91,27 +160,20 @@ const ProjectForm = ({
 
       const isAlreadySelected = genresWithoutUndecided.includes(selectedGenre);
 
-      const updatedGenres = isAlreadySelected
-        ? genresWithoutUndecided.filter((genre) => genre !== selectedGenre)
-        : [...genresWithoutUndecided, selectedGenre];
-
       return {
         ...currentData,
-        genre: updatedGenres,
+        genre: isAlreadySelected
+          ? genresWithoutUndecided.filter((genre) => genre !== selectedGenre)
+          : [...genresWithoutUndecided, selectedGenre],
       };
     });
 
-    if (validationErrors.genre) {
-      setValidationErrors((currentErrors) => ({
-        ...currentErrors,
-        genre: "",
-      }));
-    }
+    clearValidationError("genre");
   };
 
   const validateForm = () => {
     const errors = {};
-    const trimmedTitle = formData.title.trim();
+    const trimmedTitle = normalizeText(formData.title).trim();
 
     if (!trimmedTitle) {
       errors.title = "Project title is required.";
@@ -135,11 +197,19 @@ const ProjectForm = ({
       return;
     }
 
+    if (typeof onSubmit !== "function") {
+      console.error(
+        "[Project Form Error]",
+        "An onSubmit function was not provided.",
+      );
+      return;
+    }
+
     onSubmit({
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      genre: formData.genre,
-      status: formData.status,
+      title: normalizeText(formData.title).trim(),
+      description: normalizeText(formData.description).trim(),
+      genre: normalizeGenre(formData.genre),
+      status: normalizeStatus(formData.status),
     });
   };
 
@@ -165,6 +235,7 @@ const ProjectForm = ({
             onChange={handleChange}
             maxLength={255}
             placeholder="Enter your story project title"
+            required
             aria-invalid={Boolean(validationErrors.title)}
             aria-describedby={
               validationErrors.title ? "title-error" : undefined
@@ -193,7 +264,12 @@ const ProjectForm = ({
 
         <fieldset
           className="genre-field"
-          aria-describedby="genre-help selected-genres"
+          aria-invalid={Boolean(validationErrors.genre)}
+          aria-describedby={
+            validationErrors.genre
+              ? "genre-help selected-genres genre-error"
+              : "genre-help selected-genres"
+          }
         >
           <legend>Genres</legend>
 
@@ -254,7 +330,7 @@ const ProjectForm = ({
           </div>
 
           {validationErrors.genre && (
-            <small className="field-error" role="alert">
+            <small id="genre-error" className="field-error" role="alert">
               {validationErrors.genre}
             </small>
           )}
@@ -269,10 +345,11 @@ const ProjectForm = ({
             value={formData.status}
             onChange={handleChange}
           >
-            <option value="Planning">Planning</option>
-            <option value="In Progress">In Progress</option>
-            <option value="On Hold">On Hold</option>
-            <option value="Completed">Completed</option>
+            {STATUS_OPTIONS.map((statusOption) => (
+              <option key={statusOption} value={statusOption}>
+                {statusOption}
+              </option>
+            ))}
           </select>
         </div>
 

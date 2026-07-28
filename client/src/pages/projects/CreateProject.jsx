@@ -4,6 +4,12 @@ import ProjectForm from "../../components/projects/ProjectForm";
 import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { createProject } from "../../services/projectApi";
 
+const getErrorMessage = (error, fallbackMessage) => {
+  return error instanceof Error && error.message
+    ? error.message
+    : fallbackMessage;
+};
+
 const CreateProject = () => {
   const navigate = useNavigate();
 
@@ -20,21 +26,22 @@ const CreateProject = () => {
       setApiError("");
 
       const createdProject = await createProject(projectData);
+      const createdProjectId = createdProject?.id;
 
-      if (!createdProject?.id) {
+      if (createdProjectId === undefined || createdProjectId === null) {
         throw new Error(
           "The project was created, but the API did not return its ID.",
         );
       }
 
-      navigate(`/projects/${createdProject.id}`, {
+      navigate(`/projects/${createdProjectId}`, {
         replace: true,
         state: {
           message: "Project created successfully.",
         },
       });
     } catch (error) {
-      setApiError(error.message || "Unable to create the project.");
+      setApiError(getErrorMessage(error, "Unable to create the project."));
     } finally {
       setIsSubmitting(false);
     }

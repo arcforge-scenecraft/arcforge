@@ -1,48 +1,167 @@
-const API_BASE = "/api";
+const PRODUCTION_API_URL = "https://arcforge-api.onrender.com";
+
+const normalizeApiBaseUrl = (baseUrl) => {
+  const normalizedBaseUrl = String(baseUrl ?? "")
+    .trim()
+    .replace(/\/+$/, "");
+
+  if (!normalizedBaseUrl) {
+    return "";
+  }
+
+  return normalizedBaseUrl.endsWith("/api")
+    ? normalizedBaseUrl
+    : `${normalizedBaseUrl}/api`;
+};
+
+const resolveApiBaseUrl = () => {
+  const configuredApiBaseUrl = normalizeApiBaseUrl(
+    import.meta.env.VITE_API_BASE_URL,
+  );
+
+  if (configuredApiBaseUrl) {
+    return configuredApiBaseUrl;
+  }
+
+  // Vite forwards /api requests to localhost:3001 during development.
+  if (import.meta.env.DEV) {
+    return "/api";
+  }
+
+  // Production fallback in case the Render environment variable is missing.
+  return normalizeApiBaseUrl(PRODUCTION_API_URL);
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
+
+const normalizeEndpoint = (endpoint) => {
+  if (typeof endpoint !== "string") {
+    throw new TypeError("The API endpoint must be a string.");
+  }
+
+  const normalizedEndpoint = endpoint.trim();
+
+  if (!normalizedEndpoint) {
+    throw new Error("A valid API endpoint is required.");
+  }
+
+  return normalizedEndpoint.startsWith("/")
+    ? normalizedEndpoint
+    : `/${normalizedEndpoint}`;
+};
+
+const parseResponseBody = async (response) => {
+  if (response.status === 204 || response.status === 205) {
+    return null;
+  }
+
+  const responseText = await response.text();
+
+  if (!responseText) {
+    return null;
+  }
+
+  const contentType = response.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    try {
+      return JSON.parse(responseText);
+    } catch {
+      throw new Error("The API returned an invalid JSON response.");
+    }
+  }
+
+  return responseText;
+};
+
+const getErrorMessage = (responseBody, status) => {
+  if (typeof responseBody === "string" && responseBody.trim()) {
+    return responseBody;
+  }
+
+  if (responseBody && typeof responseBody === "object") {
+    return (
+      responseBody.message ||
+      responseBody.error ||
+      `API request failed with status ${status}.`
+    );
+  }
+
+  return `API request failed with status ${status}.`;
+};
 
 export const apiRequest = async (endpoint, options = {}) => {
-  const { headers: customHeaders, body, ...customConfig } = options;
+  const normalizedEndpoint = normalizeEndpoint(endpoint);
+  const url = `${API_BASE_URL}${normalizedEndpoint}`;
 
-  const config = {
-    method: "GET",
-    ...customConfig,
-    headers: {
-      "Content-Type": "application/json",
-      ...customHeaders,
-    },
-  };
+  const {
+    headers: customHeaders = {},
+    body,
+    method = "GET",
+    ...customConfig
+  } = options;
+
+  const headers = new Headers(customHeaders);
+  headers.set("Accept", "application/json");
+
+  let requestBody = body;
 
   if (body !== undefined && body !== null) {
-    // Stringify body if an object is passed
-    config.body = typeof body === "string" ? body : JSON.stringify(body);
+    const isFormData =
+      typeof FormData !== "undefined" && body instanceof FormData;
+
+    const isUrlSearchParams =
+      typeof URLSearchParams !== "undefined" && body instanceof URLSearchParams;
+
+    if (!isFormData && !isUrlSearchParams) {
+      if (!headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
+      }
+
+      requestBody = typeof body === "string" ? body : JSON.stringify(body);
+    }
+  }
+
+  const config = {
+    ...customConfig,
+    method: String(method).toUpperCase(),
+    headers,
+  };
+
+  if (requestBody !== undefined && requestBody !== null) {
+    config.body = requestBody;
   }
 
   try {
-    const response = await fetch(`${API_BASE}${endpoint}`, config);
+    const response = await fetch(url, config);
+    const responseBody = await parseResponseBody(response);
 
-    // Safely parse JSON only if the response indicates it is JSON
-    const contentType = response.headers.get("content-type");
-    const isJson = contentType?.includes("application/json");
-    
-    // Fallback to empty object if JSON parsing fails on a 204 No Content
-    const json = isJson ? await response.json().catch(() => ({})) : {};
-
-    // Handle standard HTTP errors or backend boolean flags
-    if (!response.ok || json.success === false) {
-      throw new Error(json.message || `HTTP Error: ${response.status}`);
+    if (!response.ok || responseBody?.success === false) {
+      throw new Error(getErrorMessage(responseBody, response.status));
     }
 
-    // Unwrap data payload if present, otherwise return full json (or null if not JSON)
-    if (json.data !== undefined) return json.data;
-    return isJson ? json : null;
-    
+    if (
+      responseBody !== null &&
+      typeof responseBody === "object" &&
+      responseBody.data !== undefined
+    ) {
+      return responseBody.data;
+    }
+
+    return responseBody;
   } catch (error) {
-    // Re-throw AbortError so calling components can ignore unmount cancellations
-    if (error.name === "AbortError" || error.message?.includes("aborted")) {
+    if (error instanceof Error && error.name === "AbortError") {
       throw error;
     }
 
-    console.error(`[API Error] ${config.method} ${endpoint}:`, error.message);
-    throw error;
+    const message = error instanceof Error ? error.message : String(error);
+
+    console.error("[API Error]", {
+      method: config.method,
+      url,
+      message,
+    });
+
+    throw error instanceof Error ? error : new Error(message);
   }
 };
