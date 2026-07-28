@@ -113,11 +113,11 @@ Example routes include:
 
 [gif goes here]
 
-### Form Validation
+### ✅ Form Validation
 
 The app checks required form fields before creating or updating database records. Invalid or incomplete information is not submitted, and the user receives a clear error message.
 
-[gif goes here]
+![Form Validation](./gifs/Form_Validation.gif)
 
 ### ✅ Confirmation Modal
 
