@@ -1,6 +1,49 @@
 import { pool } from "../config/database.js";
 
 const isValidId = (id) => Number.isInteger(Number(id)) && Number(id) > 0;
+const LOCATION_NAME_MAX_LENGTH = 255;
+const ATMOSPHERE_MAX_LENGTH = 255;
+
+const validateLocationFields = (
+  { name, description, atmosphere },
+  { requireName = false } = {},
+) => {
+  if (requireName && (typeof name !== "string" || !name.trim())) {
+    return "Location name is required.";
+  }
+
+  if (name !== undefined && typeof name !== "string") {
+    return "Location name must be text.";
+  }
+
+  if (typeof name === "string" && !name.trim()) {
+    return "Location name cannot be empty.";
+  }
+
+  if (
+    typeof name === "string" &&
+    name.trim().length > LOCATION_NAME_MAX_LENGTH
+  ) {
+    return "Location name must be 255 characters or fewer.";
+  }
+
+  if (description !== undefined && typeof description !== "string") {
+    return "Location description must be text.";
+  }
+
+  if (atmosphere !== undefined && typeof atmosphere !== "string") {
+    return "Location atmosphere must be text.";
+  }
+
+  if (
+    typeof atmosphere === "string" &&
+    atmosphere.trim().length > ATMOSPHERE_MAX_LENGTH
+  ) {
+    return "Location atmosphere must be 255 characters or fewer.";
+  }
+
+  return "";
+};
 
 // GET /api/projects/:projectId/locations
 // Retrieves all locations for a project
@@ -106,19 +149,28 @@ export const createLocation = async (req, res) => {
       });
     }
 
-    if (!name || name.trim() === "") {
+    const validationMessage = validateLocationFields(
+      { name, description, atmosphere },
+      { requireName: true },
+    );
+
+    if (validationMessage) {
       return res.status(400).json({
         success: false,
-        message: "Location name is required.",
+        message: validationMessage,
       });
     }
-
     const result = await pool.query(
       `INSERT INTO locations
         (project_id, name, description, atmosphere)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [projectId, name.trim(), description || null, atmosphere || null],
+      [
+        projectId,
+        name.trim(),
+        description?.trim() || null,
+        atmosphere?.trim() || null,
+      ],
     );
 
     return res.status(201).json({
@@ -165,11 +217,16 @@ export const updateLocation = async (req, res) => {
       });
     }
 
-    // If name is provided, it cannot be empty
-    if (name !== undefined && name.trim() === "") {
+    const validationMessage = validateLocationFields({
+      name,
+      description,
+      atmosphere,
+    });
+
+    if (validationMessage) {
       return res.status(400).json({
         success: false,
-        message: "Location name cannot be empty.",
+        message: validationMessage,
       });
     }
 
@@ -185,8 +242,8 @@ export const updateLocation = async (req, res) => {
        RETURNING *`,
       [
         name !== undefined ? name.trim() : null,
-        description !== undefined ? description : null,
-        atmosphere !== undefined ? atmosphere : null,
+        description !== undefined ? description.trim() : null,
+        atmosphere !== undefined ? atmosphere.trim() : null,
         locationId,
         projectId,
       ],

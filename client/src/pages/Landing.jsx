@@ -31,7 +31,7 @@ function LandingPage() {
             </p>
 
             <div className="hero-actions">
-              <Link className="primary-button" to="/projects">
+              <Link className="primary-button" to="/dashboard">
                 Start Planning
               </Link>
 

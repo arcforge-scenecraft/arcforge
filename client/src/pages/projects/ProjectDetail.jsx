@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   ArrowLeftIcon,
   CalendarDaysIcon,
@@ -7,9 +6,14 @@ import {
   TagIcon,
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate, useParams } from "react-router-dom";
+
+import LatestLocations from "../../components/locations/LatestLocations";
 import ProjectDeleteButton from "../../components/projects/ProjectDeleteButton";
+import ProjectOverview from "../../components/projects/ProjectOverview";
 import { ErrorState, Loader } from "../../components/ui";
-import { deleteProject, getProjectById } from "../../services/projectApi";
+import useProject from "../../hooks/projects/useProject";
+import useLocations from "../../hooks/locations/useLocations";
+import { deleteProject } from "../../services/projectApi";
 
 const formatLabel = (value, fallback) => {
   if (!value) {
@@ -43,57 +47,26 @@ const ProjectDetail = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
 
-  const [project, setProject] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [retryCount, setRetryCount] = useState(0);
+  const {
+    project,
+    loading: projectLoading,
+    error: projectError,
+    retry: retryProject,
+  } = useProject(projectId);
 
-  useEffect(() => {
-    const controller = new AbortController();
+  const {
+    locations,
+    loading: locationsLoading,
+    error: locationsError,
+    retry: retryLocations,
+  } = useLocations(projectId);
 
-    const loadProject = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
+  const loading = projectLoading || locationsLoading;
+  const error = projectError || locationsError;
 
-        const projectData = await getProjectById(projectId, {
-          signal: controller.signal,
-        });
-
-        if (!projectData) {
-          throw new Error("Project not found.");
-        }
-
-        setProject(projectData);
-      } catch (loadError) {
-        if (loadError.name === "AbortError") {
-          return;
-        }
-
-        console.error("Failed to load project:", loadError);
-
-        setProject(null);
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : "Unable to load this project.",
-        );
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadProject();
-
-    return () => {
-      controller.abort();
-    };
-  }, [projectId, retryCount]);
-
-  const handleRetry = () => {
-    setRetryCount((currentCount) => currentCount + 1);
+  const retry = () => {
+    retryProject();
+    retryLocations();
   };
 
   const handleDeleteProject = async () => {
@@ -107,7 +80,7 @@ const ProjectDetail = () => {
     });
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <main className="detail-page">
         <section className="detail">
@@ -140,8 +113,27 @@ const ProjectDetail = () => {
           </header>
 
           <div className="detail__state">
-            <ErrorState message={error} onRetry={handleRetry} />
+            <ErrorState message={error} onRetry={retry} />
           </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!project) {
+    return (
+      <main className="detail-page">
+        <section className="detail">
+          <Link to="/dashboard" className="detail__back-link">
+            <ArrowLeftIcon aria-hidden="true" />
+            Back to dashboard
+          </Link>
+
+          <header className="detail__error-header">
+            <p className="detail__eyebrow">Project workspace</p>
+            <h1>Project not found</h1>
+            <p>The selected project could not be located.</p>
+          </header>
         </section>
       </main>
     );
@@ -247,45 +239,11 @@ const ProjectDetail = () => {
           </article>
         </section>
 
-        <section className="detail__overview">
-          <div className="detail__section-heading">
-            <p className="detail__eyebrow">Project overview</p>
+        {/* Project Overview */}
+        <ProjectOverview project={project} status={status} genres={genres} />
 
-            <h2>About this story</h2>
-
-            <p>
-              Review the project’s core information before developing its
-              scenes, characters, locations, and story details.
-            </p>
-          </div>
-
-          <dl className="detail__information-list">
-            <div className="detail__information-row">
-              <dt>Project title</dt>
-              <dd>{project.title}</dd>
-            </div>
-
-            <div className="detail__information-row">
-              <dt>Status</dt>
-              <dd>{status}</dd>
-            </div>
-
-            <div className="detail__information-row">
-              <dt>Genre</dt>
-              <dd>
-                {genres.length > 0 ? genres.join(", ") : "Genre undecided"}
-              </dd>
-            </div>
-
-            <div className="detail__information-row">
-              <dt>Description</dt>
-              <dd>
-                {project.description ||
-                  "No project description has been added yet."}
-              </dd>
-            </div>
-          </dl>
-        </section>
+        {/* Latest Locations */}
+        <LatestLocations projectId={projectId} locations={locations} />
       </article>
     </main>
   );
