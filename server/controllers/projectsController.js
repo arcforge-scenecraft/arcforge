@@ -1,62 +1,60 @@
 import { pool } from "../config/database.js";
 
-/**
- * Convert and validate a project ID from a route parameter.
- *
- * @param {string} projectId
- * @returns {number|null}
- */
-const parseProjectId = (projectId) => {
-  const parsedId = Number(projectId);
+const VALID_STATUSES = new Set([
+  "Planning",
+  "In Progress",
+  "On Hold",
+  "Completed",
+]);
 
-  if (!Number.isInteger(parsedId) || parsedId <= 0) {
+const parseProjectId = (value) => {
+  const projectId = Number(value);
+
+  return Number.isInteger(projectId) && projectId > 0 ? projectId : null;
+};
+
+const normalizeRequiredText = (value) => {
+  return typeof value === "string" ? value.trim() : "";
+};
+
+const normalizeOptionalText = (value) => {
+  if (typeof value !== "string") {
     return null;
   }
 
-  return parsedId;
+  const normalizedValue = value.trim();
+
+  return normalizedValue || null;
 };
 
-/**
- * Validate an optional text field.
- *
- * The field may be:
- * - undefined when it was not provided
- * - null when the user wants to clear it
- * - a string
- *
- * @param {*} value
- * @returns {boolean}
- */
-const isValidOptionalText = (value) => {
-  return value === undefined || value === null || typeof value === "string";
-};
-
-/**
- * Normalize an optional text field.
- *
- * Empty strings become null.
- *
- * @param {string|null|undefined} value
- * @returns {string|null|undefined}
- */
-const normalizeOptionalText = (value) => {
-  if (value === undefined || value === null) {
-    return value;
+const normalizeGenres = (value) => {
+  if (!Array.isArray(value)) {
+    return null;
   }
 
-  const trimmedValue = value.trim();
+  return [
+    ...new Set(
+      value
+        .filter((genre) => typeof genre === "string")
+        .map((genre) => genre.trim())
+        .filter(Boolean),
+    ),
+  ];
+};
 
-  return trimmedValue === "" ? null : trimmedValue;
+const normalizeStatus = (value) => {
+  return VALID_STATUSES.has(value) ? value : null;
 };
 
 // GET /api/projects
-// Retrieve all projects
-export const getProjects = async (req, res) => {
+export const getProjects = async (_req, res) => {
   try {
     const result = await pool.query(
-      `SELECT *
-       FROM story_projects
-       ORDER BY id ASC`,
+      `
+        SELECT *
+        FROM story_projects
+        ORDER BY id ASC
+      `,
     );
 
     return res.status(200).json({
@@ -75,7 +73,6 @@ export const getProjects = async (req, res) => {
 };
 
 // GET /api/projects/:projectId
-// Retrieve one project by ID
 export const getProjectById = async (req, res) => {
   try {
     const projectId = parseProjectId(req.params.projectId);
@@ -88,9 +85,11 @@ export const getProjectById = async (req, res) => {
     }
 
     const result = await pool.query(
-      `SELECT *
-       FROM story_projects
-       WHERE id = $1`,
+      `
+        SELECT *
+        FROM story_projects
+        WHERE id = $1
+      `,
       [projectId],
     );
 
@@ -117,34 +116,40 @@ export const getProjectById = async (req, res) => {
 };
 
 // POST /api/projects
-// Create a new project
 export const createProject = async (req, res) => {
   try {
-    const {
-      title,
-      description = "",
-      genre = [],
-      status = "Planning",
-    } = req.body;
+    const title = normalizeRequiredText(req.body?.title);
+    const description = normalizeOptionalText(req.body?.description);
+    const genre = normalizeGenres(req.body?.genre ?? []);
+    const status = normalizeStatus(req.body?.status ?? "Planning");
 
-    if (!title || title.trim() === "") {
+    if (!title) {
       return res.status(400).json({
         success: false,
         message: "Project title is required.",
       });
     }
 
-    if (!Array.isArray(genre)) {
+    if (title.length > 255) {
+      return res.status(400).json({
+        success: false,
+        message: "Project title must be 255 characters or fewer.",
+      });
+    }
+
+    if (genre === null) {
       return res.status(400).json({
         success: false,
         message: "Genre must be an array.",
       });
     }
 
-    const cleanedGenres = genre
-      .filter((value) => typeof value === "string")
-      .map((value) => value.trim())
-      .filter(Boolean);
+    if (status === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid project status.",
+      });
+    }
 
     const result = await pool.query(
       `
@@ -157,7 +162,7 @@ export const createProject = async (req, res) => {
         VALUES ($1, $2, $3::TEXT[], $4)
         RETURNING *
       `,
-      [title.trim(), description.trim() || null, cleanedGenres, status],
+      [title, description, genre, status],
     );
 
     return res.status(201).json({
@@ -176,23 +181,47 @@ export const createProject = async (req, res) => {
 };
 
 // PATCH /api/projects/:projectId
-// Update an existing project
 export const updateProject = async (req, res) => {
   try {
-    const { projectId } = req.params;
-    const { title, description, genre, status } = req.body;
+    const projectId = parseProjectId(req.params.projectId);
 
-    if (!title || !title.trim()) {
+    if (projectId === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid project ID.",
+      });
+    }
+
+    const title = normalizeRequiredText(req.body?.title);
+    const description = normalizeOptionalText(req.body?.description);
+    const genre = normalizeGenres(req.body?.genre);
+    const status = normalizeStatus(req.body?.status);
+
+    if (!title) {
       return res.status(400).json({
         success: false,
         message: "Project title is required.",
       });
     }
 
-    if (!Array.isArray(genre)) {
+    if (title.length > 255) {
+      return res.status(400).json({
+        success: false,
+        message: "Project title must be 255 characters or fewer.",
+      });
+    }
+
+    if (genre === null) {
       return res.status(400).json({
         success: false,
         message: "Genre must be an array.",
+      });
+    }
+
+    if (status === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid project status.",
       });
     }
 
@@ -208,7 +237,7 @@ export const updateProject = async (req, res) => {
         WHERE id = $5
         RETURNING *
       `,
-      [title.trim(), description?.trim() || null, genre, status, projectId],
+      [title, description, genre, status, projectId],
     );
 
     if (result.rows.length === 0) {
@@ -234,10 +263,16 @@ export const updateProject = async (req, res) => {
 };
 
 // DELETE /api/projects/:projectId
-// Delete an existing project
 export const deleteProject = async (req, res) => {
   try {
-    const { projectId } = req.params;
+    const projectId = parseProjectId(req.params.projectId);
+
+    if (projectId === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid project ID.",
+      });
+    }
 
     const result = await pool.query(
       `

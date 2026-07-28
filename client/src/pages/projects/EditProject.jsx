@@ -1,9 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ProjectForm from "../../components/projects/ProjectForm";
 import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { ErrorState, Loader } from "../../components/ui";
 import { getProjectById, updateProject } from "../../services/projectApi";
+
+const getErrorMessage = (error, fallbackMessage) => {
+  return error instanceof Error && error.message
+    ? error.message
+    : fallbackMessage;
+};
 
 const EditProject = () => {
   const { projectId } = useParams();
@@ -15,26 +21,54 @@ const EditProject = () => {
   const [apiError, setApiError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const loadProject = async () => {
-    try {
-      setIsLoading(true);
-      setLoadError("");
+  const loadProject = useCallback(
+    async (signal) => {
+      if (!projectId) {
+        setLoadError("A valid project ID is required.");
+        setIsLoading(false);
+        return;
+      }
 
-      const projectData = await getProjectById(projectId);
-      setProject(projectData);
-    } catch (error) {
-      setLoadError(error.message || "Unable to load the project.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      try {
+        setIsLoading(true);
+        setLoadError("");
+
+        const projectData = await getProjectById(projectId, {
+          signal,
+        });
+
+        if (!projectData) {
+          throw new Error("The requested project was not found.");
+        }
+
+        setProject(projectData);
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+
+        setLoadError(getErrorMessage(error, "Unable to load the project."));
+      } finally {
+        if (!signal?.aborted) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [projectId],
+  );
 
   useEffect(() => {
-    loadProject();
-  }, [projectId]);
+    const controller = new AbortController();
+
+    loadProject(controller.signal);
+
+    return () => {
+      controller.abort();
+    };
+  }, [loadProject]);
 
   const handleUpdateProject = async (projectData) => {
-    if (isSubmitting) {
+    if (isSubmitting || !projectId) {
       return;
     }
 
@@ -44,22 +78,18 @@ const EditProject = () => {
 
       const updatedProject = await updateProject(projectId, projectData);
 
-      console.log("Updated project:", updatedProject);
+      // Some PATCH endpoints return the updated object, while others
+      // return 204 No Content. The existing route ID is safe as fallback.
+      const updatedProjectId = updatedProject?.id ?? projectId;
 
-      if (!updatedProject?.id) {
-        throw new Error(
-          "The project was updated, but the API did not return its ID.",
-        );
-      }
-
-      navigate(`/projects/${updatedProject.id}`, {
+      navigate(`/projects/${updatedProjectId}`, {
         replace: true,
         state: {
           message: "Project updated successfully.",
         },
       });
     } catch (error) {
-      setApiError(error.message || "Unable to update the project.");
+      setApiError(getErrorMessage(error, "Unable to update the project."));
     } finally {
       setIsSubmitting(false);
     }
@@ -70,14 +100,23 @@ const EditProject = () => {
   }
 
   if (loadError) {
-    return <ErrorState message={loadError} onRetry={loadProject} />;
+    return <ErrorState message={loadError} onRetry={() => loadProject()} />;
+  }
+
+  if (!project) {
+    return (
+      <ErrorState
+        message="The requested project was not found."
+        onRetry={() => loadProject()}
+      />
+    );
   }
 
   return (
     <main className="page-container">
       <ProjectFormHeader
         eyebrow="Project settings"
-        title={`Edit ${project.title}`}
+        title={`Edit ${project.title || "project"}`}
         description="Update the basic information for this story project."
       />
 
