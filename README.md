@@ -55,11 +55,11 @@ Users can view all story projects from a main dashboard. Each project card shows
 
 [gif goes here]
 
-### Create and Edit Story Projects
+### ✅ Create and Edit Story Projects
 
 Users can create a new story project and update project details such as title, description, genre, and project status. This gives creators a starting point for organizing each story separately.
 
-[gif goes here]
+![Create and Edit Story Projects](./gifs/Create_and_Edit_Story_Projects.gif)
 
 ### Scene Manager
 
@@ -113,17 +113,17 @@ Example routes include:
 
 [gif goes here]
 
-### Form Validation
+### ✅ Form Validation
 
 The app checks required form fields before creating or updating database records. Invalid or incomplete information is not submitted, and the user receives a clear error message.
 
-[gif goes here]
+![Form Validation](./gifs/Form_Validation.gif)
 
-### Confirmation Modal
+### ✅ Confirmation Modal
 
 Before deleting a story project, scene, character, or location, the app displays a confirmation modal to prevent accidental deletion.
 
-[gif goes here]
+![Deleting Confirmation Modal](./gifs/Confirmation_Modal.gif)
 
 ### Notifications
 
