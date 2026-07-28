@@ -119,11 +119,11 @@ The app checks required form fields before creating or updating database records
 
 [gif goes here]
 
-### Confirmation Modal
+### ✅ Confirmation Modal
 
 Before deleting a story project, scene, character, or location, the app displays a confirmation modal to prevent accidental deletion.
 
-[gif goes here]
+![Deleting Confirmation Modal](./gifs/Confirmation_Modal.gif)
 
 ### Notifications
 
