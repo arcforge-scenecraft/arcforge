@@ -1,29 +1,32 @@
 import { apiRequest } from "./apiClient";
 
-export const getProjects = () => {
-  return apiRequest("/api/projects");
+export const getProjects = (options = {}) => {
+  return apiRequest("/projects", options);
 };
 
 export const getProjectById = (projectId, options = {}) => {
-  return apiRequest(`/api/projects/${projectId}`, options);
+  return apiRequest(`/projects/${projectId}`, options);
 };
 
-export const createProject = (projectData) => {
-  return apiRequest("/api/projects", {
+export const createProject = (projectData, options = {}) => {
+  return apiRequest("/projects", {
     method: "POST",
-    body: JSON.stringify(projectData),
+    body: projectData,
+    ...options,
   });
 };
 
-export const updateProject = (projectId, projectData) => {
-  return apiRequest(`/api/projects/${projectId}`, {
+export const updateProject = (projectId, projectData, options = {}) => {
+  return apiRequest(`/projects/${projectId}`, {
     method: "PATCH",
-    body: JSON.stringify(projectData),
+    body: projectData,
+    ...options,
   });
 };
 
-export const deleteProject = (projectId) => {
-  return apiRequest(`/api/projects/${projectId}`, {
+export const deleteProject = (projectId, options = {}) => {
+  return apiRequest(`/projects/${projectId}`, {
     method: "DELETE",
+    ...options,
   });
 };
