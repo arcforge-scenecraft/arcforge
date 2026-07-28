@@ -55,11 +55,11 @@ Users can view all story projects from a main dashboard. Each project card shows
 
 [gif goes here]
 
-### Create and Edit Story Projects
+### ✅ Create and Edit Story Projects
 
 Users can create a new story project and update project details such as title, description, genre, and project status. This gives creators a starting point for organizing each story separately.
 
-[gif goes here]
+![Create and Edit Story Projects](./gifs/Create_and_Edit_Story_Projects.gif)
 
 ### Scene Manager
 
