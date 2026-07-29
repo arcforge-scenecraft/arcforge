@@ -347,7 +347,9 @@ const SceneDetail = () => {
             <dl className="detail__information-list">
                 <div className="detail__information-row">
                     <dt>Location</dt>
-                    <dd>{scene.location ||"Undecided"}</dd>
+                    <dd className="detail__genres">
+                      <span className={scene.location && scene.location != "Undecided"?"detail__genre":""}>{scene.location ||"Undecided"}</span>
+                    </dd>
                 </div>
                 <div className="detail__information-row">
                     <dt>Characters</dt>
@@ -356,7 +358,7 @@ const SceneDetail = () => {
                         scene.characters.map(character => (
                             <span
                             key={character}
-                            className="detail__genre"
+                            className={character != "Undecided"?"detail__genre":""}
                             >
                             {character}
                             </span>
@@ -387,23 +389,25 @@ const SceneDetail = () => {
                 <h2>Location & Characters</h2>
             </div>
 
-            <div className="detail__related-grid">
+            {scene.characters === ["Undecided"]?<div className="detail__related-grid">
                 {/* <Link
                 to={`/projects/${projectId}/locations/${scene.location}`}
                 className="detail__related-card"
                 > */}
+                {scene.location && scene.location != "Undecided"?
                 <div className="detail__related-card">
                     <MapPinIcon className="detail__related-icon" />
 
                     <span className="detail__related-label">Location</span>
 
                     <strong className="detail__related-title">
-                        {scene.location || "Undecided"}
+                        {scene.location}
                     </strong>
-                </div>
+                </div>: ""
+                }
                 {/* </Link> */}
 
-                {scene.characters?.map((character) => (
+                {scene.characters != ["Undecided"]?.map((character) => (
                 // <Link
                 //     key={character.id}
                 //     to={`/projects/${projectId}/characters/${character.id}`}
@@ -419,16 +423,15 @@ const SceneDetail = () => {
                     </strong>
                 </div>
                 // </Link> 
-
                 ))}
-            </div>
+            </div>: <span className="detail__metadata-value">No characters or locations have been selected for this scene.</span>}
         </section>
 
         <section className="detail__overview-single">
             <div className="detail__section-heading">
                 <p className="detail__eyebrow">Planning</p>
 
-                <h2>Writer's Notes</h2>
+                <h2>Creator's Notes</h2>
 
                 {/* <p>{scene.notes}</p> */}
                 <textarea

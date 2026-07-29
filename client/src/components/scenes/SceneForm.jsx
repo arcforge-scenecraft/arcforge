@@ -9,7 +9,7 @@ const EMPTY_SCENE = {
     scene_order: null,
     timeline_order: null,
     notes: "",
-    location: "",
+    location: "Undecided",
     characters: [],
     status: "Planning",
 };

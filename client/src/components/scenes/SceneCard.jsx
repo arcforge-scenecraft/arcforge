@@ -31,18 +31,17 @@ const SceneCard = ({scene, onDelete}) => {
         </p>
 
         <div className="card-genres">
-          {<span className="card-genre-2">{scene.location}</span> || ""}
+          {scene.location && scene.location != "Undefined"?
+            <span className="card-genre-2">{scene.location}</span>
+          : ""}
+
           {characters.length > 0 ? (
-            characters.map((character) => (
+            characters.map((character) => (character != "Undecided"?
               <span key={character} className="card-genre">
                 {character}
-              </span>
+              </span>: ""
             ))
-          ) : (
-            <span className="card-genre project-card-genre-empty">
-              Characters undecided
-            </span>
-          )}
+          ) : ""}
         </div>
 
         <p></p>
@@ -61,7 +60,7 @@ const SceneCard = ({scene, onDelete}) => {
         </div>
 
         <SceneDeleteButton
-          projectTitle={scene.name}
+          sceneName={scene.name}
           onDelete={() => onDelete(scene.id, scene.name)}
         />
       </div>

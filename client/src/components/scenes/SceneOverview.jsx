@@ -30,27 +30,33 @@ const SceneOverview = ({projectId, scenes = []}) => {
           {latestScenes.length > 0 ? (
             <div className="detail__location-grid detail__location-grid--compact">
               {latestScenes.map((scene) => (
-                <article
+                <Link
                   key={scene.id}
-                  className="detail__location-card detail__location-card--compact"
+                  to={`/projects/${projectId}/scenes/${scene.id}`}
+                  className="detail__related-card--compact detail__location-card detail__location-card--compact"
                 >
                   <h3>{scene.name}</h3>
     
                   <p className="detail__location-description">
                     {scene.description || "No description has been added yet."}
                   </p>
-    
-                  <p className="detail__location-atmosphere">
-                    <strong>Scene Order:</strong> {scene.scene_order} | <strong>Timeline Order:</strong> {scene.timeline_order}
-                  </p>
-    
-                  <Link
-                    to={`/projects/${projectId}/scenes/${scene.id}`}
-                    className="detail__location-link"
-                  >
-                    View Scene
-                  </Link>
-                </article>
+
+                  <div className="card-genres">
+                    {scene.location && scene.location != "Undefined"?
+                      <span className="card-genre-2">{scene.location}</span>
+                    : ""}
+
+                    {scene.characters.length > 0 ? (
+                      scene.characters.slice(0,2).map((character) => (character != "Undecided"?
+                        <span key={character} className="card-genre">
+                          {character}
+                        </span>: ""
+                      ))
+                    ) : ""}
+                  </div>
+
+                  <p></p>
+                </Link>
               ))}
             </div>
           ) : (
