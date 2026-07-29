@@ -4,8 +4,8 @@ import { getLocations } from "../services/LocationsAPI";
 
 const EMPTY_SCENE = {
     project_id: "",
-    title: "",
-    summary: "",
+    name: "",
+    description: "",
     sceneOrder: 0,
     timelineOrder: 0,
     notes: "",
@@ -125,12 +125,12 @@ const SceneForm = ({
 
   const validateForm = () => {
     const errors = {};
-    const trimmedTitle = formData.title.trim();
+    const trimmedName = formData.name.trim();
 
-    if (!trimmedTitle) {
-      errors.title = "Scene title is required.";
-    } else if (trimmedTitle.length > 255) {
-      errors.title = "Scene title must be 255 characters or fewer.";
+    if (!trimmedName) {
+      errors.name = "Scene name is required.";
+    } else if (trimmedName.length > 255) {
+      errors.name = "Scene name must be 255 characters or fewer.";
     }
 
     if (!Array.isArray(formData.characters)) {
@@ -150,8 +150,8 @@ const SceneForm = ({
     }
 
     onSubmit({
-        title: formData.title.trim(),
-        summary: formData.summary.trim(),
+        name: formData.name.trim(),
+        description: formData.description.trim(),
         sceneOrder: parseInt(formData.sceneOrder.trim(), 10),
         timelineOrder: parseInt(formData.timelineOrder.trim(), 10),
         notes: formData.notes.trim(),
@@ -171,39 +171,39 @@ const SceneForm = ({
 
       <fieldset className="project-form-fields" disabled={isSubmitting}>
         <div className="form-field">
-          <label htmlFor="title">
-            Scene title <span aria-hidden="true">*</span>
+          <label htmlFor="name">
+            Scene name <span aria-hidden="true">*</span>
           </label>
 
           <input
-            id="title"
-            name="title"
+            id="name"
+            name="name"
             type="text"
-            value={formData.title}
+            value={formData.name}
             onChange={handleChange}
             maxLength={255}
-            placeholder="Enter your scene title"
-            aria-invalid={Boolean(validationErrors.title)}
+            placeholder="Enter your scene name"
+            aria-invalid={Boolean(validationErrors.name)}
             aria-describedby={
-              validationErrors.title ? "title-error" : undefined
+              validationErrors.name ? "name-error" : undefined
             }
           />
 
-          {validationErrors.title && (
-            <small id="title-error" className="field-error" role="alert">
-              {validationErrors.title}
+          {validationErrors.name && (
+            <small id="name-error" className="field-error" role="alert">
+              {validationErrors.name}
             </small>
           )}
         </div>
 
         <div className="form-field">
-          <label htmlFor="summary">Summary</label>
+          <label htmlFor="description">Description</label>
 
           <textarea
-            id="summary"
-            name="summary"
+            id="description"
+            name="description"
             rows="6"
-            value={formData.summary}
+            value={formData.description}
             onChange={handleChange}
             placeholder="Describe the main event(s) of the scene."
           />

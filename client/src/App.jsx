@@ -25,7 +25,7 @@ function App() {
       <Route path="/projects/:projectId/scenes/" element={<SceneDashboard />} />
       <Route path="/projects/:projectId/scenes/new/" element={<CreateScene />} />
       <Route path="/projects/:projectId/scenes/:sceneId/" element={<SceneDetail />} />
-      <Route path="/projects/:projectId/scenes/scene/:sceneId/edit/" element={<EditScene />} />
+      <Route path="/projects/:projectId/scenes/:sceneId/edit/" element={<EditScene />} />
       <Route
         path="/projects/:projectId/locations"
         element={<LocationLibrary />}

@@ -3,6 +3,62 @@ import { pool } from "../config/database.js";
 const isValidId = (id) => Number.isInteger(Number(id)) && Number(id) > 0;
 const validOrderColumns = ["scene_order", "timeline_order"];
 
+const validateSceneFields = (
+  { name, description, sceneOrder, timelineOrder, notes, location, characters, status },
+  { requireName = true } = {},
+) => {
+  let errorString = "";
+  if (requireName && !name.trim()) {
+    errorString += "Scene name is required. ";
+  }
+
+  if (name !== undefined && typeof name !== "string") {
+    errorString += "Scene name must be text. ";
+  }
+
+  if (typeof name === "string" && !name.trim()) {
+    errorString += "Scene name cannot be empty. ";
+  }
+
+  if (typeof name === "string" && name.trim().length > 255) {
+    errorString += "Scene name must be 255 characters or fewer. ";
+  }
+
+  if (description !== undefined && typeof description !== "string") {
+    errorString += "Scene description must be text. ";
+  }
+
+  if (sceneOrder !== undefined && typeof sceneOrder !== "number") {
+    errorString += "Scene order must be a number. ";
+  }
+
+  if (typeof sceneOrder == "number" && sceneOrder < 0) {
+    errorString += "Scene order must be a positive number. ";
+  }
+
+  if (timelineOrder !== undefined && typeof timelineOrder !== "number") {
+    errorString += "Timeline order must be a number. ";
+  }
+
+  if (typeof timelineOrder == "number" && timelineOrder < 0) {
+    errorString += "Timeline order must be a positive number. ";
+  }
+
+  if (notes !== undefined && typeof notes !== "string") {
+    errorString += "Scene notes must be text. ";
+  }
+
+  if (!Array.isArray(characters)) {
+    errorString += "Scene characters must be an array. ";
+  }
+
+  if (!status.trim()) {
+    errorString += "Scene status is required. ";
+  }
+
+  return errorString;
+};
+
 const getProjectExists = async (projectId) => {
   const result = await pool.query(
     `SELECT id
@@ -22,21 +78,21 @@ const sceneSelect = `
       ELSE json_build_object(
         'id', l.id,
         'project_id', l.project_id,
-        'title', l.title,
-        'summary', l.summary,
+        'name', l.name,
+        'description', l.description,
         'sceneOrder', l.sceneOrder,
         'timelineOrder', l.timelineOrder,
         'notes', l.notes,
-        'location', l.location,
+        'scene', l.scene,
         'characters', l.characters,
         'status', l.status,
         'created_at', l.created_at,
         'updated_at', l.updated_at
       )
-    END AS location
+    END AS scene
   FROM scenes s
-  LEFT JOIN locations l
-    ON s.location_id = l.id
+  LEFT JOIN scenes l
+    ON s.scene_id = l.id
 `;
 
 // GET /api/projects/:projectId/scenes
@@ -141,6 +197,220 @@ export const getSceneById = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to get scene.",
+    });
+  }
+};
+
+// POST /api/projects/:projectId/scenes/new
+// Create a new scene
+export const createScene = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { 
+      name,
+      description = "",
+      sceneOrder = 0,
+      timelineOrder = 0,
+      notes = "",
+      location = "",
+      characters = [],
+      status = "Planning",
+    } = req.body;
+
+    // Validate required fields
+    if (!isValidId(projectId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Project id is required.",
+      });
+    }
+
+    const validationMessage = validateSceneFields(
+      { name, description, sceneOrder, timelineOrder, notes, location, characters, status },
+      { requireName: true },
+    );
+
+    if (validationMessage != "") {
+      return res.status(400).json({
+        success: false,
+        message: validationMessage,
+      });
+    }
+
+    const cleanedCharacters = characters
+      .filter((value) => typeof value === "string")
+      .map((value) => value.trim())
+      .filter(Boolean);
+
+    const result = await pool.query(
+      `INSERT INTO scenes
+        (project_id, name, description, sceneOrder, timelineOrder, notes, location, characters, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8::TEXT[], $9)
+       RETURNING *`,
+      [
+        projectId,
+        name.trim(),
+        description.trim() || null,
+        sceneOrder || 0,
+        timelineOrder || 0,
+        notes || null,
+        location,
+        cleanedCharacters,
+        status,
+      ],
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Scene created successfully.",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error creating scene:", error);
+
+    if (error.code === "23503") {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found.",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create scene.",
+    });
+  }
+};
+
+// PATCH /api/projects/:projectId/scenes/:sceneId
+// Update an existing scene
+export const updateScene = async (req, res) => {
+  try {
+    const { projectId, sceneId } = req.params;
+    const { name, description, sceneOrder, timelineOrder, notes, location, characters, status } = req.body;
+
+    // Validate required fields
+    if (!isValidId(projectId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Project id is required.",
+      });
+    }
+
+    if (!isValidId(sceneId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Scene id is required.",
+      });
+    }
+
+    const validationMessage = validateSceneFields({name, description, sceneOrder, timelineOrder, notes, location, characters, status});
+
+    if (validationMessage) {
+      return res.status(400).json({
+        success: false,
+        message: validationMessage,
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE scenes
+        SET
+          name = $1,
+          description = $2,
+          sceneOrder = $3,
+          timelineOrder = $4,
+          notes = $5, 
+          location = $6, 
+          characters = $7::TEXT[],
+          status = $8,
+          updated_at = CURRENT_TIMESTAMP
+       WHERE id = $9
+         AND project_id = $10
+       RETURNING *`,
+      [
+        name.trim(),
+        description.trim() || null,
+        sceneOrder || 0,
+        timelineOrder || 0,
+        notes || null,
+        location,
+        characters,
+        status,
+        sceneId,
+        projectId,
+      ],
+    );
+
+    // Scene does not exist
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Scene not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Scene updated successfully.",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update scene.",
+    });
+  }
+};
+
+// DELETE /api/projects/:projectId/scenes/:sceneId
+// Delete an existing scene
+export const deleteScene = async (req, res) => {
+  try {
+    const { projectId, sceneId } = req.params;
+
+    // Validate required fields
+    if (!isValidId(projectId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Project id is required.",
+      });
+    }
+
+    if (!isValidId(sceneId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Scene id is required.",
+      });
+    }
+
+    const result = await pool.query(
+      `DELETE FROM scenes
+       WHERE id = $1
+         AND project_id = $2
+       RETURNING *`,
+      [sceneId, projectId],
+    );
+
+    // Scene does not exist
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Scene not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Scene deleted successfully.",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error deleting scene:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete scene.",
     });
   }
 };

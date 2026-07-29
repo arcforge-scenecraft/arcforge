@@ -1,29 +1,29 @@
 import { apiRequest } from "./apiClient";
 
-export const getLocations = (projectId) => {
-  return apiRequest(`/api/projects/${projectId}/locations`);
+export const getScenes = (projectId) => {
+  return apiRequest(`/api/projects/${projectId}/scenes`);
 };
 
-export const getLocation = (projectId, locationId) => {
-  return apiRequest(`/api/projects/${projectId}/locations/${locationId}`);
+export const getSceneById = (projectId, sceneId) => {
+  return apiRequest(`/api/projects/${projectId}/scenes/${sceneId}`);
 };
 
-export const createLocation = (projectId, locationData) => {
-  return apiRequest(`/api/projects/${projectId}/locations`, {
+export const createScene = (projectId, sceneData) => {
+  return apiRequest(`/api/projects/${projectId}/scenes`, {
     method: "POST",
-    body: JSON.stringify(locationData),
+    body: JSON.stringify(sceneData),
   });
 };
 
-export const updateLocation = (projectId, locationId, locationData) => {
-  return apiRequest(`/api/projects/${projectId}/locations/${locationId}`, {
+export const updateScene = (projectId, sceneId, sceneData) => {
+  return apiRequest(`/api/projects/${projectId}/scenes/${sceneId}`, {
     method: "PATCH",
-    body: JSON.stringify(locationData),
+    body: JSON.stringify(sceneData),
   });
 };
 
-export const deleteLocation = (projectId, locationId) => {
-  return apiRequest(`/api/projects/${projectId}/locations/${locationId}`, {
+export const deleteScene = (projectId, sceneId) => {
+  return apiRequest(`/api/projects/${projectId}/scenes/${sceneId}`, {
     method: "DELETE",
   });
 };
