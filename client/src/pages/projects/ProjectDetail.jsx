@@ -13,7 +13,9 @@ import ProjectOverview from "../../components/projects/ProjectOverview";
 import { ErrorState, Loader } from "../../components/ui";
 import useProject from "../../hooks/projects/useProject";
 import useLocations from "../../hooks/locations/useLocations";
+import useScenes from "../../hooks/scenes/useScenes";
 import { deleteProject } from "../../services/projectApi";
+import SceneOverview from "../../components/scenes/SceneOverview";
 
 const formatLabel = (value, fallback) => {
   if (!value) {
@@ -61,12 +63,20 @@ const ProjectDetail = () => {
     retry: retryLocations,
   } = useLocations(projectId);
 
-  const loading = projectLoading || locationsLoading;
-  const error = projectError || locationsError;
+  const {
+    scenes,
+    loading: sceneLoading,
+    error: sceneError,
+    retry: retryScenes,
+  } = useScenes(projectId);
+
+  const loading = projectLoading || locationsLoading || sceneLoading;
+  const error = projectError || locationsError || sceneError;
 
   const retry = () => {
     retryProject();
     retryLocations();
+    retryScenes();
   };
 
   const handleDeleteProject = async () => {
@@ -244,6 +254,9 @@ const ProjectDetail = () => {
 
         {/* Latest Locations */}
         <LatestLocations projectId={projectId} locations={locations} />
+
+        {/* Scene Overview */}
+        <SceneOverview projectId={projectId} scenes={scenes}/>
       </article>
     </main>
   );
