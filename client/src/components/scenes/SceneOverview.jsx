@@ -1,8 +1,6 @@
 /*  This block appears on a project page
     It should show a summary of the number of scenes and scene progress if there are scenes
-    Otherwise, it should show a get started with scenes button with creates a dropdown with two options:
-        - make a new blank scene
-        - get started with template scenes (3-act structure)
+    Otherwise, it should show a get started with scenes button to create blank scene
 */
 
 import { useEffect, useState } from "react";
@@ -21,6 +19,12 @@ const SceneOverview = ({projectId, scenes = []}) => {
             <h2>Recent scenes</h2>
     
             <p>Explore the newest scenes created for this story project.</p>
+            <Link
+              to={`/projects/${projectId}/scenes/new`}
+              className="detail__edit-link"
+            >
+              Create scene
+            </Link>
           </div>
     
           {latestScenes.length > 0 ? (
@@ -37,7 +41,7 @@ const SceneOverview = ({projectId, scenes = []}) => {
                   </p>
     
                   <p className="detail__location-atmosphere">
-                    <strong>Scene Order:</strong> {scene.sceneOrder} | <strong>Timeline Order:</strong> {scene.timelineOrder}
+                    <strong>Scene Order:</strong> {scene.scene_order} | <strong>Timeline Order:</strong> {scene.timeline_order}
                   </p>
     
                   <Link
