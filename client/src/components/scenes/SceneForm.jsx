@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { getCharacters } from "../services/CharactersAPI";
-import { getLocations } from "../services/LocationsAPI";
+import { getCharacters } from "../../services/characterAPI";
+import { getLocations } from "../../services/locationApi";
 
 const EMPTY_SCENE = {
     project_id: "",
     name: "",
     description: "",
-    sceneOrder: 0,
-    timelineOrder: 0,
+    sceneOrder: null,
+    timelineOrder: null,
     notes: "",
     location: "",
     characters: [],
@@ -18,7 +18,7 @@ const normalizeSceneValues = (values = {}) => ({
   ...EMPTY_SCENE,
   ...values,
 
-  // Ensures genre is always an array when editing.
+  // Ensures characters variable is always an array when editing.
   characters: Array.isArray(values.characters) ? values.characters : [],
 
   status: values.status || "Planning",
@@ -26,6 +26,7 @@ const normalizeSceneValues = (values = {}) => ({
 
 const SceneForm = ({
   initialValues = EMPTY_SCENE,
+  projectId,
   onSubmit,
   onCancel,
   submitLabel = "Save Scene",
@@ -35,7 +36,7 @@ const SceneForm = ({
   const [formData, setFormData] = useState(() =>
     normalizeSceneValues(initialValues),
   );
-
+  
   const [validationErrors, setValidationErrors] = useState({});
   const [characterOptions, setCharacterOptions] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
@@ -46,24 +47,30 @@ const SceneForm = ({
   }, [initialValues]);
 
   useEffect(() => {
-  const fetchOptions = async () => {
-    try {
-        const [characters, locations] = await Promise.all([
-            getCharacters(),
-            getLocations(),
-        ]);
+    const fetchOptions = async () => {
+        try {
+            const [characters, locations] = await Promise.all([
+                getCharacters(projectId),
+                getLocations(projectId),
+            ]);
 
-        setCharacterOptions(...characters, "Undecided");
-        setLocationOptions(...locations, "Undecided");
-    } catch (err) {
-        setCharacterOptions(["Undecided"]);
-        setLocationOptions(["Uncdecided"]);
-        console.error("Error loading form options:", err);
-    }
-  };
+            const updatedCharacters = [...characters.map((character) => character.name), "Undecided"];
+            const updatedLocations = ["Undecided", ...locations.map((location) => location.name)];
 
-  fetchOptions();
-}, []);
+            setCharacterOptions(updatedCharacters);
+            setLocationOptions(updatedLocations);
+            
+            console.log("Characters:", updatedCharacters)
+            console.log("Locations:", updatedLocations)
+        } catch (err) {
+            // setCharacterOptions(["Undecided"]);
+            // setLocationOptions(["Uncdecided"]);
+            console.error("Error loading form options:", err);
+        }
+    };
+
+    fetchOptions();
+  }, []);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -81,7 +88,7 @@ const SceneForm = ({
     }
   };
 
-  const handleGenreChange = (selectedCharacter) => {
+  const handleCharacterChange = (selectedCharacter) => {
     setFormData((currentData) => {
       const currentCharacters = Array.isArray(currentData.characters)
         ? currentData.characters
@@ -95,7 +102,7 @@ const SceneForm = ({
       if (selectedCharacter === "Undecided") {
         return {
           ...currentData,
-          genre: currentCharacters.includes("Undecided") ? [] : ["Undecided"],
+          characters: currentCharacters.includes("Undecided") ? [] : ["Undecided"],
         };
       }
 
@@ -106,12 +113,12 @@ const SceneForm = ({
       const isAlreadySelected = charactersWithoutUndecided.includes(selectedCharacter);
 
       const updatedCharacters = isAlreadySelected
-        ? charactersWithoutUndecided.filter((genre) => genre !== selectedCharacter)
+        ? charactersWithoutUndecided.filter((character) => character !== selectedCharacter)
         : [...charactersWithoutUndecided, selectedCharacter];
 
       return {
         ...currentData,
-        genre: updatedCharacters,
+        characters: updatedCharacters,
       };
     });
 
@@ -162,14 +169,14 @@ const SceneForm = ({
   };
 
   return (
-    <form className="project-form" onSubmit={handleSubmit} noValidate>
+    <form className="form" onSubmit={handleSubmit} noValidate>
       {apiError && (
         <div className="form-api-error" role="alert" aria-live="polite">
           {apiError}
         </div>
       )}
 
-      <fieldset className="project-form-fields" disabled={isSubmitting}>
+      <fieldset className="orm-fields" disabled={isSubmitting}>
         <div className="form-field">
           <label htmlFor="name">
             Scene name <span aria-hidden="true">*</span>
@@ -212,26 +219,28 @@ const SceneForm = ({
         <div className="form-field">
           <label htmlFor="sceneOrder">Scene Order</label>
 
-          <textarea
+          <input
             id="sceneOrder"
             name="sceneOrder"
-            rows="1"
+            type="text"
             value={formData.sceneOrder}
             onChange={handleChange}
-            placeholder="0"
+            maxLength={255}
+            placeholder="Where does this happen in the story?"
           />
         </div>
 
         <div className="form-field">
           <label htmlFor="timelineOrder">Timeline Order</label>
 
-          <textarea
+          <input
             id="timelineOrder"
             name="timelineOrder"
-            rows="1"
+            type="text"
             value={formData.timelineOrder}
             onChange={handleChange}
-            placeholder="0"
+            maxLength={255}
+            placeholder="Where does this happen in the timeline?"
           />
         </div>
 
@@ -246,6 +255,21 @@ const SceneForm = ({
             onChange={handleChange}
             placeholder="Add any relevant notes about the scene."
           />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="status">Location</label>
+
+          <select
+            id="location"
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+          >
+            {locationOptions.map((location) => {
+                return(<option value={location}>{location}</option>)
+            })}
+          </select>
         </div>
 
         <fieldset
@@ -265,7 +289,7 @@ const SceneForm = ({
 
               return (
                 <label
-                  key={characterOption}
+                  key={character}
                   className={`genre-option ${
                     isSelected ? "genre-option-selected" : ""
                   }`}
@@ -275,7 +299,7 @@ const SceneForm = ({
                     name="characters"
                     value={character}
                     checked={isSelected}
-                    onChange={() => handleGenreChange(character)}
+                    onChange={() => handleCharacterChange(character)}
                   />
 
                   <span className="genre-option-content">
@@ -291,7 +315,7 @@ const SceneForm = ({
           </div>
 
           <div
-            id="selected-genres"
+            id="selected-characters"
             className="selected-genres"
             aria-live="polite"
           >

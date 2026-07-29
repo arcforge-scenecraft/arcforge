@@ -1,7 +1,7 @@
 import { pool } from "../config/database.js";
 
 const isValidId = (id) => Number.isInteger(Number(id)) && Number(id) > 0;
-const validOrderColumns = ["scene_order", "timeline_order"];
+const validOrderColumns = ["created_at", "sceneOrder", "timelineOrder"];
 
 const validateSceneFields = (
   { name, description, sceneOrder, timelineOrder, notes, location, characters, status },
@@ -52,7 +52,7 @@ const validateSceneFields = (
     errorString += "Scene characters must be an array. ";
   }
 
-  if (!status.trim()) {
+  if (typeof status !== "string" || !status.trim()) {
     errorString += "Scene status is required. ";
   }
 
@@ -70,29 +70,34 @@ const getProjectExists = async (projectId) => {
   return result.rows.length > 0;
 };
 
+// const sceneSelect = `
+//   SELECT
+//     s.*,
+//     CASE
+//       WHEN l.id IS NULL THEN NULL
+//       ELSE json_build_object(
+//         'id', l.id,
+//         'project_id', l.project_id,
+//         'name', l.name,
+//         'description', l.description,
+//         'sceneOrder', l.sceneOrder,
+//         'timelineOrder', l.timelineOrder,
+//         'notes', l.notes,
+//         'scene', l.scene,
+//         'characters', l.characters,
+//         'status', l.status,
+//         'created_at', l.created_at,
+//         'updated_at', l.updated_at
+//       )
+//     END AS scene
+//   FROM scenes s
+//   LEFT JOIN locations l
+//     ON s.location = l.name
+// `;
+
 const sceneSelect = `
-  SELECT
-    s.*,
-    CASE
-      WHEN l.id IS NULL THEN NULL
-      ELSE json_build_object(
-        'id', l.id,
-        'project_id', l.project_id,
-        'name', l.name,
-        'description', l.description,
-        'sceneOrder', l.sceneOrder,
-        'timelineOrder', l.timelineOrder,
-        'notes', l.notes,
-        'scene', l.scene,
-        'characters', l.characters,
-        'status', l.status,
-        'created_at', l.created_at,
-        'updated_at', l.updated_at
-      )
-    END AS scene
+  SELECT *
   FROM scenes s
-  LEFT JOIN scenes l
-    ON s.scene_id = l.id
 `;
 
 // GET /api/projects/:projectId/scenes
@@ -119,7 +124,7 @@ export const getScenes = async (req, res) => {
 
     const orderColumn = validOrderColumns.includes(orderBy)
       ? orderBy
-      : "scene_order";
+      : "created_at";
 
     const result = await pool.query(
       `${sceneSelect}
@@ -244,7 +249,7 @@ export const createScene = async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO scenes
-        (project_id, name, description, sceneOrder, timelineOrder, notes, location, characters, status)
+        (project_id, name, description, scene_order, timeline_order, notes, location, characters, status)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8::TEXT[], $9)
        RETURNING *`,
       [
@@ -313,13 +318,18 @@ export const updateScene = async (req, res) => {
       });
     }
 
+    const cleanedCharacters = characters
+      .filter((value) => typeof value === "string")
+      .map((value) => value.trim())
+      .filter(Boolean);
+
     const result = await pool.query(
       `UPDATE scenes
         SET
           name = $1,
           description = $2,
-          sceneOrder = $3,
-          timelineOrder = $4,
+          scene_order = $3,
+          timeline_order = $4,
           notes = $5, 
           location = $6, 
           characters = $7::TEXT[],
@@ -335,7 +345,7 @@ export const updateScene = async (req, res) => {
         timelineOrder || 0,
         notes || null,
         location,
-        characters,
+        cleanedCharacters,
         status,
         sceneId,
         projectId,
@@ -356,6 +366,8 @@ export const updateScene = async (req, res) => {
       data: result.rows[0],
     });
   } catch (error) {
+    console.error("Error updating scene:", error)
+
     return res.status(500).json({
       success: false,
       message: "Failed to update scene.",
