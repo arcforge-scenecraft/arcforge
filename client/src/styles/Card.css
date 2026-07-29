@@ -84,6 +84,34 @@
   margin-bottom: 0.9rem;
 }
 
+.card-header-2 {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 1.95rem;
+  margin-bottom: 0.9rem;
+}
+
+/* Scene/Timeline Orders */
+.card-orders {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.card-order {
+  display: inline-flex;
+  align-items: center;
+  padding-right: 0.65rem;
+  padding-top: 0.6rem;
+  border-radius: 999px;
+  /* background: rgba(112, 85, 184, 0.08); */
+  color: var(--card-accent-dark);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 /* Status badge */
 
 .status {
@@ -174,7 +202,8 @@
   margin-top: 1rem;
 }
 
-.card-genre {
+.card-genre,
+.card-genre-2 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -182,15 +211,23 @@
   max-width: 100%;
   padding: 0.32rem 0.62rem;
   overflow: hidden;
-  border: 1px solid rgba(112, 85, 184, 0.18);
   border-radius: 999px;
-  background-color: rgba(112, 85, 184, 0.085);
-  color: var(--card-accent-dark);
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.card-genre {
+  border: 1px solid rgba(112, 85, 184, 0.18);
+  background-color: rgba(112, 85, 184, 0.085);
+  color: var(--card-accent-dark);
+}
+.card-genre-2 {
+  border: 1px solid rgba(26, 102, 62, 0.18);
+  background-color: rgba(42, 137, 87, 0.1);
+  color: #236d47;
 }
 
 .card-genre-empty {

@@ -214,8 +214,8 @@ export const createScene = async (req, res) => {
     const { 
       name,
       description = "",
-      sceneOrder = 0,
-      timelineOrder = 0,
+      scene_order = 0,
+      timeline_order = 0,
       notes = "",
       location = "",
       characters = [],
@@ -231,7 +231,7 @@ export const createScene = async (req, res) => {
     }
 
     const validationMessage = validateSceneFields(
-      { name, description, sceneOrder, timelineOrder, notes, location, characters, status },
+      { name, description, scene_order, timeline_order, notes, location, characters, status },
       { requireName: true },
     );
 
@@ -256,8 +256,8 @@ export const createScene = async (req, res) => {
         projectId,
         name.trim(),
         description.trim() || null,
-        sceneOrder || 0,
-        timelineOrder || 0,
+        scene_order || 0,
+        timeline_order || 0,
         notes || null,
         location,
         cleanedCharacters,
@@ -292,7 +292,7 @@ export const createScene = async (req, res) => {
 export const updateScene = async (req, res) => {
   try {
     const { projectId, sceneId } = req.params;
-    const { name, description, sceneOrder, timelineOrder, notes, location, characters, status } = req.body;
+    const { name, description, scene_order, timeline_order, notes, location, characters, status } = req.body;
 
     // Validate required fields
     if (!isValidId(projectId)) {
@@ -309,7 +309,7 @@ export const updateScene = async (req, res) => {
       });
     }
 
-    const validationMessage = validateSceneFields({name, description, sceneOrder, timelineOrder, notes, location, characters, status});
+    const validationMessage = validateSceneFields({name, description, scene_order, timeline_order, notes, location, characters, status});
 
     if (validationMessage) {
       return res.status(400).json({
@@ -341,8 +341,8 @@ export const updateScene = async (req, res) => {
       [
         name.trim(),
         description.trim() || null,
-        sceneOrder || 0,
-        timelineOrder || 0,
+        scene_order || 0,
+        timeline_order || 0,
         notes || null,
         location,
         cleanedCharacters,

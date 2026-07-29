@@ -12,7 +12,12 @@ const SceneCard = ({scene, onDelete}) => {
 
   return (
     <article className="card">
-      <div className="card-header">
+      <div className="card-header-2">
+        <div className="card-orders">
+          <span className="card-order">Scene #{scene.scene_order}</span>
+          <span className="card-order">Timeline #{scene.timeline_order}</span>
+        </div>
+
         <span className="status">{scene.status || "Planning"}</span>
       </div>
 
@@ -22,18 +27,11 @@ const SceneCard = ({scene, onDelete}) => {
         </h2>
 
         <p className="card-description">
-          Scene Order: {scene.sceneOrder || "unknown"} | Timeline Order: {scene.timelineOrder || "unknown"}
-        </p>
-
-        <p className="card-description">
           {scene.description || "No description added yet."}
         </p>
 
-        <p className="card-description">
-          Location: {scene.location || "unknown"}
-        </p>
-
         <div className="card-genres">
+          {<span className="card-genre-2">{scene.location}</span> || ""}
           {characters.length > 0 ? (
             characters.map((character) => (
               <span key={character} className="card-genre">
@@ -47,15 +45,14 @@ const SceneCard = ({scene, onDelete}) => {
           )}
         </div>
 
-        <p className="card-description">
-          Status: {scene.status || "unknown"}
-        </p>
+        <p></p>
+
       </div>
 
       <div className="card-actions">
         <div className="card-primary-actions">
           <Link to={`/projects/${scene.project_id}/scenes/${scene.id}`} className="card-link">
-            View Scene
+            View scene
           </Link>
 
           <Link to={`/projects/${scene.project_id}/scenes/${scene.id}/edit`} className="card-edit-link">

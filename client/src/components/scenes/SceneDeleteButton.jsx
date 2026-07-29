@@ -48,7 +48,7 @@ function SceneDeleteButton({ sceneName, onDelete }) {
       >
         <TrashIcon className="delete__icon" aria-hidden="true" />
 
-        <span>{isDeleting ? "Deleting..." : "Delete scene"}</span>
+        <span>{isDeleting ? "Deleting..." : "Delete"}</span>
       </button>
 
       {deleteError && (

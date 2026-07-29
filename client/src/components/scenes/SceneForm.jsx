@@ -6,8 +6,8 @@ const EMPTY_SCENE = {
     project_id: "",
     name: "",
     description: "",
-    sceneOrder: null,
-    timelineOrder: null,
+    scene_order: null,
+    timeline_order: null,
     notes: "",
     location: "",
     characters: [],
@@ -63,8 +63,6 @@ const SceneForm = ({
             console.log("Characters:", updatedCharacters)
             console.log("Locations:", updatedLocations)
         } catch (err) {
-            // setCharacterOptions(["Undecided"]);
-            // setLocationOptions(["Uncdecided"]);
             console.error("Error loading form options:", err);
         }
     };
@@ -159,8 +157,8 @@ const SceneForm = ({
     onSubmit({
         name: formData.name.trim(),
         description: formData.description.trim(),
-        sceneOrder: parseInt(formData.sceneOrder.trim(), 10),
-        timelineOrder: parseInt(formData.timelineOrder.trim(), 10),
+        scene_order: parseInt(formData.scene_order, 10),
+        timeline_order: parseInt(formData.timeline_order, 10),
         notes: formData.notes.trim(),
         location: formData.location,
         characters: formData.characters,
@@ -176,7 +174,7 @@ const SceneForm = ({
         </div>
       )}
 
-      <fieldset className="orm-fields" disabled={isSubmitting}>
+      <fieldset className="form-fields" disabled={isSubmitting}>
         <div className="form-field">
           <label htmlFor="name">
             Scene name <span aria-hidden="true">*</span>
@@ -221,9 +219,9 @@ const SceneForm = ({
 
           <input
             id="sceneOrder"
-            name="sceneOrder"
+            name="scene_order"
             type="text"
-            value={formData.sceneOrder}
+            value={formData.scene_order}
             onChange={handleChange}
             maxLength={255}
             placeholder="Where does this happen in the story?"
@@ -235,9 +233,9 @@ const SceneForm = ({
 
           <input
             id="timelineOrder"
-            name="timelineOrder"
+            name="timeline_order"
             type="text"
-            value={formData.timelineOrder}
+            value={formData.timeline_order}
             onChange={handleChange}
             maxLength={255}
             placeholder="Where does this happen in the timeline?"

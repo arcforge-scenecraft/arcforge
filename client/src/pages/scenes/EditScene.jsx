@@ -3,14 +3,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import SceneForm from "../../components/scenes/SceneForm";
 import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { ErrorState, Loader } from "../../components/ui";
+import { getSceneById } from "../../services/sceneApi";
+import { updateScene } from "../../services/sceneApi";
 
 const EditScene = () => {
-  const { projectId } = useParams();
+  const { projectId, sceneId } = useParams();
   const navigate = useNavigate();
 
-  const [project, setProject] = useState(null);
-  const [characters, setCharacters] = useState(null); // currently no characters api routes
-  const [locations, setLocations] = useState(null);
+  // const [project, setProject] = useState(null);
+  // const [characters, setCharacters] = useState(null);
+  // const [locations, setLocations] = useState(null);
   const [scene, setScene] = useState(null);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -18,30 +20,26 @@ const EditScene = () => {
   const [apiError, setApiError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const loadInfo = async () => {
+  const loadScene = async () => {
     try {
       setIsLoading(true);
       setLoadError("");
 
-      const projectData = await getProjectById(projectId);
-      setProject(projectData);
-      const locationData = await getLocations(projectId);
-      setLocations(locationData);
-      // add real character data from api when available
-      const characterData = ["Character 1", "Character 2"]; 
-      setCharacters(characterData)
+      const sceneData = await getSceneById(projectId, sceneId);
+      setScene(sceneData);
+      console.log("Scene loaded:", sceneData);
     } catch (error) {
-      setLoadError(error.message || "Unable to load the project.");
+      setLoadError(error.message || "Unable to load the scene.");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    loadInfo();
-  }, [projectId]);
+    loadScene();
+  }, [projectId, sceneId]);
 
-  const handleUpdateProject = async (projectData) => {
+  const handleUpdateProject = async (sceneData) => {
     if (isSubmitting) {
       return;
     }
@@ -50,49 +48,50 @@ const EditScene = () => {
       setIsSubmitting(true);
       setApiError("");
 
-      const updatedProject = await updateProject(projectId, projectData);
+      const updatedScene = await updateScene(projectId, sceneId, sceneData);
 
-      console.log("Updated project:", updatedProject);
+      console.log("Updated scene:", updatedScene);
 
-      if (!updatedProject?.id) {
+      if (!updatedScene?.id) {
         throw new Error(
-          "The project was updated, but the API did not return its ID.",
+          "The scene was updated, but the API did not return its ID.",
         );
       }
 
-      navigate(`/projects/${updatedProject.id}`, {
+      navigate(`/projects/${projectId}/scenes/${updatedScene.id}`, {
         replace: true,
         state: {
-          message: "Project updated successfully.",
+          message: "Scene updated successfully.",
         },
       });
     } catch (error) {
-      setApiError(error.message || "Unable to update the project.");
+      setApiError(error.message || "Unable to update the scene.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   if (isLoading) {
-    return <Loader text="Loading project..." />;
+    return <Loader text="Loading scene..." />;
   }
 
   if (loadError) {
-    return <ErrorState message={loadError} onRetry={loadProject} />;
+    return <ErrorState message={loadError} onRetry={loadScene} />;
   }
 
   return (
     <main className="page-container">
       <ProjectFormHeader
-        eyebrow="Project settings"
-        title={`Edit ${project.title}`}
-        description="Update the basic information for this story project."
+        eyebrow="Scene settings"
+        title={`Edit ${scene.name}`}
+        description="Update the information for this scene."
       />
 
       <SceneForm
-        initialValues={project}
+        initialValues={scene}
         onSubmit={handleUpdateProject}
-        onCancel={() => navigate(`/projects/${projectId}`)}
+        projectId={projectId}
+        onCancel={() => navigate(`/projects/${projectId}/scenes`)}
         submitLabel="Save Changes"
         isSubmitting={isSubmitting}
         apiError={apiError}

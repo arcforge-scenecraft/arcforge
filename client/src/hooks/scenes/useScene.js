@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getScene } from "../../services/sceneApi";
+import { getSceneById } from "../../services/sceneApi";
 
 function useScene(projectId, sceneId) {
   const [scene, setScene] = useState(null);
@@ -19,7 +19,7 @@ function useScene(projectId, sceneId) {
         setNotFound(false);
         setScene(null);
 
-        const data = await getScene(projectId, sceneId);
+        const data = await getSceneById(projectId, sceneId);
 
         if (isMounted) {
           setScene(data || null);

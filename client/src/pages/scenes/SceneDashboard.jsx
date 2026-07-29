@@ -6,11 +6,22 @@ import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { ErrorState, Loader } from "../../components/ui";
 import { deleteScene, getScenes } from "../../services/sceneApi";
 import SceneCard from "../../components/scenes/SceneCard";
+import { getProjectById } from "../../services/projectApi";
+import { getLocations } from "../../services/locationApi";
+import { getCharacters } from "../../services/characterApi";
 
 const SceneDashboard = () => {
   const { projectId } = useParams();
 
+  const [project, setProject] = useState([]);
   const [scenes, setScenes] = useState([]);
+  // const [locations, setLocations] = useState([]);
+  // const [characters, setCharacters] = useState([]);
+
+  // const [sortBy, setSortBy] = useState("scene_order");
+  // const [locationFilter, setLocationFilter] = useState("");
+  // const [characterFilter, setCharacterFilter] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -22,10 +33,19 @@ const SceneDashboard = () => {
         setLoading(true);
         setError("");
 
-        const data = await getScenes(projectId);
+        const sceneData = await getScenes(projectId);
+
+        const projectData = await getProjectById(projectId);
+        setProject(projectData);
+
+        // const locationData = await getLocations(projectId);
+        // setLocations(locationData);
+
+        // const characterData = await getCharacters(projectId);
+        // setCharacters(characterData);
 
         if (isMounted) {
-          setScenes(Array.isArray(data) ? data : []);
+          setScenes(Array.isArray(sceneData) ? sceneData : []);
         }
       } catch (err) {
         if (isMounted) {
@@ -64,24 +84,88 @@ const SceneDashboard = () => {
         Back to project
       </Link>
 
-      <header className="page-header">
-        <p className="eyebrow">Scene library</p>
+      <header className="detail__hero">
+          <div className="detail__hero-content">
 
-        <h1 className="page-title">Scenes</h1>
+            <div className="detail__heading-row">
+              <p className="detail__eyebrow">{project.title}</p>
+            </div>
 
-        <p className="page-copy">
-          Browse reusable scenes that belong to this story project.
-        </p>
-      </header>
+            <h1>Scene Library</h1>
 
-      <div className="page-actions page-actions--header">
-        <Link
-          to={`/projects/${projectId}/scenes/new`}
-          className="button button--primary"
-        >
-          Create scene
-        </Link>
-      </div>
+            <p className="detail__description">
+              Browse the scenes that belong to this story project.
+            </p>
+
+          </div>
+
+          <div className="detail__actions">
+
+            <Link
+              to={`/projects/${projectId}/scenes/new`}
+              className="detail__edit-link"
+            >
+              Create scene
+            </Link>
+          </div>
+        </header>
+
+      {/* <section className="detail__controls">
+        <div className="detail__controls-group">
+          <label htmlFor="sortBy">Sort by</label>
+
+          <select
+            id="sortBy"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="name">Name</option>
+            <option value="scene_order">Scene Order</option>
+            <option value="timeline_order">Timeline Order</option>
+            <option value="created_at">Created Date</option>
+            <option value="updated_at">Last Updated</option>
+          </select>
+        </div>
+
+        <div className="detail__controls-group">
+          <label htmlFor="locationFilter">Location</label>
+
+          <select
+            id="locationFilter"
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+          >
+            <option value="">All Locations</option>
+
+            {locations.map((location) => (
+              <option key={location.id} value={location.name}>
+                {location.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="detail__controls-group detail__controls-group--wide">
+          <label htmlFor="characterFilter">Characters</label>
+
+          <select
+            id="characterFilter"
+            multiple
+            value={characterFilter}
+            onChange={(e) =>
+              setCharacterFilter(
+                Array.from(e.target.selectedOptions, (option) => option.value)
+              )
+            }
+          >
+            {characters.map((character) => (
+              <option key={character.id} value={character.name}>
+                {character.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section> */}
 
       {loading && (
         <div className="notice-card">
