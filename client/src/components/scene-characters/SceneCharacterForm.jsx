@@ -2,40 +2,33 @@ import { useEffect, useState } from "react";
 import { getCharacters } from "../../services/characterApi.js";
 import { getLocations } from "../../services/locationApi.js";
 
-const EMPTY_SCENE = {
-    project_id: "",
-    name: "",
-    description: "",
-    scene_order: null,
-    timeline_order: null,
-    notes: "",
-    location: "Undecided",
-    characters: [],
-    status: "Planning",
+const EMPTY_SCENE_CHARACTER = {
+    scene_id: "",
+    character_id: "",
+    role_in_scene: "",
+    knowledge_gained: "",
 };
 
-const normalizeSceneValues = (values = {}) => ({
-  ...EMPTY_SCENE,
-  ...values,
+// const normalizeSceneValues = (values = {}) => ({
+//   ...EMPTY_SCENE,
+//   ...values,
 
-  // Ensures characters variable is always an array when editing.
-  characters: Array.isArray(values.characters) ? values.characters : [],
+//   // Ensures characters variable is always an array when editing.
+//   characters: Array.isArray(values.characters) ? values.characters : [],
 
-  status: values.status || "Planning",
-});
+//   status: values.status || "Planning",
+// });
 
-const SceneForm = ({
-  initialValues = EMPTY_SCENE,
-  projectId,
+const SceneCharacterForm = ({
+  initialValues = EMPTY_SCENE_CHARACTER,
+  sceneId,
   onSubmit,
   onCancel,
-  submitLabel = "Save Scene",
+  submitLabel = "Save Scene Character",
   isSubmitting = false,
   apiError = "",
 }) => {
-  const [formData, setFormData] = useState(() =>
-    normalizeSceneValues(initialValues),
-  );
+  const [formData, setFormData] = useState(() => initialValues);
   
   const [validationErrors, setValidationErrors] = useState({});
   const [characterOptions, setCharacterOptions] = useState({});

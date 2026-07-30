@@ -389,7 +389,7 @@ const SceneDetail = () => {
                 <h2>Location & Characters</h2>
             </div>
 
-            {scene.characters == ["Undecided"]?<div className="detail__related-grid">
+            {scene.characters != ["Undecided"] || scene.location != "Undecided"?<div className="detail__related-grid">
                 {/* <Link
                 to={`/projects/${projectId}/locations/${scene.location}`}
                 className="detail__related-card"
@@ -407,7 +407,7 @@ const SceneDetail = () => {
                 }
                 {/* </Link> */}
 
-                {scene.characters != ["Undecided"]?.map((character) => (
+                {scene.characters?.filter(item => item !== "Undecided").map((character) => (
                 // <Link
                 //     key={character.id}
                 //     to={`/projects/${projectId}/characters/${character.id}`}

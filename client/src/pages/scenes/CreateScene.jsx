@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import SceneForm from "../../components/scenes/SceneForm";
 import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { createScene } from "../../services/sceneApi";
+import { assignCharacterToScene } from "../../services/scene-characterApi";
 
 const CreateScene = () => {
     const { projectId } = useParams();
@@ -11,7 +12,7 @@ const CreateScene = () => {
     const [apiError, setApiError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleCreateScene = async (sceneData) => {
+    const handleCreateScene = async (sceneData, characterData) => {
 
     if (isSubmitting) {
         return;
@@ -22,6 +23,8 @@ const CreateScene = () => {
         setApiError("");
 
         console.log("About to call createScene for project", projectId, "and sceneData:", sceneData)
+        console.log("About to call assignCharacterToScene with these characters to the new scene:", characterData)
+
 
         const createdScene = await createScene(projectId, sceneData);
 
@@ -31,14 +34,29 @@ const CreateScene = () => {
         );
         }
 
+        if (createdScene && createdScene.id) {
+            // let newSceneCharacter = "";
+            for (let i = 0; i < characterData.length; i++) {
+                try {
+                    const newSceneCharacter = await assignCharacterToScene(projectId, createdScene.id, {
+                    character_id: characterData[i],
+                    role_in_scene: "",
+                    knowledge_gained: "",});
+                    console.log(newSceneCharacter);
+                } catch (error) {
+                    setApiError(error.message || "Unable to create the scene-character assignments.")
+                }
+            }
+        }
+
         navigate(`/projects/${projectId}/scenes`, {
         replace: true,
         state: {
-            message: "Scene created successfully.",
+            message: "Scene and scene-character connections created successfully.",
         },
         });
     } catch (error) {
-        setApiError(error.message || "Unable to create the scene.");
+        setApiError(error.message || "Unable to create the scene or scene-character connections.");
     } finally {
         setIsSubmitting(false);
     }

@@ -20,6 +20,8 @@ function useScene(projectId, sceneId) {
         setScene(null);
 
         const data = await getSceneById(projectId, sceneId);
+        console.log(data.location);
+        console.log(data.characters.length)
 
         if (isMounted) {
           setScene(data || null);
