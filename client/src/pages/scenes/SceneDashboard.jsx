@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { Loader } from "../../components/ui";
 import { deleteScene, getScenes } from "../../services/sceneApi";
 import SceneCard from "../../components/scenes/SceneCard";
 import { getProjectById } from "../../services/projectApi";
-import { getLocations } from "../../services/locationApi";
-import { getCharacters } from "../../services/characterApi";
 
 const SceneDashboard = () => {
   const { projectId } = useParams();

@@ -3,8 +3,10 @@ import { pool } from "../config/database.js";
 const isValidId = (id) => Number.isInteger(Number(id)) && Number(id) > 0;
 const validOrderColumns = ["created_at", "sceneOrder", "timelineOrder"];
 
+const validSceneStatuses = ["Planning", "In Progress", "Completed", "On Hold"];
+
 const validateSceneFields = (
-  { name, description, sceneOrder, timelineOrder, notes, location, characters, status },
+  { name, description, sceneOrder, timelineOrder, notes, characters, status },
   { requireName = true } = {},
 ) => {
   let errorString = "";
@@ -52,61 +54,60 @@ const validateSceneFields = (
     errorString += "Scene characters must be an array. ";
   }
 
-  if (typeof status !== "string" || !status.trim()) {
-    errorString += "Scene status is required. ";
+  if (typeof status !== "string" || !(validSceneStatuses.includes(status.trim()))) {
+    errorString += "Scene status must be one of these four options: Planning, In Progress, Completed, or On Hold. ";
   }
 
   return errorString;
 };
-const validSceneStatuses = ["draft", "in progress", "completed"];
 
-const toOptionalString = (value) => {
-  if (value === undefined || value === null) {
-    return value;
-  }
+// const toOptionalString = (value) => {
+//   if (value === undefined || value === null) {
+//     return value;
+//   }
 
-  if (typeof value !== "string") {
-    return null;
-  }
+//   if (typeof value !== "string") {
+//     return null;
+//   }
 
-  return value.trim();
-};
+//   return value.trim();
+// };
 
-const normalizeOptionalText = (value) => {
-  if (value === undefined || value === null) {
-    return value;
-  }
+// const normalizeOptionalText = (value) => {
+//   if (value === undefined || value === null) {
+//     return value;
+//   }
 
-  const trimmedValue = value.trim();
+//   const trimmedValue = value.trim();
 
-  return trimmedValue === "" ? null : trimmedValue;
-};
+//   return trimmedValue === "" ? null : trimmedValue;
+// };
 
-const parseOptionalOrderValue = (value) => {
-  if (value === undefined || value === null || value === "") {
-    return { valid: true, parsed: null };
-  }
+// const parseOptionalOrderValue = (value) => {
+//   if (value === undefined || value === null || value === "") {
+//     return { valid: true, parsed: null };
+//   }
 
-  const parsedValue = Number(value);
+//   const parsedValue = Number(value);
 
-  if (!Number.isInteger(parsedValue) || parsedValue < 1) {
-    return { valid: false, parsed: null };
-  }
+//   if (!Number.isInteger(parsedValue) || parsedValue < 1) {
+//     return { valid: false, parsed: null };
+//   }
 
-  return { valid: true, parsed: parsedValue };
-};
+//   return { valid: true, parsed: parsedValue };
+// };
 
-const normalizeStatus = (status) => {
-  if (status === undefined || status === null) {
-    return status;
-  }
+// const normalizeStatus = (status) => {
+//   if (status === undefined || status === null) {
+//     return status;
+//   }
 
-  if (typeof status !== "string") {
-    return null;
-  }
+//   if (typeof status !== "string") {
+//     return null;
+//   }
 
-  return status.trim().toLowerCase();
-};
+//   return status.trim().toLowerCase();
+// };
 
 const getProjectExists = async (projectId) => {
   const result = await pool.query(
@@ -119,17 +120,17 @@ const getProjectExists = async (projectId) => {
   return result.rows.length > 0;
 };
 
-const getLocationExists = async (projectId, locationId) => {
-  const result = await pool.query(
-    `SELECT id
-     FROM locations
-     WHERE id = $1
-       AND project_id = $2`,
-    [locationId, projectId],
-  );
+// const getLocationExists = async (projectId, locationId) => {
+//   const result = await pool.query(
+//     `SELECT id
+//      FROM locations
+//      WHERE id = $1
+//        AND project_id = $2`,
+//     [locationId, projectId],
+//   );
 
-  return result.rows.length > 0;
-};
+//   return result.rows.length > 0;
+// };
 
 // const sceneSelect = `
 //   SELECT
