@@ -72,16 +72,16 @@ const ProjectDetail = () => {
     retry: retryCharacters,
   } = useCharacters(projectId);
 
-  const loading = projectLoading || locationsLoading || charactersLoading;
-  const error = projectError || locationsError || charactersError;
+  const {
     scenes,
     loading: sceneLoading,
     error: sceneError,
     retry: retryScenes,
   } = useScenes(projectId);
 
-  const loading = projectLoading || locationsLoading || sceneLoading;
-  const error = projectError || locationsError || sceneError;
+  const loading =
+    projectLoading || locationsLoading || charactersLoading || sceneLoading;
+  const error = projectError || locationsError || charactersError || sceneError;
 
   const retry = () => {
     retryProject();
