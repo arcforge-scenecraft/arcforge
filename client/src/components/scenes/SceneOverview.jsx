@@ -43,12 +43,12 @@ const SceneOverview = ({projectId, scenes = []}) => {
 
                   <div className="card-genres">
                     {scene.location && scene.location != "Undefined"?
-                      <span className="card-genre-2">{scene.location}</span>
+                      <span className="detail__genre">{scene.location}</span>
                     : ""}
 
                     {scene.characters.length > 0 ? (
                       scene.characters.slice(0,2).map((character) => (character != "Undecided"?
-                        <span key={character} className="card-genre">
+                        <span key={character} className="detail__genre">
                           {character}
                         </span>: ""
                       ))

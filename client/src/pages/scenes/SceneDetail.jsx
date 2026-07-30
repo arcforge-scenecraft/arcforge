@@ -389,7 +389,7 @@ const SceneDetail = () => {
                 <h2>Location & Characters</h2>
             </div>
 
-            {scene.characters === ["Undecided"]?<div className="detail__related-grid">
+            {scene.characters == ["Undecided"]?<div className="detail__related-grid">
                 {/* <Link
                 to={`/projects/${projectId}/locations/${scene.location}`}
                 className="detail__related-card"
