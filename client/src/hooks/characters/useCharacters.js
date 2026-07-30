@@ -55,11 +55,21 @@ const useCharacters = (projectId) => {
     setRetryCount((currentCount) => currentCount + 1);
   }, []);
 
+  // Lets pages drop a deleted character without refetching the whole list.
+  const removeCharacter = useCallback((characterId) => {
+    setCharacters((currentCharacters) =>
+      currentCharacters.filter(
+        (character) => String(character.id) !== String(characterId),
+      ),
+    );
+  }, []);
+
   return {
     characters,
     loading,
     error,
     retry,
+    removeCharacter,
   };
 };
 

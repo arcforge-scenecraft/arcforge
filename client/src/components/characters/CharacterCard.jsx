@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 
-function CharacterCard({ character, projectId }) {
+import CharacterDeleteButton from "./CharacterDeleteButton";
+
+function CharacterCard({ character, projectId, onDelete }) {
   return (
     <article className="detail-panel">
       <h3>{character.name}</h3>
@@ -31,6 +33,12 @@ function CharacterCard({ character, projectId }) {
         >
           Edit character
         </Link>
+
+        <CharacterDeleteButton
+          characterName={character.name}
+          onDelete={onDelete}
+          label="Delete"
+        />
       </div>
     </article>
   );

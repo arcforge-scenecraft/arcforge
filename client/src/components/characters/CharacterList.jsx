@@ -1,6 +1,6 @@
 import CharacterCard from "./CharacterCard";
 
-function CharacterList({ characters, projectId }) {
+function CharacterList({ characters, projectId, onDeleteCharacter }) {
   return (
     <div className="detail-grid">
       {characters.map((character) => (
@@ -8,6 +8,7 @@ function CharacterList({ characters, projectId }) {
           key={character.id}
           character={character}
           projectId={projectId}
+          onDelete={() => onDeleteCharacter(character.id)}
         />
       ))}
     </div>

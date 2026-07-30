@@ -4,12 +4,20 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import CharacterList from "../../components/characters/CharacterList";
 import { ErrorState, Loader } from "../../components/ui";
 import useCharacters from "../../hooks/characters/useCharacters";
+import { deleteCharacter } from "../../services/characterApi";
 
 function CharacterRoster() {
   const { projectId } = useParams();
   const { state } = useLocation();
 
-  const { characters, loading, error, retry } = useCharacters(projectId);
+  const { characters, loading, error, retry, removeCharacter } =
+    useCharacters(projectId);
+
+  const handleDeleteCharacter = async (characterId) => {
+    await deleteCharacter(projectId, characterId);
+
+    removeCharacter(characterId);
+  };
 
   return (
     <main className="detail-page">
@@ -54,7 +62,11 @@ function CharacterRoster() {
       )}
 
       {!loading && !error && characters.length > 0 && (
-        <CharacterList characters={characters} projectId={projectId} />
+        <CharacterList
+          characters={characters}
+          projectId={projectId}
+          onDeleteCharacter={handleDeleteCharacter}
+        />
       )}
     </main>
   );
