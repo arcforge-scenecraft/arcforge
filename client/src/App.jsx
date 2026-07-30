@@ -8,6 +8,10 @@ import LocationLibrary from "./pages/locations/LocationLibrary";
 import LocationDetail from "./pages/locations/LocationDetail";
 import CreateLocation from "./pages/locations/CreateLocation";
 import EditLocation from "./pages/locations/EditLocation";
+import CharacterRoster from "./pages/characters/CharacterRoster";
+import CharacterDetail from "./pages/characters/CharacterDetail";
+import CreateCharacter from "./pages/characters/CreateCharacter";
+import EditCharacter from "./pages/characters/EditCharacter";
 import NotFound from "./pages/NotFound";
 import CreateScene from "./pages/scenes/CreateScene";
 import SceneDashboard from "./pages/scenes/SceneDashboard";
@@ -41,6 +45,22 @@ function App() {
       <Route
         path="/projects/:projectId/locations/:locationId/edit"
         element={<EditLocation />}
+      />
+      <Route
+        path="/projects/:projectId/characters"
+        element={<CharacterRoster />}
+      />
+      <Route
+        path="/projects/:projectId/characters/new"
+        element={<CreateCharacter />}
+      />
+      <Route
+        path="/projects/:projectId/characters/:characterId"
+        element={<CharacterDetail />}
+      />
+      <Route
+        path="/projects/:projectId/characters/:characterId/edit"
+        element={<EditCharacter />}
       />
       <Route path="*" element={<NotFound />} />
     </Routes>

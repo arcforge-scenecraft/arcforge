@@ -1,0 +1,36 @@
+.character-card__role {
+  margin: 0 0 0.6rem;
+  color: var(--primary-hover-color, #5f46a4);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.character-section + .character-section {
+  margin-top: 1.25rem;
+}
+
+.character-section h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+
+.character-section p {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.character-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.form-success {
+  border-left: 4px solid #2f855a;
+  background-color: #f0fff6;
+  color: #22633f;
+  font-weight: 600;
+}
