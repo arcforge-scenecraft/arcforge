@@ -60,25 +60,25 @@
   "scenes": [
     {
       "key": "dock_meeting",
-      "location_key": "harbor",
-      "title": "The Map Wakes",
-      "summary": "Mara and Tobin discover the Lantern Map glowing near the harbor watchtower.",
+      "name": "The Map Wakes",
+      "description": "Mara and Tobin discover the Lantern Map glowing near the harbor watchtower.",
       "scene_order": 1,
       "timeline_order": 1,
-      "status": "Draft",
-      "mood": "Mysterious",
-      "notes": "Selene watches from a nearby rooftop."
+      "notes": "Selene watches from a nearby rooftop.",
+      "location": "Mistfall Harbor",
+      "characters": ["Mara Venn", "Tobin Reed"],
+      "status": "Draft"
     },
     {
       "key": "archive_gate",
-      "location_key": "archive",
-      "title": "The Gate Below",
-      "summary": "The group reaches the Sunken Archive and finds Selene waiting at the sealed gate.",
+      "name": "The Gate Below",
+      "description": "The group reaches the Sunken Archive and finds Selene waiting at the sealed gate.",
       "scene_order": 2,
       "timeline_order": 2,
-      "status": "Draft",
-      "mood": "Suspenseful",
-      "notes": "The Brass Tide Key must be used before the water rises."
+      "notes": "The Brass Tide Key must be used before the water rises.",
+      "location": "The Sunken Archive",
+      "characters": ["Mara Venn", "Tobin Reed", "Selene Cross"],
+      "status": "Planning"
     }
   ],
   "scene_characters": [
