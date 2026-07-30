@@ -1,10 +1,4 @@
-/*  This block appears on a project page
-    It should show a summary of the number of scenes and scene progress if there are scenes
-    Otherwise, it should show a get started with scenes button to create blank scene
-*/
-
-import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 
 const SceneOverview = ({projectId, scenes = []}) => {
     const latestScenes = [...scenes]

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getCharacters } from "../../services/characterAPI";
-import { getLocations } from "../../services/locationApi";
+import { getCharacters } from "../../services/characterAPI.js";
+import { getLocations } from "../../services/locationApi.js";
 
 const EMPTY_SCENE = {
     project_id: "",
@@ -68,7 +68,7 @@ const SceneForm = ({
     };
 
     fetchOptions();
-  }, []);
+  }, [projectId]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
