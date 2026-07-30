@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCharacters } from "../../services/characterAPI.js";
+import { getCharacters } from "../../services/characterApi.js";
 import { getLocations } from "../../services/locationApi.js";
 
 const EMPTY_SCENE = {
