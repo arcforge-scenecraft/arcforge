@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SceneForm from "../../components/scenes/SceneForm";
 import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
@@ -7,9 +7,7 @@ import { createScene } from "../../services/sceneApi";
 const CreateScene = () => {
     const { projectId } = useParams();
     const navigate = useNavigate();
-
-    const [characters, setCharacters] = useState(null); // currently no characters api routes
-    const [locations, setLocations] = useState(null);
+    
     const [apiError, setApiError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 

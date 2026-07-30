@@ -265,7 +265,7 @@ const SceneForm = ({
             onChange={handleChange}
           >
             {locationOptions.map((location) => {
-                return(<option value={location}>{location}</option>)
+                return(<option key={location} value={location}>{location}</option>)
             })}
           </select>
         </div>
@@ -348,10 +348,10 @@ const SceneForm = ({
             value={formData.status}
             onChange={handleChange}
           >
-            <option value="Planning">Planning</option>
-            <option value="In Progress">In Progress</option>
-            <option value="On Hold">On Hold</option>
-            <option value="Completed">Completed</option>
+            <option key="Planning" value="Planning">Planning</option>
+            <option key="In-Progress" value="In Progress">In Progress</option>
+            <option key="On-Hold" value="On Hold">On Hold</option>
+            <option key="Completed" value="Completed">Completed</option>
           </select>
         </div>
 

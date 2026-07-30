@@ -20,22 +20,22 @@ const EditScene = () => {
   const [apiError, setApiError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const loadScene = async () => {
-    try {
-      setIsLoading(true);
-      setLoadError("");
-
-      const sceneData = await getSceneById(projectId, sceneId);
-      setScene(sceneData);
-      console.log("Scene loaded:", sceneData);
-    } catch (error) {
-      setLoadError(error.message || "Unable to load the scene.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const loadScene = async () => {
+      try {
+        setIsLoading(true);
+        setLoadError("");
+
+        const sceneData = await getSceneById(projectId, sceneId);
+        setScene(sceneData);
+        console.log("Scene loaded:", sceneData);
+      } catch (error) {
+        setLoadError(error.message || "Unable to load the scene.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     loadScene();
   }, [projectId, sceneId]);
 

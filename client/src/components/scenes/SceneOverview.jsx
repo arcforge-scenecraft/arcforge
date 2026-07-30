@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const SceneOverview = ({projectId, scenes = []}) => {
     const latestScenes = [...scenes]
