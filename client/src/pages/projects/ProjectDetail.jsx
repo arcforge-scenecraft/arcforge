@@ -7,11 +7,13 @@ import {
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import LatestCharacters from "../../components/characters/LatestCharacters";
 import LatestLocations from "../../components/locations/LatestLocations";
 import ProjectDeleteButton from "../../components/projects/ProjectDeleteButton";
 import ProjectOverview from "../../components/projects/ProjectOverview";
 import { ErrorState, Loader } from "../../components/ui";
 import useProject from "../../hooks/projects/useProject";
+import useCharacters from "../../hooks/characters/useCharacters";
 import useLocations from "../../hooks/locations/useLocations";
 import { deleteProject } from "../../services/projectApi";
 
@@ -61,12 +63,20 @@ const ProjectDetail = () => {
     retry: retryLocations,
   } = useLocations(projectId);
 
-  const loading = projectLoading || locationsLoading;
-  const error = projectError || locationsError;
+  const {
+    characters,
+    loading: charactersLoading,
+    error: charactersError,
+    retry: retryCharacters,
+  } = useCharacters(projectId);
+
+  const loading = projectLoading || locationsLoading || charactersLoading;
+  const error = projectError || locationsError || charactersError;
 
   const retry = () => {
     retryProject();
     retryLocations();
+    retryCharacters();
   };
 
   const handleDeleteProject = async () => {
@@ -244,6 +254,9 @@ const ProjectDetail = () => {
 
         {/* Latest Locations */}
         <LatestLocations projectId={projectId} locations={locations} />
+
+        {/* Latest Characters */}
+        <LatestCharacters projectId={projectId} characters={characters} />
       </article>
     </main>
   );
