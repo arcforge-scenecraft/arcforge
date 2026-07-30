@@ -89,27 +89,27 @@ const seedDatabase = async () => {
       `INSERT INTO scenes
         (
           project_id,
-          location_id,
-          title,
-          summary,
+          name,
+          description,
           scene_order,
           timeline_order,
-          status,
-          mood,
-          notes
+          notes,
+          location,
+          characters,
+          status
         )
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING id`,
       [
         projectId,
-        locationIds[scene.location_key],
-        scene.title,
-        scene.summary,
+        scene.name,
+        scene.description,
         scene.scene_order,
         scene.timeline_order,
-        scene.status,
-        scene.mood,
         scene.notes,
+        scene.location,
+        scene.characters,
+        scene.status
       ],
     );
     sceneIds[scene.key] = result.rows[0].id;

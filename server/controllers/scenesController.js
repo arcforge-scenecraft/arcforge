@@ -1,56 +1,113 @@
 import { pool } from "../config/database.js";
 
 const isValidId = (id) => Number.isInteger(Number(id)) && Number(id) > 0;
-const validOrderColumns = ["scene_order", "timeline_order"];
-const validSceneStatuses = ["draft", "in progress", "completed"];
+const validOrderColumns = ["created_at", "sceneOrder", "timelineOrder"];
 
-const toOptionalString = (value) => {
-  if (value === undefined || value === null) {
-    return value;
+const validSceneStatuses = ["Planning", "In Progress", "Completed", "On Hold"];
+
+const validateSceneFields = (
+  { name, description, sceneOrder, timelineOrder, notes, characters, status },
+  { requireName = true } = {},
+) => {
+  let errorString = "";
+  if (requireName && !name.trim()) {
+    errorString += "Scene name is required. ";
   }
 
-  if (typeof value !== "string") {
-    return null;
+  if (name !== undefined && typeof name !== "string") {
+    errorString += "Scene name must be text. ";
   }
 
-  return value.trim();
+  if (typeof name === "string" && !name.trim()) {
+    errorString += "Scene name cannot be empty. ";
+  }
+
+  if (typeof name === "string" && name.trim().length > 255) {
+    errorString += "Scene name must be 255 characters or fewer. ";
+  }
+
+  if (description !== undefined && typeof description !== "string") {
+    errorString += "Scene description must be text. ";
+  }
+
+  if (sceneOrder !== undefined && typeof sceneOrder !== "number") {
+    errorString += "Scene order must be a number. ";
+  }
+
+  if (typeof sceneOrder == "number" && sceneOrder < 0) {
+    errorString += "Scene order must be a positive number. ";
+  }
+
+  if (timelineOrder !== undefined && typeof timelineOrder !== "number") {
+    errorString += "Timeline order must be a number. ";
+  }
+
+  if (typeof timelineOrder == "number" && timelineOrder < 0) {
+    errorString += "Timeline order must be a positive number. ";
+  }
+
+  if (notes !== undefined && typeof notes !== "string") {
+    errorString += "Scene notes must be text. ";
+  }
+
+  if (!Array.isArray(characters)) {
+    errorString += "Scene characters must be an array. ";
+  }
+
+  if (typeof status !== "string" || !(validSceneStatuses.includes(status.trim()))) {
+    errorString += "Scene status must be one of these four options: Planning, In Progress, Completed, or On Hold. ";
+  }
+
+  return errorString;
 };
 
-const normalizeOptionalText = (value) => {
-  if (value === undefined || value === null) {
-    return value;
-  }
+// const toOptionalString = (value) => {
+//   if (value === undefined || value === null) {
+//     return value;
+//   }
 
-  const trimmedValue = value.trim();
+//   if (typeof value !== "string") {
+//     return null;
+//   }
 
-  return trimmedValue === "" ? null : trimmedValue;
-};
+//   return value.trim();
+// };
 
-const parseOptionalOrderValue = (value) => {
-  if (value === undefined || value === null || value === "") {
-    return { valid: true, parsed: null };
-  }
+// const normalizeOptionalText = (value) => {
+//   if (value === undefined || value === null) {
+//     return value;
+//   }
 
-  const parsedValue = Number(value);
+//   const trimmedValue = value.trim();
 
-  if (!Number.isInteger(parsedValue) || parsedValue < 1) {
-    return { valid: false, parsed: null };
-  }
+//   return trimmedValue === "" ? null : trimmedValue;
+// };
 
-  return { valid: true, parsed: parsedValue };
-};
+// const parseOptionalOrderValue = (value) => {
+//   if (value === undefined || value === null || value === "") {
+//     return { valid: true, parsed: null };
+//   }
 
-const normalizeStatus = (status) => {
-  if (status === undefined || status === null) {
-    return status;
-  }
+//   const parsedValue = Number(value);
 
-  if (typeof status !== "string") {
-    return null;
-  }
+//   if (!Number.isInteger(parsedValue) || parsedValue < 1) {
+//     return { valid: false, parsed: null };
+//   }
 
-  return status.trim().toLowerCase();
-};
+//   return { valid: true, parsed: parsedValue };
+// };
+
+// const normalizeStatus = (status) => {
+//   if (status === undefined || status === null) {
+//     return status;
+//   }
+
+//   if (typeof status !== "string") {
+//     return null;
+//   }
+
+//   return status.trim().toLowerCase();
+// };
 
 const getProjectExists = async (projectId) => {
   const result = await pool.query(
@@ -63,36 +120,46 @@ const getProjectExists = async (projectId) => {
   return result.rows.length > 0;
 };
 
-const getLocationExists = async (projectId, locationId) => {
-  const result = await pool.query(
-    `SELECT id
-     FROM locations
-     WHERE id = $1
-       AND project_id = $2`,
-    [locationId, projectId],
-  );
+// const getLocationExists = async (projectId, locationId) => {
+//   const result = await pool.query(
+//     `SELECT id
+//      FROM locations
+//      WHERE id = $1
+//        AND project_id = $2`,
+//     [locationId, projectId],
+//   );
 
-  return result.rows.length > 0;
-};
+//   return result.rows.length > 0;
+// };
+
+// const sceneSelect = `
+//   SELECT
+//     s.*,
+//     CASE
+//       WHEN l.id IS NULL THEN NULL
+//       ELSE json_build_object(
+//         'id', l.id,
+//         'project_id', l.project_id,
+//         'name', l.name,
+//         'description', l.description,
+//         'sceneOrder', l.sceneOrder,
+//         'timelineOrder', l.timelineOrder,
+//         'notes', l.notes,
+//         'scene', l.scene,
+//         'characters', l.characters,
+//         'status', l.status,
+//         'created_at', l.created_at,
+//         'updated_at', l.updated_at
+//       )
+//     END AS scene
+//   FROM scenes s
+//   LEFT JOIN locations l
+//     ON s.location = l.name
+// `;
 
 const sceneSelect = `
-  SELECT
-    s.*,
-    CASE
-      WHEN l.id IS NULL THEN NULL
-      ELSE json_build_object(
-        'id', l.id,
-        'project_id', l.project_id,
-        'name', l.name,
-        'description', l.description,
-        'atmosphere', l.atmosphere,
-        'created_at', l.created_at,
-        'updated_at', l.updated_at
-      )
-    END AS location
+  SELECT *
   FROM scenes s
-  LEFT JOIN locations l
-    ON s.location_id = l.id
 `;
 
 // GET /api/projects/:projectId/scenes
@@ -119,7 +186,7 @@ export const getScenes = async (req, res) => {
 
     const orderColumn = validOrderColumns.includes(orderBy)
       ? orderBy
-      : "scene_order";
+      : "created_at";
 
     const result = await pool.query(
       `${sceneSelect}
@@ -201,22 +268,23 @@ export const getSceneById = async (req, res) => {
   }
 };
 
-// POST /api/projects/:projectId/scenes
+// POST /api/projects/:projectId/scenes/new
 // Create a new scene
 export const createScene = async (req, res) => {
   try {
     const { projectId } = req.params;
-    const {
-      title,
-      summary,
-      location_id,
-      scene_order,
-      timeline_order,
-      status,
-      mood,
-      notes,
+    const { 
+      name,
+      description = "",
+      scene_order = 0,
+      timeline_order = 0,
+      notes = "",
+      location = "",
+      characters = [],
+      status = "Planning",
     } = req.body;
 
+    // Validate required fields
     if (!isValidId(projectId)) {
       return res.status(400).json({
         success: false,
@@ -224,113 +292,38 @@ export const createScene = async (req, res) => {
       });
     }
 
-    if (typeof title !== "string" || title.trim() === "") {
+    const validationMessage = validateSceneFields(
+      { name, description, scene_order, timeline_order, notes, location, characters, status },
+      { requireName: true },
+    );
+
+    if (validationMessage != "") {
       return res.status(400).json({
         success: false,
-        message: "Scene title is required.",
+        message: validationMessage,
       });
     }
 
-    if (!(await getProjectExists(projectId))) {
-      return res.status(404).json({
-        success: false,
-        message: "Project not found.",
-      });
-    }
-
-    let normalizedLocationId = null;
-
-    if (location_id !== undefined && location_id !== null && location_id !== "") {
-      if (!isValidId(location_id)) {
-        return res.status(400).json({
-          success: false,
-          message: "Location id must be a positive integer.",
-        });
-      }
-
-      const locationExists = await getLocationExists(projectId, location_id);
-
-      if (!locationExists) {
-        return res.status(404).json({
-          success: false,
-          message: "Location not found.",
-        });
-      }
-
-      normalizedLocationId = Number(location_id);
-    }
-
-    const sceneOrder = parseOptionalOrderValue(scene_order);
-
-    if (!sceneOrder.valid) {
-      return res.status(400).json({
-        success: false,
-        message: "Scene order must be a positive integer.",
-      });
-    }
-
-    const timelineOrder = parseOptionalOrderValue(timeline_order);
-
-    if (!timelineOrder.valid) {
-      return res.status(400).json({
-        success: false,
-        message: "Timeline order must be a positive integer.",
-      });
-    }
-
-    const normalizedStatus = normalizeStatus(status);
-
-    if (
-      normalizedStatus !== undefined &&
-      normalizedStatus !== null &&
-      !validSceneStatuses.includes(normalizedStatus)
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Status must be Draft, In Progress, or Completed.",
-      });
-    }
-
-    const normalizedSummary = normalizeOptionalText(toOptionalString(summary));
-    const normalizedMood = normalizeOptionalText(toOptionalString(mood));
-    const normalizedNotes = normalizeOptionalText(toOptionalString(notes));
-
-    if (
-      (summary !== undefined && summary !== null && normalizedSummary === null && typeof summary !== "string") ||
-      (mood !== undefined && mood !== null && normalizedMood === null && typeof mood !== "string") ||
-      (notes !== undefined && notes !== null && normalizedNotes === null && typeof notes !== "string")
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Summary, mood, and notes must be strings when provided.",
-      });
-    }
+    const cleanedCharacters = characters
+      .filter((value) => typeof value === "string")
+      .map((value) => value.trim())
+      .filter(Boolean);
 
     const result = await pool.query(
       `INSERT INTO scenes
-        (
-          project_id,
-          location_id,
-          title,
-          summary,
-          scene_order,
-          timeline_order,
-          status,
-          mood,
-          notes
-        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        (project_id, name, description, scene_order, timeline_order, notes, location, characters, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8::TEXT[], $9)
        RETURNING *`,
       [
         projectId,
-        normalizedLocationId,
-        title.trim(),
-        normalizedSummary,
-        sceneOrder.parsed,
-        timelineOrder.parsed,
-        normalizedStatus,
-        normalizedMood,
-        normalizedNotes,
+        name.trim(),
+        description.trim() || null,
+        scene_order || 0,
+        timeline_order || 0,
+        notes || null,
+        location,
+        cleanedCharacters,
+        status,
       ],
     );
 
@@ -341,6 +334,13 @@ export const createScene = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating scene:", error);
+
+    if (error.code === "23503") {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found.",
+      });
+    }
 
     return res.status(500).json({
       success: false,
@@ -354,7 +354,9 @@ export const createScene = async (req, res) => {
 export const updateScene = async (req, res) => {
   try {
     const { projectId, sceneId } = req.params;
+    const { name, description, scene_order, timeline_order, notes, location, characters, status } = req.body;
 
+    // Validate required fields
     if (!isValidId(projectId)) {
       return res.status(400).json({
         success: false,
@@ -369,172 +371,50 @@ export const updateScene = async (req, res) => {
       });
     }
 
-    if (!(await getProjectExists(projectId))) {
-      return res.status(404).json({
-        success: false,
-        message: "Project not found.",
-      });
-    }
+    const validationMessage = validateSceneFields({name, description, scene_order, timeline_order, notes, location, characters, status});
 
-    const {
-      title,
-      summary,
-      location_id,
-      scene_order,
-      timeline_order,
-      status,
-      mood,
-      notes,
-    } = req.body;
-
-    if (
-      title !== undefined &&
-      (typeof title !== "string" || title.trim() === "")
-    ) {
+    if (validationMessage) {
       return res.status(400).json({
         success: false,
-        message: "Scene title cannot be empty.",
+        message: validationMessage,
       });
     }
 
-    if (summary !== undefined && summary !== null && typeof summary !== "string") {
-      return res.status(400).json({
-        success: false,
-        message: "Summary must be a string.",
-      });
-    }
-
-    if (mood !== undefined && mood !== null && typeof mood !== "string") {
-      return res.status(400).json({
-        success: false,
-        message: "Mood must be a string.",
-      });
-    }
-
-    if (notes !== undefined && notes !== null && typeof notes !== "string") {
-      return res.status(400).json({
-        success: false,
-        message: "Notes must be a string.",
-      });
-    }
-
-    if (location_id !== undefined && location_id !== null && location_id !== "") {
-      if (!isValidId(location_id)) {
-        return res.status(400).json({
-          success: false,
-          message: "Location id must be a positive integer.",
-        });
-      }
-
-      const locationExists = await getLocationExists(projectId, location_id);
-
-      if (!locationExists) {
-        return res.status(404).json({
-          success: false,
-          message: "Location not found.",
-        });
-      }
-    }
-
-    const sceneOrder = parseOptionalOrderValue(scene_order);
-
-    if (scene_order !== undefined && !sceneOrder.valid) {
-      return res.status(400).json({
-        success: false,
-        message: "Scene order must be a positive integer.",
-      });
-    }
-
-    const timelineOrder = parseOptionalOrderValue(timeline_order);
-
-    if (timeline_order !== undefined && !timelineOrder.valid) {
-      return res.status(400).json({
-        success: false,
-        message: "Timeline order must be a positive integer.",
-      });
-    }
-
-    const normalizedStatus = normalizeStatus(status);
-
-    if (
-      status !== undefined &&
-      status !== null &&
-      normalizedStatus !== null &&
-      !validSceneStatuses.includes(normalizedStatus)
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Status must be Draft, In Progress, or Completed.",
-      });
-    }
-
-    if (status !== undefined && status !== null && normalizedStatus === null) {
-      return res.status(400).json({
-        success: false,
-        message: "Status must be a string.",
-      });
-    }
-
-    const allowedFields = {
-      title: title !== undefined ? title.trim() : undefined,
-      summary:
-        summary !== undefined
-          ? normalizeOptionalText(summary)
-          : undefined,
-      location_id:
-        location_id !== undefined
-          ? location_id === null || location_id === ""
-            ? null
-            : Number(location_id)
-          : undefined,
-      scene_order:
-        scene_order !== undefined ? sceneOrder.parsed : undefined,
-      timeline_order:
-        timeline_order !== undefined ? timelineOrder.parsed : undefined,
-      status:
-        status !== undefined
-          ? normalizedStatus === ""
-            ? null
-            : normalizedStatus
-          : undefined,
-      mood: mood !== undefined ? normalizeOptionalText(mood) : undefined,
-      notes: notes !== undefined ? normalizeOptionalText(notes) : undefined,
-    };
-
-    const updates = [];
-    const values = [];
-
-    for (const [field, value] of Object.entries(allowedFields)) {
-      if (value !== undefined) {
-        values.push(value);
-        updates.push(`${field} = $${values.length}`);
-      }
-    }
-
-    if (updates.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No valid scene fields provided.",
-      });
-    }
-
-    updates.push("updated_at = CURRENT_TIMESTAMP");
-
-    values.push(sceneId);
-    const sceneIdIndex = values.length;
-
-    values.push(projectId);
-    const projectIdIndex = values.length;
+    const cleanedCharacters = characters
+      .filter((value) => typeof value === "string")
+      .map((value) => value.trim())
+      .filter(Boolean);
 
     const result = await pool.query(
       `UPDATE scenes
-       SET ${updates.join(", ")}
-       WHERE id = $${sceneIdIndex}
-         AND project_id = $${projectIdIndex}
+        SET
+          name = $1,
+          description = $2,
+          scene_order = $3,
+          timeline_order = $4,
+          notes = $5, 
+          location = $6, 
+          characters = $7::TEXT[],
+          status = $8,
+          updated_at = CURRENT_TIMESTAMP
+       WHERE id = $9
+         AND project_id = $10
        RETURNING *`,
-      values,
+      [
+        name.trim(),
+        description.trim() || null,
+        scene_order || 0,
+        timeline_order || 0,
+        notes || null,
+        location,
+        cleanedCharacters,
+        status,
+        sceneId,
+        projectId,
+      ],
     );
 
+    // Scene does not exist
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
@@ -548,7 +428,7 @@ export const updateScene = async (req, res) => {
       data: result.rows[0],
     });
   } catch (error) {
-    console.error("Error updating scene:", error);
+    console.error("Error updating scene:", error)
 
     return res.status(500).json({
       success: false,
@@ -563,6 +443,7 @@ export const deleteScene = async (req, res) => {
   try {
     const { projectId, sceneId } = req.params;
 
+    // Validate required fields
     if (!isValidId(projectId)) {
       return res.status(400).json({
         success: false,
@@ -577,13 +458,6 @@ export const deleteScene = async (req, res) => {
       });
     }
 
-    if (!(await getProjectExists(projectId))) {
-      return res.status(404).json({
-        success: false,
-        message: "Project not found.",
-      });
-    }
-
     const result = await pool.query(
       `DELETE FROM scenes
        WHERE id = $1
@@ -592,6 +466,7 @@ export const deleteScene = async (req, res) => {
       [sceneId, projectId],
     );
 
+    // Scene does not exist
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,

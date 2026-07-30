@@ -13,6 +13,10 @@ import CharacterDetail from "./pages/characters/CharacterDetail";
 import CreateCharacter from "./pages/characters/CreateCharacter";
 import EditCharacter from "./pages/characters/EditCharacter";
 import NotFound from "./pages/NotFound";
+import CreateScene from "./pages/scenes/CreateScene";
+import SceneDashboard from "./pages/scenes/SceneDashboard";
+import SceneDetail from "./pages/scenes/SceneDetail";
+import EditScene from "./pages/scenes/EditScene";
 
 function App() {
   return (
@@ -22,6 +26,10 @@ function App() {
       <Route path="/projects/:projectId" element={<ProjectDetail />} />
       <Route path="/projects/new" element={<CreateProject />} />
       <Route path="/projects/:projectId/edit" element={<EditProject />} />
+      <Route path="/projects/:projectId/scenes/" element={<SceneDashboard />} />
+      <Route path="/projects/:projectId/scenes/new/" element={<CreateScene />} />
+      <Route path="/projects/:projectId/scenes/:sceneId/" element={<SceneDetail />} />
+      <Route path="/projects/:projectId/scenes/:sceneId/edit/" element={<EditScene />} />
       <Route
         path="/projects/:projectId/locations"
         element={<LocationLibrary />}

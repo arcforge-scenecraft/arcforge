@@ -43,14 +43,14 @@ CREATE TABLE IF NOT EXISTS items (
 CREATE TABLE IF NOT EXISTS scenes (
     id SERIAL PRIMARY KEY,
     project_id INTEGER NOT NULL REFERENCES story_projects(id) ON DELETE CASCADE,
-    location_id INTEGER REFERENCES locations(id) ON DELETE SET NULL,
-    title VARCHAR(255) NOT NULL,
-    summary TEXT,
-    scene_order INTEGER,
-    timeline_order INTEGER,
-    status VARCHAR(50),
-    mood VARCHAR(100),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    scene_order INTEGER DEFAULT 0,
+    timeline_order INTEGER DEFAULT 0,
     notes TEXT,
+    location VARCHAR(255),
+    characters TEXT[] DEFAULT '{}',
+    status VARCHAR(50) NOT NULL DEFAULT 'Planning',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
