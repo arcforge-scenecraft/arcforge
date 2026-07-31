@@ -8,6 +8,8 @@
    Reusable UI components
 ======================================== */
 
+@import "./Navbar.css";
+@import "./Footer.css";
 @import "./UIStates.css";
 @import "./Card.css";
 @import "./Form.css";
