@@ -1,0 +1,160 @@
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+
+import CharacterDeleteButton from "../../components/characters/CharacterDeleteButton";
+import { ErrorState, Loader } from "../../components/ui";
+import useCharacter from "../../hooks/characters/useCharacter";
+import { deleteCharacter } from "../../services/characterApi";
+import NotFound from "../NotFound";
+
+function CharacterDetail() {
+  const { projectId, characterId } = useParams();
+  const { state } = useLocation();
+  const navigate = useNavigate();
+
+  const { character, loading, error, notFound, retry } = useCharacter(
+    projectId,
+    characterId,
+  );
+
+  const handleDeleteCharacter = async () => {
+    await deleteCharacter(projectId, characterId);
+
+    navigate(`/projects/${projectId}/characters`, {
+      replace: true,
+      state: {
+        message: `"${character.name}" was deleted successfully.`,
+      },
+    });
+  };
+
+  if (loading) {
+    return (
+      <main className="detail-page">
+        <section className="detail">
+          <Link
+            to={`/projects/${projectId}/characters`}
+            className="detail__back-link"
+          >
+            <ArrowLeftIcon aria-hidden="true" />
+            Back to characters
+          </Link>
+
+          <div className="detail__state">
+            <Loader text="Loading character details..." />
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (notFound) {
+    return <NotFound />;
+  }
+
+  if (error) {
+    return (
+      <main className="detail-page">
+        <section className="detail">
+          <Link
+            to={`/projects/${projectId}/characters`}
+            className="detail__back-link"
+          >
+            <ArrowLeftIcon aria-hidden="true" />
+            Back to characters
+          </Link>
+
+          <header className="detail__error-header">
+            <p className="detail__eyebrow">Character workspace</p>
+
+            <h1>Unable to open character</h1>
+
+            <p>We could not retrieve the selected story character.</p>
+          </header>
+
+          <div className="detail__state">
+            <ErrorState message={error} onRetry={retry} />
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  return (
+    <main className="page-shell">
+      <Link
+        to={`/projects/${projectId}/characters`}
+        className="detail__back-link"
+      >
+        <ArrowLeftIcon aria-hidden="true" />
+        Back to characters
+      </Link>
+
+      <header className="page-header">
+        <p className="eyebrow">Character details</p>
+
+        <h1 className="page-title">{character.name}</h1>
+
+        <p className="character-card__role">
+          {character.story_role || "Role not specified"}
+        </p>
+      </header>
+
+      {state?.message && (
+        <div className="notice-card form-success" role="status">
+          <p>{state.message}</p>
+        </div>
+      )}
+
+      <section className="detail-panel">
+        <div className="detail-section character-section">
+          <h2>Description</h2>
+
+          <p>{character.description || "No description provided."}</p>
+        </div>
+
+        <div className="detail-section character-section">
+          <h2>Goal</h2>
+
+          <p>{character.goal || "No goal has been recorded yet."}</p>
+        </div>
+
+        <div className="detail-section character-section">
+          <h2>Knowledge notes</h2>
+
+          <p>
+            {character.knowledge_notes ||
+              "No knowledge notes have been recorded yet."}
+          </p>
+        </div>
+      </section>
+
+      <div className="page-actions">
+        <Link
+          to={`/projects/${projectId}/characters/${characterId}/edit`}
+          className="button button--primary"
+        >
+          Edit character
+        </Link>
+
+        <Link to={`/projects/${projectId}`} className="button button--secondary">
+          Back to project
+        </Link>
+
+        <Link
+          to={`/projects/${projectId}/characters`}
+          className="button button--secondary"
+        >
+          View all characters
+        </Link>
+
+        <CharacterDeleteButton
+          characterName={character.name}
+          onDelete={handleDeleteCharacter}
+        />
+      </div>
+    </main>
+  );
+}
+
+export default CharacterDetail;
