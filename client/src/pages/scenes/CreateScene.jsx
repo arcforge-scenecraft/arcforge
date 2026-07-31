@@ -23,8 +23,6 @@ const CreateScene = () => {
         setApiError("");
 
         console.log("About to call createScene for project", projectId, "and sceneData:", sceneData)
-        console.log("About to call assignCharacterToScene with these characters to the new scene:", characterData)
-
 
         const createdScene = await createScene(projectId, sceneData);
 
@@ -35,16 +33,19 @@ const CreateScene = () => {
         }
 
         if (createdScene && createdScene.id) {
-            // let newSceneCharacter = "";
+            console.log("About to call assignCharacterToScene for project", projectId, "and scene", createdScene.id, "with these characters:", characterData)
+
             for (let i = 0; i < characterData.length; i++) {
-                try {
-                    const newSceneCharacter = await assignCharacterToScene(projectId, createdScene.id, {
-                    character_id: characterData[i],
-                    role_in_scene: "",
-                    knowledge_gained: "",});
-                    console.log(newSceneCharacter);
-                } catch (error) {
-                    setApiError(error.message || "Unable to create the scene-character assignments.")
+                if (characterData[i] != -1) {
+                    try {
+                        const newSceneCharacter = await assignCharacterToScene(projectId, createdScene.id, {
+                        character_id: characterData[i],
+                        role_in_scene: "",
+                        knowledge_gained: "",});
+                        console.log(newSceneCharacter);
+                    } catch (error) {
+                        setApiError(error.message || "Unable to create the scene-character assignments.")
+                    }
                 }
             }
         }

@@ -284,6 +284,11 @@
     border-color 0.2s ease;
 }
 
+.detail__related-card button {
+  color: red;
+  text-align: left;
+}
+
 .detail__related-card--compact {
   border: 1px solid var(--border-color, #e4e7ec);
   border-radius: 1.25rem;

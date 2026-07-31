@@ -118,6 +118,8 @@ export const getSceneCharacters = async (req, res) => {
       return res.status(validationError.status).json(validationError.body);
     }
 
+    console.log("About to getSceneCharacters");
+
     const result = await pool.query(
       `SELECT
          sc.scene_id,

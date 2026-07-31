@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 
 import { getSceneById } from "../../services/sceneApi";
+import { getSceneCharacters } from "../../services/scene-characterApi";
+import { getLocations } from "../../services/locationApi";
 
 function useScene(projectId, sceneId) {
   const [scene, setScene] = useState(null);
@@ -20,11 +22,23 @@ function useScene(projectId, sceneId) {
         setScene(null);
 
         const data = await getSceneById(projectId, sceneId);
-        console.log(data.location);
-        console.log(data.characters.length)
+
+        const sceneCharacters = await getSceneCharacters(projectId, sceneId);
+
+        const sceneLocations = await getLocations(projectId);
+
+        const sceneLocation = sceneLocations.find(location => location.name === data.location);
+
+        const normalizedData = {
+          ...data,
+          characters: sceneCharacters ? sceneCharacters : [{character_id: -1, name: "Undecided"}],
+          location: sceneLocation ? [sceneLocation.id, sceneLocation.name, sceneLocation.description, sceneLocation.atmosphere] : [-1, "Undecided", "", ""]
+        }
+
+        console.log(normalizedData)
 
         if (isMounted) {
-          setScene(data || null);
+          setScene(normalizedData || null);
         }
       } catch (err) {
         if (!isMounted) {
