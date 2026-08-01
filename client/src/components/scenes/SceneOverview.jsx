@@ -1,72 +1,100 @@
-import { Link } from "react-router-dom";
+import OverviewCard from "../ui/OverviewCard";
+import OverviewSection from "../ui/OverviewSection";
+import { getLatestItems } from "../../utils/getLatestItems";
 
-const SceneOverview = ({projectId, scenes = []}) => {
-    const latestScenes = [...scenes]
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .slice(0, 2);
-    
-    return (
-        <section className="detail__overview">
-          <div className="detail__section-heading">
-            <p className="detail__eyebrow">Scenes</p>
-    
-            <h2>Recent scenes</h2>
-    
-            <p>Explore the newest scenes created for this story project.</p>
-            <Link
-              to={`/projects/${projectId}/scenes/new`}
-              className="detail__edit-link"
-            >
-              Create scene
-            </Link>
-          </div>
-    
-          {latestScenes.length > 0 ? (
-            <div className="detail__location-grid detail__location-grid--compact">
-              {latestScenes.map((scene) => (
-                <Link
-                  key={scene.id}
-                  to={`/projects/${projectId}/scenes/${scene.id}`}
-                  className="detail__related-card--compact detail__location-card detail__location-card--compact"
-                >
-                  <h3>{scene.name}</h3>
-    
-                  <p className="detail__location-description">
-                    {scene.description || "No description has been added yet."}
-                  </p>
+const normalizeCharacters = (characters) => {
+  if (Array.isArray(characters)) {
+    return characters.filter(
+      (character) =>
+        character && character.trim().toLowerCase() !== "undecided",
+    );
+  }
 
-                  <div className="card-genres">
-                    {scene.location && scene.location != "Undefined"?
-                      <span className="detail__genre">{scene.location}</span>
-                    : ""}
+  if (
+    typeof characters === "string" &&
+    characters.trim() &&
+    characters.trim().toLowerCase() !== "undecided"
+  ) {
+    return [characters.trim()];
+  }
 
-                    {scene.characters.length > 0 ? (
-                      scene.characters.slice(0,2).map((character) => (character != "Undecided"?
-                        <span key={character} className="detail__genre">
-                          {character}
-                        </span>: ""
-                      ))
-                    ) : ""}
-                  </div>
+  return [];
+};
 
-                  <p></p>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="detail__empty">No scenes have been added yet.</p>
-          )}
-    
-          <div className="detail__section-actions">
-            <Link
-              to={`/projects/${projectId}/scenes`}
-              className="detail__view-all-link"
-            >
-              View all scenes
-            </Link>
-          </div>
-        </section>
-    );   
-}
+const getSceneOrderText = (scene) => {
+  const orderLabels = [];
+
+  if (Number(scene.scene_order) > 0) {
+    orderLabels.push(`Scene ${scene.scene_order}`);
+  }
+
+  if (Number(scene.timeline_order) > 0) {
+    orderLabels.push(`Timeline ${scene.timeline_order}`);
+  }
+
+  return orderLabels.length > 0 ? orderLabels.join(" · ") : "Order not set";
+};
+
+const getLocationName = (location) => {
+  if (typeof location !== "string") {
+    return null;
+  }
+
+  const normalizedLocation = location.trim();
+
+  if (
+    !normalizedLocation ||
+    normalizedLocation.toLowerCase() === "undefined" ||
+    normalizedLocation.toLowerCase() === "undecided"
+  ) {
+    return null;
+  }
+
+  return normalizedLocation;
+};
+
+const SceneOverview = ({ projectId, scenes = [] }) => {
+  const latestScenes = getLatestItems(scenes);
+  const sceneLabel = scenes.length === 1 ? "scene" : "scenes";
+
+  return (
+    <OverviewSection
+      eyebrow="Scenes"
+      count={scenes.length}
+      title="Recent scenes"
+      description="Review the newest scenes added to this story."
+      actionTo={`/projects/${projectId}/scenes/new`}
+      actionLabel="Add scene"
+      viewAllTo={`/projects/${projectId}/scenes`}
+      viewAllLabel={`View all ${scenes.length} ${sceneLabel}`}
+      emptyMessage="No scenes have been added yet. Add a scene to begin structuring the story."
+      isEmpty={scenes.length === 0}
+    >
+      <div className="overview-grid">
+        {latestScenes.map((scene) => {
+          const characters = normalizeCharacters(scene.characters);
+
+          const locationName = getLocationName(scene.location);
+
+          const characterLabel =
+            characters.length === 1 ? "character" : "characters";
+
+          return (
+            <OverviewCard
+              key={scene.id}
+              to={`/projects/${projectId}/scenes/${scene.id}`}
+              title={scene.name}
+              meta={scene.status || "Planning"}
+              subheading={getSceneOrderText(scene)}
+              description={scene.description}
+              badges={[locationName, `${characters.length} ${characterLabel}`]}
+              detailLabel="View scene"
+            />
+          );
+        })}
+      </div>
+    </OverviewSection>
+  );
+};
 
 export default SceneOverview;

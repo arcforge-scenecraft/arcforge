@@ -7,8 +7,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import LatestCharacters from "../../components/characters/LatestCharacters";
-import LatestLocations from "../../components/locations/LatestLocations";
+import CharacterOverview from "../../components/characters/CharacterOverview";
+import LocationOverview from "../../components/locations/LocationOverview";
 import ProjectDeleteButton from "../../components/projects/ProjectDeleteButton";
 import ProjectOverview from "../../components/projects/ProjectOverview";
 import { ErrorState, Loader } from "../../components/ui";
@@ -260,16 +260,14 @@ const ProjectDetail = () => {
           </article>
         </section>
 
-        {/* Project Overview */}
-        <ProjectOverview project={project} status={status} genres={genres} />
-
-        {/* Latest Locations */}
-        <LatestLocations projectId={projectId} locations={locations} />
-
-        {/* Latest Characters */}
-        <LatestCharacters projectId={projectId} characters={characters} />
-        {/* Scene Overview */}
-        <SceneOverview projectId={projectId} scenes={scenes}/>
+        <ProjectOverview
+          scenes={scenes}
+          characters={characters}
+          locations={locations}
+        />
+        <LocationOverview projectId={projectId} locations={locations} />
+        <CharacterOverview projectId={projectId} characters={characters} />
+        <SceneOverview projectId={projectId} scenes={scenes} />
       </article>
     </main>
   );
