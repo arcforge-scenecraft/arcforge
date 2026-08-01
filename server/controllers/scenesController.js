@@ -6,108 +6,69 @@ const validOrderColumns = ["created_at", "sceneOrder", "timelineOrder"];
 const validSceneStatuses = ["Planning", "In Progress", "Completed", "On Hold"];
 
 const validateSceneFields = (
-  { name, description, sceneOrder, timelineOrder, notes, characters, status },
+  {
+    name,
+    description,
+    scene_order: sceneOrder,
+    timeline_order: timelineOrder,
+    notes,
+    location,
+    characters,
+    status,
+  },
   { requireName = true } = {},
 ) => {
-  let errorString = "";
-  if (requireName && !name.trim()) {
-    errorString += "Scene name is required. ";
-  }
+  const errors = [];
 
-  if (name !== undefined && typeof name !== "string") {
-    errorString += "Scene name must be text. ";
-  }
-
-  if (typeof name === "string" && !name.trim()) {
-    errorString += "Scene name cannot be empty. ";
-  }
-
-  if (typeof name === "string" && name.trim().length > 255) {
-    errorString += "Scene name must be 255 characters or fewer. ";
+  if (requireName || name !== undefined) {
+    if (typeof name !== "string" || !name.trim()) {
+      errors.push("Scene name is required.");
+    } else if (name.trim().length > 255) {
+      errors.push("Scene name must be 255 characters or fewer.");
+    }
   }
 
   if (description !== undefined && typeof description !== "string") {
-    errorString += "Scene description must be text. ";
+    errors.push("Scene description must be text.");
   }
 
-  if (sceneOrder !== undefined && typeof sceneOrder !== "number") {
-    errorString += "Scene order must be a number. ";
+  if (
+    sceneOrder !== undefined &&
+    (!Number.isInteger(sceneOrder) || sceneOrder < 0)
+  ) {
+    errors.push("Scene order must be a whole number of 0 or greater.");
   }
 
-  if (typeof sceneOrder == "number" && sceneOrder < 0) {
-    errorString += "Scene order must be a positive number. ";
-  }
-
-  if (timelineOrder !== undefined && typeof timelineOrder !== "number") {
-    errorString += "Timeline order must be a number. ";
-  }
-
-  if (typeof timelineOrder == "number" && timelineOrder < 0) {
-    errorString += "Timeline order must be a positive number. ";
+  if (
+    timelineOrder !== undefined &&
+    (!Number.isInteger(timelineOrder) || timelineOrder < 0)
+  ) {
+    errors.push("Timeline order must be a whole number of 0 or greater.");
   }
 
   if (notes !== undefined && typeof notes !== "string") {
-    errorString += "Scene notes must be text. ";
+    errors.push("Scene notes must be text.");
+  }
+
+  if (location !== undefined && typeof location !== "string") {
+    errors.push("Scene location must be text.");
   }
 
   if (!Array.isArray(characters)) {
-    errorString += "Scene characters must be an array. ";
+    errors.push("Scene characters must be an array.");
   }
 
-  if (typeof status !== "string" || !(validSceneStatuses.includes(status.trim()))) {
-    errorString += "Scene status must be one of these four options: Planning, In Progress, Completed, or On Hold. ";
+  if (
+    typeof status !== "string" ||
+    !validSceneStatuses.includes(status.trim())
+  ) {
+    errors.push(
+      "Scene status must be Planning, In Progress, Completed, or On Hold.",
+    );
   }
 
-  return errorString;
+  return errors.join(" ");
 };
-
-// const toOptionalString = (value) => {
-//   if (value === undefined || value === null) {
-//     return value;
-//   }
-
-//   if (typeof value !== "string") {
-//     return null;
-//   }
-
-//   return value.trim();
-// };
-
-// const normalizeOptionalText = (value) => {
-//   if (value === undefined || value === null) {
-//     return value;
-//   }
-
-//   const trimmedValue = value.trim();
-
-//   return trimmedValue === "" ? null : trimmedValue;
-// };
-
-// const parseOptionalOrderValue = (value) => {
-//   if (value === undefined || value === null || value === "") {
-//     return { valid: true, parsed: null };
-//   }
-
-//   const parsedValue = Number(value);
-
-//   if (!Number.isInteger(parsedValue) || parsedValue < 1) {
-//     return { valid: false, parsed: null };
-//   }
-
-//   return { valid: true, parsed: parsedValue };
-// };
-
-// const normalizeStatus = (status) => {
-//   if (status === undefined || status === null) {
-//     return status;
-//   }
-
-//   if (typeof status !== "string") {
-//     return null;
-//   }
-
-//   return status.trim().toLowerCase();
-// };
 
 const getProjectExists = async (projectId) => {
   const result = await pool.query(
@@ -119,43 +80,6 @@ const getProjectExists = async (projectId) => {
 
   return result.rows.length > 0;
 };
-
-// const getLocationExists = async (projectId, locationId) => {
-//   const result = await pool.query(
-//     `SELECT id
-//      FROM locations
-//      WHERE id = $1
-//        AND project_id = $2`,
-//     [locationId, projectId],
-//   );
-
-//   return result.rows.length > 0;
-// };
-
-// const sceneSelect = `
-//   SELECT
-//     s.*,
-//     CASE
-//       WHEN l.id IS NULL THEN NULL
-//       ELSE json_build_object(
-//         'id', l.id,
-//         'project_id', l.project_id,
-//         'name', l.name,
-//         'description', l.description,
-//         'sceneOrder', l.sceneOrder,
-//         'timelineOrder', l.timelineOrder,
-//         'notes', l.notes,
-//         'scene', l.scene,
-//         'characters', l.characters,
-//         'status', l.status,
-//         'created_at', l.created_at,
-//         'updated_at', l.updated_at
-//       )
-//     END AS scene
-//   FROM scenes s
-//   LEFT JOIN locations l
-//     ON s.location = l.name
-// `;
 
 const sceneSelect = `
   SELECT *
@@ -273,7 +197,7 @@ export const getSceneById = async (req, res) => {
 export const createScene = async (req, res) => {
   try {
     const { projectId } = req.params;
-    const { 
+    const {
       name,
       description = "",
       scene_order = 0,
@@ -293,7 +217,16 @@ export const createScene = async (req, res) => {
     }
 
     const validationMessage = validateSceneFields(
-      { name, description, scene_order, timeline_order, notes, location, characters, status },
+      {
+        name,
+        description,
+        scene_order,
+        timeline_order,
+        notes,
+        location,
+        characters,
+        status,
+      },
       { requireName: true },
     );
 
@@ -318,10 +251,10 @@ export const createScene = async (req, res) => {
         projectId,
         name.trim(),
         description.trim() || null,
-        scene_order || 0,
-        timeline_order || 0,
-        notes || null,
-        location,
+        scene_order ?? 0,
+        timeline_order ?? 0,
+        notes.trim() || null,
+        location.trim() || "Undecided",
         cleanedCharacters,
         status,
       ],
@@ -354,7 +287,16 @@ export const createScene = async (req, res) => {
 export const updateScene = async (req, res) => {
   try {
     const { projectId, sceneId } = req.params;
-    const { name, description, scene_order, timeline_order, notes, location, characters, status } = req.body;
+    const {
+      name,
+      description,
+      scene_order,
+      timeline_order,
+      notes,
+      location,
+      characters,
+      status,
+    } = req.body;
 
     // Validate required fields
     if (!isValidId(projectId)) {
@@ -371,7 +313,16 @@ export const updateScene = async (req, res) => {
       });
     }
 
-    const validationMessage = validateSceneFields({name, description, scene_order, timeline_order, notes, location, characters, status});
+    const validationMessage = validateSceneFields({
+      name,
+      description,
+      scene_order,
+      timeline_order,
+      notes,
+      location,
+      characters,
+      status,
+    });
 
     if (validationMessage) {
       return res.status(400).json({
@@ -403,10 +354,10 @@ export const updateScene = async (req, res) => {
       [
         name.trim(),
         description.trim() || null,
-        scene_order || 0,
-        timeline_order || 0,
-        notes || null,
-        location,
+        scene_order ?? 0,
+        timeline_order ?? 0,
+        notes.trim() || null,
+        location.trim() || "Undecided",
         cleanedCharacters,
         status,
         sceneId,
@@ -428,7 +379,7 @@ export const updateScene = async (req, res) => {
       data: result.rows[0],
     });
   } catch (error) {
-    console.error("Error updating scene:", error)
+    console.error("Error updating scene:", error);
 
     return res.status(500).json({
       success: false,

@@ -1,45 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import SceneForm from "../../components/scenes/SceneForm";
 import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { ErrorState, Loader } from "../../components/ui";
-import { getSceneById } from "../../services/sceneApi";
+import useScene from "../../hooks/scenes/useScene";
 import { updateScene } from "../../services/sceneApi";
+import NotFound from "../NotFound";
 
 const EditScene = () => {
   const { projectId, sceneId } = useParams();
   const navigate = useNavigate();
 
-  // const [project, setProject] = useState(null);
-  // const [characters, setCharacters] = useState(null);
-  // const [locations, setLocations] = useState(null);
-  const [scene, setScene] = useState(null);
+  const { scene, loading, error, notFound, retry } = useScene(
+    projectId,
+    sceneId,
+  );
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
   const [apiError, setApiError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const loadScene = async () => {
-    try {
-      setIsLoading(true);
-      setLoadError("");
-
-      const sceneData = await getSceneById(projectId, sceneId);
-      setScene(sceneData);
-      console.log("Scene loaded:", sceneData);
-    } catch (error) {
-      setLoadError(error.message || "Unable to load the scene.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadScene();
-  }, [projectId, sceneId]);
-
-  const handleUpdateProject = async (sceneData) => {
+  const handleUpdateScene = async (sceneData) => {
     if (isSubmitting) {
       return;
     }
@@ -49,8 +30,6 @@ const EditScene = () => {
       setApiError("");
 
       const updatedScene = await updateScene(projectId, sceneId, sceneData);
-
-      console.log("Updated scene:", updatedScene);
 
       if (!updatedScene?.id) {
         throw new Error(
@@ -64,19 +43,27 @@ const EditScene = () => {
           message: "Scene updated successfully.",
         },
       });
-    } catch (error) {
-      setApiError(error.message || "Unable to update the scene.");
+    } catch (submitError) {
+      setApiError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to update the scene.",
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return <Loader text="Loading scene..." />;
   }
 
-  if (loadError) {
-    return <ErrorState message={loadError} onRetry={loadScene} />;
+  if (notFound) {
+    return <NotFound />;
+  }
+
+  if (error) {
+    return <ErrorState message={error} onRetry={retry} />;
   }
 
   return (
@@ -84,14 +71,14 @@ const EditScene = () => {
       <ProjectFormHeader
         eyebrow="Scene settings"
         title={`Edit ${scene.name}`}
-        description="Update the information for this scene."
+        description="Update the events, order, location, characters, and planning notes for this scene."
       />
 
       <SceneForm
         initialValues={scene}
-        onSubmit={handleUpdateProject}
+        onSubmit={handleUpdateScene}
         projectId={projectId}
-        onCancel={() => navigate(`/projects/${projectId}/scenes`)}
+        onCancel={() => navigate(`/projects/${projectId}/scenes/${sceneId}`)}
         submitLabel="Save Changes"
         isSubmitting={isSubmitting}
         apiError={apiError}

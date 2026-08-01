@@ -80,6 +80,25 @@ const SceneDetail = () => {
     );
   }
 
+  const sceneCharacters = Array.isArray(scene.characters)
+    ? scene.characters.filter(
+        (character) =>
+          typeof character === "string" &&
+          character.trim() &&
+          character !== "Undecided",
+      )
+    : [];
+
+  const sceneLocation =
+    typeof scene.location === "string" &&
+    scene.location.trim() &&
+    scene.location !== "Undecided" &&
+    scene.location.toLowerCase() !== "undefined"
+      ? scene.location.trim()
+      : "";
+
+  const hasSceneElements = Boolean(sceneLocation) || sceneCharacters.length > 0;
+
   return (
     <main className="detail-page">
       <article className="detail">
@@ -231,39 +250,40 @@ const SceneDetail = () => {
             <h2>Location & Characters</h2>
           </div>
 
-          {scene.characters == ["Undecided"] ? (
+          {hasSceneElements ? (
             <div className="detail__related-grid">
-              {scene.location && scene.location != "Undecided" ? (
+              {sceneLocation && (
                 <div className="detail__related-card">
-                  <MapPinIcon className="detail__related-icon" />
+                  <MapPinIcon
+                    className="detail__related-icon"
+                    aria-hidden="true"
+                  />
 
                   <span className="detail__related-label">Location</span>
 
                   <strong className="detail__related-title">
-                    {scene.location}
+                    {sceneLocation}
                   </strong>
                 </div>
-              ) : (
-                ""
               )}
-              {scene.characters !=
-                ["Undecided"]?.map((character) => (
-                  <div className="detail__related-card">
-                    <UserGroupIcon className="detail__related-icon" />
 
-                    <span className="detail__related-label">Character</span>
+              {sceneCharacters.map((character) => (
+                <div key={character} className="detail__related-card">
+                  <UserGroupIcon
+                    className="detail__related-icon"
+                    aria-hidden="true"
+                  />
 
-                    <strong className="detail__related-title">
-                      {character}
-                    </strong>
-                  </div>
-                  // </Link>
-                ))}
+                  <span className="detail__related-label">Character</span>
+
+                  <strong className="detail__related-title">{character}</strong>
+                </div>
+              ))}
             </div>
           ) : (
-            <span className="detail__metadata-value">
+            <p className="detail__metadata-value">
               No characters or locations have been selected for this scene.
-            </span>
+            </p>
           )}
         </section>
 

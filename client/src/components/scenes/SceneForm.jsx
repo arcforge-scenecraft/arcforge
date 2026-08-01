@@ -2,27 +2,86 @@ import { useEffect, useState } from "react";
 import { getCharacters } from "../../services/characterApi.js";
 import { getLocations } from "../../services/locationApi.js";
 
+const UNDECIDED = "Undecided";
+
+const STATUS_OPTIONS = ["Planning", "In Progress", "On Hold", "Completed"];
+
 const EMPTY_SCENE = {
-    project_id: "",
-    name: "",
-    description: "",
-    scene_order: null,
-    timeline_order: null,
-    notes: "",
-    location: "Undecided",
-    characters: [],
-    status: "Planning",
+  name: "",
+  description: "",
+  scene_order: "",
+  timeline_order: "",
+  notes: "",
+  location: UNDECIDED,
+  characters: [],
+  status: "Planning",
 };
 
-const normalizeSceneValues = (values = {}) => ({
-  ...EMPTY_SCENE,
-  ...values,
+const normalizeText = (value) => {
+  return typeof value === "string" ? value : "";
+};
 
-  // Ensures characters variable is always an array when editing.
-  characters: Array.isArray(values.characters) ? values.characters : [],
+const normalizeOrder = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return "";
+  }
 
-  status: values.status || "Planning",
-});
+  const parsedValue = Number(value);
+
+  return Number.isInteger(parsedValue) && parsedValue >= 0
+    ? String(parsedValue)
+    : "";
+};
+
+const normalizeCharacters = (value) => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const characters = [
+    ...new Set(
+      value
+        .filter((character) => typeof character === "string")
+        .map((character) => character.trim())
+        .filter(Boolean),
+    ),
+  ];
+
+  if (characters.includes(UNDECIDED) && characters.length > 1) {
+    return characters.filter((character) => character !== UNDECIDED);
+  }
+
+  return characters;
+};
+
+const normalizeLocation = (value) => {
+  const location = normalizeText(value).trim();
+
+  if (!location || location.toLowerCase() === "undefined") {
+    return UNDECIDED;
+  }
+
+  return location;
+};
+
+const normalizeStatus = (value) => {
+  return STATUS_OPTIONS.includes(value) ? value : "Planning";
+};
+
+const normalizeSceneValues = (values = {}) => {
+  const scene = values && typeof values === "object" ? values : {};
+
+  return {
+    name: normalizeText(scene.name),
+    description: normalizeText(scene.description),
+    scene_order: normalizeOrder(scene.scene_order),
+    timeline_order: normalizeOrder(scene.timeline_order),
+    notes: normalizeText(scene.notes),
+    location: normalizeLocation(scene.location),
+    characters: normalizeCharacters(scene.characters),
+    status: normalizeStatus(scene.status),
+  };
+};
 
 const SceneForm = ({
   initialValues = EMPTY_SCENE,
@@ -36,39 +95,93 @@ const SceneForm = ({
   const [formData, setFormData] = useState(() =>
     normalizeSceneValues(initialValues),
   );
-  
   const [validationErrors, setValidationErrors] = useState({});
-  const [characterOptions, setCharacterOptions] = useState([]);
-  const [locationOptions, setLocationOptions] = useState([]);
-
+  const [characterOptions, setCharacterOptions] = useState([UNDECIDED]);
+  const [locationOptions, setLocationOptions] = useState([UNDECIDED]);
+  const [optionsError, setOptionsError] = useState("");
 
   useEffect(() => {
     setFormData(normalizeSceneValues(initialValues));
+    setValidationErrors({});
   }, [initialValues]);
 
   useEffect(() => {
+    if (!projectId) {
+      return undefined;
+    }
+
+    const controller = new AbortController();
+
     const fetchOptions = async () => {
-        try {
-            const [characters, locations] = await Promise.all([
-                getCharacters(projectId),
-                getLocations(projectId),
-            ]);
+      try {
+        setOptionsError("");
 
-            const updatedCharacters = [...characters.map((character) => character.name), "Undecided"];
-            const updatedLocations = ["Undecided", ...locations.map((location) => location.name)];
+        const [characters, locations] = await Promise.all([
+          getCharacters(projectId, {
+            signal: controller.signal,
+          }),
+          getLocations(projectId, {
+            signal: controller.signal,
+          }),
+        ]);
 
-            setCharacterOptions(updatedCharacters);
-            setLocationOptions(updatedLocations);
-            
-            console.log("Characters:", updatedCharacters)
-            console.log("Locations:", updatedLocations)
-        } catch (err) {
-            console.error("Error loading form options:", err);
+        const characterNames = Array.isArray(characters)
+          ? characters
+              .map((character) => character?.name)
+              .filter(
+                (name) =>
+                  typeof name === "string" &&
+                  name.trim() &&
+                  name.trim() !== UNDECIDED,
+              )
+              .map((name) => name.trim())
+          : [];
+
+        const locationNames = Array.isArray(locations)
+          ? locations
+              .map((location) => location?.name)
+              .filter(
+                (name) =>
+                  typeof name === "string" &&
+                  name.trim() &&
+                  name.trim() !== UNDECIDED,
+              )
+              .map((name) => name.trim())
+          : [];
+
+        setCharacterOptions([UNDECIDED, ...new Set(characterNames)]);
+
+        setLocationOptions([UNDECIDED, ...new Set(locationNames)]);
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
         }
+
+        setOptionsError(
+          "Characters and locations could not be loaded. Try refreshing the page.",
+        );
+      }
     };
 
     fetchOptions();
+
+    return () => {
+      controller.abort();
+    };
   }, [projectId]);
+
+  const clearValidationError = (fieldName) => {
+    setValidationErrors((currentErrors) => {
+      if (!currentErrors[fieldName]) {
+        return currentErrors;
+      }
+
+      const updatedErrors = { ...currentErrors };
+      delete updatedErrors[fieldName];
+
+      return updatedErrors;
+    });
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -78,12 +191,7 @@ const SceneForm = ({
       [name]: value,
     }));
 
-    if (validationErrors[name]) {
-      setValidationErrors((currentErrors) => ({
-        ...currentErrors,
-        [name]: "",
-      }));
-    }
+    clearValidationError(name);
   };
 
   const handleCharacterChange = (selectedCharacter) => {
@@ -92,15 +200,12 @@ const SceneForm = ({
         ? currentData.characters
         : [];
 
-      /*
-       * Undecided is exclusive:
-       * - Selecting it removes all specific characters.
-       * - Selecting a specific character removes Undecided.
-       */
       if (selectedCharacter === "Undecided") {
         return {
           ...currentData,
-          characters: currentCharacters.includes("Undecided") ? [] : ["Undecided"],
+          characters: currentCharacters.includes("Undecided")
+            ? []
+            : ["Undecided"],
         };
       }
 
@@ -108,10 +213,13 @@ const SceneForm = ({
         (character) => character !== "Undecided",
       );
 
-      const isAlreadySelected = charactersWithoutUndecided.includes(selectedCharacter);
+      const isAlreadySelected =
+        charactersWithoutUndecided.includes(selectedCharacter);
 
       const updatedCharacters = isAlreadySelected
-        ? charactersWithoutUndecided.filter((character) => character !== selectedCharacter)
+        ? charactersWithoutUndecided.filter(
+            (character) => character !== selectedCharacter,
+          )
         : [...charactersWithoutUndecided, selectedCharacter];
 
       return {
@@ -120,23 +228,43 @@ const SceneForm = ({
       };
     });
 
-    if (validationErrors.characters) {
-      setValidationErrors((currentErrors) => ({
-        ...currentErrors,
-        characters: "",
-      }));
-    }
+    clearValidationError("characters");
   };
 
   const validateForm = () => {
     const errors = {};
-    const trimmedName = formData.name.trim();
+    const trimmedName = normalizeText(formData.name).trim();
 
     if (!trimmedName) {
       errors.name = "Scene name is required.";
     } else if (trimmedName.length > 255) {
       errors.name = "Scene name must be 255 characters or fewer.";
     }
+
+    const orderFields = [
+      {
+        name: "scene_order",
+        label: "Scene order",
+        value: formData.scene_order,
+      },
+      {
+        name: "timeline_order",
+        label: "Timeline order",
+        value: formData.timeline_order,
+      },
+    ];
+
+    orderFields.forEach(({ name, label, value }) => {
+      if (value === "") {
+        return;
+      }
+
+      const parsedValue = Number(value);
+
+      if (!Number.isInteger(parsedValue) || parsedValue < 0) {
+        errors[name] = `${label} must be a whole number of 0 or greater.`;
+      }
+    });
 
     if (!Array.isArray(formData.characters)) {
       errors.characters = "Characters must be provided as a list.";
@@ -154,15 +282,25 @@ const SceneForm = ({
       return;
     }
 
+    if (typeof onSubmit !== "function") {
+      console.error(
+        "[Scene Form Error]",
+        "An onSubmit function was not provided.",
+      );
+      return;
+    }
+
     onSubmit({
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        scene_order: parseInt(formData.scene_order, 10),
-        timeline_order: parseInt(formData.timeline_order, 10),
-        notes: formData.notes.trim(),
-        location: formData.location,
-        characters: formData.characters,
-        status: formData.status
+      name: normalizeText(formData.name).trim(),
+      description: normalizeText(formData.description).trim(),
+      scene_order:
+        formData.scene_order === "" ? 0 : Number(formData.scene_order),
+      timeline_order:
+        formData.timeline_order === "" ? 0 : Number(formData.timeline_order),
+      notes: normalizeText(formData.notes).trim(),
+      location: normalizeLocation(formData.location),
+      characters: normalizeCharacters(formData.characters),
+      status: normalizeStatus(formData.status),
     });
   };
 
@@ -171,6 +309,12 @@ const SceneForm = ({
       {apiError && (
         <div className="form-api-error" role="alert" aria-live="polite">
           {apiError}
+        </div>
+      )}
+
+      {optionsError && (
+        <div className="form-api-error" role="alert" aria-live="polite">
+          {optionsError}
         </div>
       )}
 
@@ -189,9 +333,7 @@ const SceneForm = ({
             maxLength={255}
             placeholder="Enter your scene name"
             aria-invalid={Boolean(validationErrors.name)}
-            aria-describedby={
-              validationErrors.name ? "name-error" : undefined
-            }
+            aria-describedby={validationErrors.name ? "name-error" : undefined}
           />
 
           {validationErrors.name && (
@@ -215,31 +357,71 @@ const SceneForm = ({
         </div>
 
         <div className="form-field">
-          <label htmlFor="sceneOrder">Scene Order</label>
+          <label htmlFor="sceneOrder">Scene order</label>
 
           <input
             id="sceneOrder"
             name="scene_order"
-            type="text"
+            type="number"
+            min="0"
+            step="1"
+            inputMode="numeric"
             value={formData.scene_order}
             onChange={handleChange}
-            maxLength={255}
-            placeholder="Where does this happen in the story?"
+            placeholder="For example, 3"
+            aria-invalid={Boolean(validationErrors.scene_order)}
+            aria-describedby={
+              validationErrors.scene_order
+                ? "scene-order-error"
+                : "scene-order-help"
+            }
           />
+
+          <small id="scene-order-help" className="field-hint">
+            Controls the scene's order in the story.
+          </small>
+
+          {validationErrors.scene_order && (
+            <small id="scene-order-error" className="field-error" role="alert">
+              {validationErrors.scene_order}
+            </small>
+          )}
         </div>
 
         <div className="form-field">
-          <label htmlFor="timelineOrder">Timeline Order</label>
+          <label htmlFor="timelineOrder">Timeline order</label>
 
           <input
             id="timelineOrder"
             name="timeline_order"
-            type="text"
+            type="number"
+            min="0"
+            step="1"
+            inputMode="numeric"
             value={formData.timeline_order}
             onChange={handleChange}
-            maxLength={255}
-            placeholder="Where does this happen in the timeline?"
+            placeholder="For example, 1"
+            aria-invalid={Boolean(validationErrors.timeline_order)}
+            aria-describedby={
+              validationErrors.timeline_order
+                ? "timeline-order-error"
+                : "timeline-order-help"
+            }
           />
+
+          <small id="timeline-order-help" className="field-hint">
+            Controls where the scene occurs chronologically.
+          </small>
+
+          {validationErrors.timeline_order && (
+            <small
+              id="timeline-order-error"
+              className="field-error"
+              role="alert"
+            >
+              {validationErrors.timeline_order}
+            </small>
+          )}
         </div>
 
         <div className="form-field">
@@ -256,7 +438,7 @@ const SceneForm = ({
         </div>
 
         <div className="form-field">
-          <label htmlFor="status">Location</label>
+          <label htmlFor="location">Location</label>
 
           <select
             id="location"
@@ -265,20 +447,29 @@ const SceneForm = ({
             onChange={handleChange}
           >
             {locationOptions.map((location) => {
-                return(<option key={location} value={location}>{location}</option>)
+              return (
+                <option key={location} value={location}>
+                  {location}
+                </option>
+              );
             })}
           </select>
         </div>
 
         <fieldset
           className="genre-field"
-          aria-describedby="genre-help selected-genres"
+          aria-invalid={Boolean(validationErrors.characters)}
+          aria-describedby={
+            validationErrors.characters
+              ? "characters-help selected-characters characters-error"
+              : "characters-help selected-characters"
+          }
         >
           <legend>Characters</legend>
 
-          <p id="genre-help" className="field-hint">
-            Select all characters in the scene. Choose Undecided when you are not sure
-            yet.
+          <p id="characters-help" className="field-hint">
+            Select all characters in the scene. Choose Undecided when you are
+            not sure yet.
           </p>
 
           <div className="genre-options">
@@ -328,12 +519,14 @@ const SceneForm = ({
                 ))}
               </div>
             ) : (
-              <span className="selected-genres-empty">No characters selected</span>
+              <span className="selected-genres-empty">
+                No characters selected
+              </span>
             )}
           </div>
 
           {validationErrors.characters && (
-            <small className="field-error" role="alert">
+            <small id="characters-error" className="field-error" role="alert">
               {validationErrors.characters}
             </small>
           )}
@@ -348,10 +541,18 @@ const SceneForm = ({
             value={formData.status}
             onChange={handleChange}
           >
-            <option key="Planning" value="Planning">Planning</option>
-            <option key="In-Progress" value="In Progress">In Progress</option>
-            <option key="On-Hold" value="On Hold">On Hold</option>
-            <option key="Completed" value="Completed">Completed</option>
+            <option key="Planning" value="Planning">
+              Planning
+            </option>
+            <option key="In-Progress" value="In Progress">
+              In Progress
+            </option>
+            <option key="On-Hold" value="On Hold">
+              On Hold
+            </option>
+            <option key="Completed" value="Completed">
+              Completed
+            </option>
           </select>
         </div>
 

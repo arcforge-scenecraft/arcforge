@@ -12,7 +12,7 @@ export const createScene = (projectId, sceneData, options = {}) => {
   return apiRequest(`/projects/${projectId}/scenes`, {
     ...options,
     method: "POST",
-    body: JSON.stringify(sceneData),
+    body: sceneData,
   });
 };
 
@@ -20,7 +20,7 @@ export const updateScene = (projectId, sceneId, sceneData, options = {}) => {
   return apiRequest(`/projects/${projectId}/scenes/${sceneId}`, {
     ...options,
     method: "PATCH",
-    body: JSON.stringify(sceneData),
+    body: sceneData,
   });
 };
 
