@@ -1,9 +1,8 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { deleteLocation } from "../../services/locationApi";
-import { DeleteButton, ErrorState, Loader } from "../../components/ui";
+import { DeleteButton, DetailPageState } from "../../components/ui";
 import useLocation from "../../hooks/locations/useLocation";
-import NotFound from "../NotFound";
+import { deleteLocation } from "../../services/locationApi";
 
 function LocationDetail() {
   const { projectId, locationId } = useParams();
@@ -24,50 +23,38 @@ function LocationDetail() {
 
   if (loading) {
     return (
-      <main className="detail-page">
-        <section className="detail">
-          <Link to="/dashboard" className="detail__back-link">
-            <ArrowLeftIcon aria-hidden="true" />
-            Back to dashboard
-          </Link>
-
-          <div className="detail__state">
-            <Loader text="Loading location details..." />
-          </div>
-        </section>
-      </main>
+      <DetailPageState
+        state="loading"
+        resourceName="Location"
+        loadingText="Loading location details..."
+        backTo={`/projects/${projectId}/locations`}
+        backLabel="Back to locations"
+      />
     );
   }
 
   if (notFound) {
-    return <NotFound />;
+    return (
+      <DetailPageState
+        state="not-found"
+        resourceName="Location"
+        description="The selected location or its project does not exist."
+        backTo={`/projects/${projectId}/locations`}
+        backLabel="Back to locations"
+      />
+    );
   }
 
   if (error) {
     return (
-      <main className="detail-page">
-        <section className="detail">
-          <Link
-            to={`/projects/${projectId}/locations`}
-            className="detail__back-link"
-          >
-            <ArrowLeftIcon aria-hidden="true" />
-            Back to locations
-          </Link>
-
-          <header className="detail__error-header">
-            <p className="detail__eyebrow">Location workspace</p>
-
-            <h1>Unable to open location</h1>
-
-            <p>We could not retrieve the selected story location.</p>
-          </header>
-
-          <div className="detail__state">
-            <ErrorState message={error} onRetry={retry} />
-          </div>
-        </section>
-      </main>
+      <DetailPageState
+        state="error"
+        resourceName="Location"
+        message={error}
+        onRetry={retry}
+        backTo={`/projects/${projectId}/locations`}
+        backLabel="Back to locations"
+      />
     );
   }
 

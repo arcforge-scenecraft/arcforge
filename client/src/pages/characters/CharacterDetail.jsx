@@ -1,10 +1,8 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-
-import { DeleteButton, ErrorState, Loader } from "../../components/ui";
+import { DeleteButton, DetailPageState } from "../../components/ui";
 import useCharacter from "../../hooks/characters/useCharacter";
 import { deleteCharacter } from "../../services/characterApi";
-import NotFound from "../NotFound";
 
 function CharacterDetail() {
   const { projectId, characterId } = useParams();
@@ -29,53 +27,38 @@ function CharacterDetail() {
 
   if (loading) {
     return (
-      <main className="detail-page">
-        <section className="detail">
-          <Link
-            to={`/projects/${projectId}/characters`}
-            className="detail__back-link"
-          >
-            <ArrowLeftIcon aria-hidden="true" />
-            Back to characters
-          </Link>
-
-          <div className="detail__state">
-            <Loader text="Loading character details..." />
-          </div>
-        </section>
-      </main>
+      <DetailPageState
+        state="loading"
+        resourceName="Character"
+        loadingText="Loading character details..."
+        backTo={`/projects/${projectId}/characters`}
+        backLabel="Back to characters"
+      />
     );
   }
 
   if (notFound) {
-    return <NotFound />;
+    return (
+      <DetailPageState
+        state="not-found"
+        resourceName="Character"
+        description="The selected character or its project does not exist."
+        backTo={`/projects/${projectId}/characters`}
+        backLabel="Back to characters"
+      />
+    );
   }
 
   if (error) {
     return (
-      <main className="detail-page">
-        <section className="detail">
-          <Link
-            to={`/projects/${projectId}/characters`}
-            className="detail__back-link"
-          >
-            <ArrowLeftIcon aria-hidden="true" />
-            Back to characters
-          </Link>
-
-          <header className="detail__error-header">
-            <p className="detail__eyebrow">Character workspace</p>
-
-            <h1>Unable to open character</h1>
-
-            <p>We could not retrieve the selected story character.</p>
-          </header>
-
-          <div className="detail__state">
-            <ErrorState message={error} onRetry={retry} />
-          </div>
-        </section>
-      </main>
+      <DetailPageState
+        state="error"
+        resourceName="Character"
+        message={error}
+        onRetry={retry}
+        backTo={`/projects/${projectId}/characters`}
+        backLabel="Back to characters"
+      />
     );
   }
 

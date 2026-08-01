@@ -7,8 +7,7 @@ import {
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate, useParams } from "react-router-dom";
-
-import { DeleteButton, ErrorState, Loader } from "../../components/ui";
+import { DeleteButton, DetailPageState } from "../../components/ui";
 import useScene from "../../hooks/scenes/useScene";
 import { deleteScene } from "../../services/sceneApi";
 
@@ -28,7 +27,10 @@ const SceneDetail = () => {
   const { projectId, sceneId } = useParams();
   const navigate = useNavigate();
 
-  const { scene, loading, error, retry } = useScene(projectId, sceneId);
+  const { scene, loading, error, notFound, retry } = useScene(
+    projectId,
+    sceneId,
+  );
 
   const handleDeleteScene = async () => {
     await deleteScene(projectId, scene.id);
@@ -43,46 +45,38 @@ const SceneDetail = () => {
 
   if (loading) {
     return (
-      <main className="detail-page">
-        <section className="detail">
-          <Link
-            to={`/projects/${projectId}/scenes`}
-            className="detail__back-link"
-          >
-            <ArrowLeftIcon />
-            Back to scenes
-          </Link>
+      <DetailPageState
+        state="loading"
+        resourceName="Scene"
+        loadingText="Loading scene details..."
+        backTo={`/projects/${projectId}/scene`}
+        backLabel="Back to scenes"
+      />
+    );
+  }
 
-          <div className="detail__state">
-            <Loader text="Loading scene..." />
-          </div>
-        </section>
-      </main>
+  if (notFound) {
+    return (
+      <DetailPageState
+        state="not-found"
+        resourceName="Scene"
+        description="The selected scene or its project does not exist."
+        backTo={`/projects/${projectId}/scenes`}
+        backLabel="Back to scenes"
+      />
     );
   }
 
   if (error) {
     return (
-      <main className="detail-page">
-        <section className="detail">
-          <Link
-            to={`/projects/${projectId}/scenes`}
-            className="detail__back-link"
-          >
-            <ArrowLeftIcon />
-            Back to scenes
-          </Link>
-
-          <header className="detail__error-header">
-            <p className="detail__eyebrow">Scene</p>
-            <h1>Unable to open scene</h1>
-          </header>
-
-          <div className="detail__state">
-            <ErrorState message={error} onRetry={retry} />
-          </div>
-        </section>
-      </main>
+      <DetailPageState
+        state="error"
+        resourceName="Scene"
+        message={error}
+        onRetry={retry}
+        backTo={`/projects/${projectId}/scenes`}
+        backLabel="Back to scenes"
+      />
     );
   }
 

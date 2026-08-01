@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-
 import { getScenes } from "../../services/sceneApi";
 
 const useScenes = (projectId) => {
@@ -9,34 +8,38 @@ const useScenes = (projectId) => {
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    let isActive = true;
+    if (!projectId) {
+      setScenes([]);
+      setError("");
+      setLoading(true);
+      return undefined;
+    }
+
+    const controller = new AbortController();
 
     const loadScenes = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const sceneData = await getScenes(projectId);
+        const sceneData = await getScenes(projectId, {
+          signal: controller.signal,
+        });
 
-        if (isActive) {
-          setScenes(sceneData || []);
-        }
+        setScenes(Array.isArray(sceneData) ? sceneData : []);
       } catch (loadError) {
-        if (!isActive) {
+        if (loadError.name === "AbortError") {
           return;
         }
 
-        console.error("Failed to load project scenes:", loadError);
-
         setScenes([]);
-
         setError(
           loadError instanceof Error
             ? loadError.message
             : "Unable to load project scenes.",
         );
       } finally {
-        if (isActive) {
+        if (!controller.signal.aborted) {
           setLoading(false);
         }
       }
@@ -45,7 +48,7 @@ const useScenes = (projectId) => {
     loadScenes();
 
     return () => {
-      isActive = false;
+      controller.abort();
     };
   }, [projectId, retryCount]);
 

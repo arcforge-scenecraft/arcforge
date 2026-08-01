@@ -1,7 +1,4 @@
-/*useCharacters.js is responsible for fetching all characters belonging to a project using only projectId. It is used by the Project Detail and Character Roster pages.*/
-
 import { useCallback, useEffect, useState } from "react";
-
 import { getCharacters } from "../../services/characterApi";
 
 const useCharacters = (projectId) => {
@@ -11,34 +8,38 @@ const useCharacters = (projectId) => {
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    let isActive = true;
+    if (!projectId) {
+      setCharacters([]);
+      setError("");
+      setLoading(true);
+      return undefined;
+    }
+
+    const controller = new AbortController();
 
     const loadCharacters = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const characterData = await getCharacters(projectId);
+        const characterData = await getCharacters(projectId, {
+          signal: controller.signal,
+        });
 
-        if (isActive) {
-          setCharacters(Array.isArray(characterData) ? characterData : []);
-        }
+        setCharacters(Array.isArray(characterData) ? characterData : []);
       } catch (loadError) {
-        if (!isActive) {
+        if (loadError.name === "AbortError") {
           return;
         }
 
-        console.error("Failed to load project characters:", loadError);
-
         setCharacters([]);
-
         setError(
           loadError instanceof Error
             ? loadError.message
             : "Unable to load project characters.",
         );
       } finally {
-        if (isActive) {
+        if (!controller.signal.aborted) {
           setLoading(false);
         }
       }
@@ -47,7 +48,7 @@ const useCharacters = (projectId) => {
     loadCharacters();
 
     return () => {
-      isActive = false;
+      controller.abort();
     };
   }, [projectId, retryCount]);
 

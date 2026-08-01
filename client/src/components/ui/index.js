@@ -3,3 +3,4 @@ export * from "./EmptyState.jsx";
 export * from "./ErrorState.jsx";
 export * from "./NotFoundState.jsx";
 export * from "./DeleteButton.jsx";
+export * from "./DetailPageState.jsx";

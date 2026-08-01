@@ -1,5 +1,20 @@
 const PRODUCTION_API_URL = "https://arcforge-api.onrender.com";
 
+export class ApiError extends Error {
+  constructor(
+    message,
+    { status = 0, method = "GET", url = "", responseBody = null } = {},
+  ) {
+    super(message);
+
+    this.name = "ApiError";
+    this.status = status;
+    this.method = method;
+    this.url = url;
+    this.responseBody = responseBody;
+  }
+}
+
 const normalizeApiBaseUrl = (baseUrl) => {
   const normalizedBaseUrl = String(baseUrl ?? "")
     .trim()
@@ -137,7 +152,12 @@ export const apiRequest = async (endpoint, options = {}) => {
     const responseBody = await parseResponseBody(response);
 
     if (!response.ok || responseBody?.success === false) {
-      throw new Error(getErrorMessage(responseBody, response.status));
+      throw new ApiError(getErrorMessage(responseBody, response.status), {
+        status: response.status,
+        method: config.method,
+        url,
+        responseBody,
+      });
     }
 
     if (
@@ -154,14 +174,23 @@ export const apiRequest = async (endpoint, options = {}) => {
       throw error;
     }
 
-    const message = error instanceof Error ? error.message : String(error);
+    const normalizedError =
+      error instanceof Error ? error : new Error(String(error));
 
-    console.error("[API Error]", {
-      method: config.method,
-      url,
-      message,
-    });
+    const status =
+      normalizedError instanceof ApiError ? normalizedError.status : 0;
 
-    throw error instanceof Error ? error : new Error(message);
+    const shouldLog = import.meta.env.DEV && (status === 0 || status >= 500);
+
+    if (shouldLog) {
+      console.error("[API Error]", {
+        method: config.method,
+        url,
+        status,
+        message: normalizedError.message,
+      });
+    }
+
+    throw normalizedError;
   }
 };
