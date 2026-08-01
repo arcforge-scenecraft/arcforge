@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import ProjectDeleteButton from "./ProjectDeleteButton";
+import { DeleteButton } from "../ui";
 
 const ProjectCard = ({ project, onDelete }) => {
   const genres = Array.isArray(project.genre)
@@ -49,8 +49,11 @@ const ProjectCard = ({ project, onDelete }) => {
           </Link>
         </div>
 
-        <ProjectDeleteButton
-          projectTitle={project.title}
+        <DeleteButton
+          itemName={project.title}
+          itemType="project"
+          label="Delete"
+          warning="This permanently removes the project and all of its related story data."
           onDelete={() => onDelete(project.id, project.title)}
         />
       </div>

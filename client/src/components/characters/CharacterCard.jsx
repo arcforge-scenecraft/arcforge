@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-
-import CharacterDeleteButton from "./CharacterDeleteButton";
+import { DeleteButton } from "../ui";
 
 function CharacterCard({ character, projectId, onDelete }) {
   return (
@@ -34,10 +33,12 @@ function CharacterCard({ character, projectId, onDelete }) {
           Edit character
         </Link>
 
-        <CharacterDeleteButton
-          characterName={character.name}
-          onDelete={onDelete}
+        <DeleteButton
+          itemName={character.name}
+          itemType="character"
           label="Delete"
+          warning="This also removes the character from every scene they appear in and clears their relationships."
+          onDelete={onDelete}
         />
       </div>
     </article>

@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-
-import LocationDeleteButton from "./LocationDeleteButton";
+import { DeleteButton } from "../ui";
 
 function LocationCard({ location, projectId, onDelete }) {
   return (
@@ -21,8 +20,11 @@ function LocationCard({ location, projectId, onDelete }) {
           View location
         </Link>
 
-        <LocationDeleteButton
-          locationName={location.name}
+        <DeleteButton
+          itemName={location.name}
+          itemType="location"
+          label="Delete"
+          warning="Scenes using this location will remain, but their location will be cleared."
           onDelete={onDelete}
         />
       </div>

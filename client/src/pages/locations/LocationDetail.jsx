@@ -1,8 +1,7 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import LocationDeleteButton from "../../components/locations/LocationDeleteButton";
 import { deleteLocation } from "../../services/locationApi";
-import { ErrorState, Loader } from "../../components/ui";
+import { DeleteButton, ErrorState, Loader } from "../../components/ui";
 import useLocation from "../../hooks/locations/useLocation";
 import NotFound from "../NotFound";
 
@@ -124,8 +123,10 @@ function LocationDetail() {
           View all locations
         </Link>
 
-        <LocationDeleteButton
-          locationName={location.name}
+        <DeleteButton
+          itemName={location.name}
+          itemType="location"
+          warning="Scenes using this location will remain, but their location will be cleared."
           onDelete={handleDeleteLocation}
         />
       </div>

@@ -9,9 +9,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 import CharacterOverview from "../../components/characters/CharacterOverview";
 import LocationOverview from "../../components/locations/LocationOverview";
-import ProjectDeleteButton from "../../components/projects/ProjectDeleteButton";
 import ProjectOverview from "../../components/projects/ProjectOverview";
-import { ErrorState, Loader } from "../../components/ui";
+import { DeleteButton, ErrorState, Loader } from "../../components/ui";
 import useProject from "../../hooks/projects/useProject";
 import useCharacters from "../../hooks/characters/useCharacters";
 import useLocations from "../../hooks/locations/useLocations";
@@ -203,8 +202,11 @@ const ProjectDetail = () => {
               Edit project
             </Link>
 
-            <ProjectDeleteButton
-              projectTitle={project.title}
+            <DeleteButton
+              itemName={project.title}
+              itemType="project"
+              label="Delete project"
+              warning="This permanently removes the project and all of its related story data."
               onDelete={handleDeleteProject}
             />
           </div>

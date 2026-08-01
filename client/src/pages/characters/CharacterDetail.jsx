@@ -1,8 +1,7 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
-import CharacterDeleteButton from "../../components/characters/CharacterDeleteButton";
-import { ErrorState, Loader } from "../../components/ui";
+import { DeleteButton, ErrorState, Loader } from "../../components/ui";
 import useCharacter from "../../hooks/characters/useCharacter";
 import { deleteCharacter } from "../../services/characterApi";
 import NotFound from "../NotFound";
@@ -137,7 +136,10 @@ function CharacterDetail() {
           Edit character
         </Link>
 
-        <Link to={`/projects/${projectId}`} className="button button--secondary">
+        <Link
+          to={`/projects/${projectId}`}
+          className="button button--secondary"
+        >
           Back to project
         </Link>
 
@@ -148,8 +150,10 @@ function CharacterDetail() {
           View all characters
         </Link>
 
-        <CharacterDeleteButton
-          characterName={character.name}
+        <DeleteButton
+          itemName={character.name}
+          itemType="character"
+          warning="This also removes the character from every scene they appear in and clears their relationships."
           onDelete={handleDeleteCharacter}
         />
       </div>
