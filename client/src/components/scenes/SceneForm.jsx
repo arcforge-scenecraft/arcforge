@@ -120,9 +120,11 @@ const SceneForm = ({
         ? charactersWithoutUndecided.filter((character) => character !== selectedCharacter)
         : [...charactersWithoutUndecided, selectedCharacter];
 
+      const finalUpdatedCharacters = updatedCharacters.length === 0
+        ? [-1] : updatedCharacters;
       return {
         ...currentData,
-        characters: updatedCharacters,
+        characters: finalUpdatedCharacters,
       };
     });
 

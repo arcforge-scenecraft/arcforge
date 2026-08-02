@@ -63,8 +63,6 @@ const EditScene = () => {
 
       setInitialCharacters(initialData.characters.map(name => characterDict[name]));
 
-      console.log("Initial Scene:", sceneData);
-
       setScene(sceneData);
       console.log("Scene loaded:", sceneData);
     } catch (error) {
@@ -98,9 +96,9 @@ const EditScene = () => {
       }
 
       if (updatedScene && updatedScene.id) {
-        console.log("About to update scene-character assignments for scene", updatedScene.id, "in project", projectId, "with these characters:", characterData)
+        console.log("About to update scene-character assignments for scene", updatedScene.id, "in project", projectId, "with these character ids:", characterData)
 
-        console.log(initialCharacters);
+        console.log("Remember, these are the initial character ids:", initialCharacters);
 
         // const currentSceneCharacters = await getSceneCharacters(projectId, updatedScene.id)
         // currentSceneCharacters = currentSceneCharacters.map(character => character.character_id);
@@ -115,14 +113,14 @@ const EditScene = () => {
                 role_in_scene: "",
                 knowledge_gained: "",
               });
-              console.log(newSceneCharacter);
+              console.log("Added this scene-character assignment:", newSceneCharacter);
             } catch (error) {
               setApiError(error.message || "Unable to create the scene-character assignments.")
             }
           }
         }
 
-        console.log("Trying to remove character-assignments", currentSceneCharacters, characterData)
+        console.log("Trying to remove character-assignments from", initialCharacters, "to", characterData)
 
 
         for (let j = 0; j < initialCharacters.length; j++) {

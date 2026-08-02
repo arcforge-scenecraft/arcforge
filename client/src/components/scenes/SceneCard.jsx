@@ -29,7 +29,7 @@ const SceneCard = ({scene, onDelete}) => {
         </p>
 
         <div className="card-genres">
-          {scene.location && scene.location != "Undefined"?
+          {scene.location && scene.location != "Undecided"?
             <span className="card-genre-2">{scene.location}</span>
           : ""}
 

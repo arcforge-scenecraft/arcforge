@@ -159,7 +159,7 @@ const SceneCharacterForm = ({
 
     // formData.characters.forEach(id => characterNameList.push(characterOptions[id]));
 
-    console.log(formData.characters.map(id => characterOptions[id]))
+    console.log("Scelected characters' names:", formData.characters.map(id => characterOptions[id]))
 
     onSubmit({
         name: formData.name.trim(),

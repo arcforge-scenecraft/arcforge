@@ -57,10 +57,10 @@ const SceneCharacterCard = ({scene, onDelete}) => {
           </Link>
         </div>
 
-        {/* <SceneDeleteButton
+        <SceneDeleteButton
           sceneName={scene.name}
           onDelete={() => onDelete(scene.id, scene.name)}
-        /> */}
+        />
       </div>
     </article>
   );

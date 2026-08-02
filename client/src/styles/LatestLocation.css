@@ -32,6 +32,13 @@
   margin-top: auto;
 }
 
+.detail__location-card--mini {
+  padding: clamp(1rem, 2vw, 1.55rem);
+  border: 1px solid var(--border-color, #e4e7ec);
+  border-radius: 1.1rem;
+  background: var(--surface-color, #ffffff);
+}
+
 .detail__view-all-link {
   transition: color 0.2s ease;
 }

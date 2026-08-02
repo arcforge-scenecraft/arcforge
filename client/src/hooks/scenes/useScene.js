@@ -31,11 +31,11 @@ function useScene(projectId, sceneId) {
 
         const normalizedData = {
           ...data,
-          characters: sceneCharacters ? sceneCharacters : [{character_id: -1, name: "Undecided"}],
+          characters: sceneCharacters && sceneCharacters.length != 0 ? sceneCharacters : [{character_id: -1, name: "Undecided", role_in_scene: "", knowledge_gained: ""}],
           location: sceneLocation ? [sceneLocation.id, sceneLocation.name, sceneLocation.description, sceneLocation.atmosphere] : [-1, "Undecided", "", ""]
         }
 
-        console.log(normalizedData)
+        console.log("Normalized scene data:", normalizedData)
 
         if (isMounted) {
           setScene(normalizedData || null);
