@@ -41,14 +41,12 @@ const normalizeCharacters = (value) => {
   const characters = [
     ...new Set(
       value
-        .filter((character) => typeof character === "string")
-        .map((character) => character.trim())
-        .filter(Boolean),
+        .filter((character) => typeof character === "number")
     ),
   ];
 
-  if (characters.includes(UNDECIDED) && characters.length > 1) {
-    return characters.filter((character) => character !== UNDECIDED);
+  if (characters.includes(-1) && characters.length > 1) {
+    return characters.filter((character) => character !== -1);
   }
 
   return characters;
@@ -135,6 +133,10 @@ const SceneForm = ({
         setCharacterOptions(updatedCharacters);
         setCharacterIds(updatedCharacterIds);
         setLocationOptions(updatedLocations);
+
+        console.log(updatedCharacters);
+        console.log(updatedCharacterIds);
+        console.log(updatedLocations);
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
           return;
@@ -287,9 +289,9 @@ const SceneForm = ({
         formData.timeline_order === "" ? 0 : Number(formData.timeline_order),
       notes: normalizeText(formData.notes).trim(),
       location: normalizeLocation(formData.location),
-      characters: normalizeCharacters(formData.characters.map(id => characterOptions[id])),
+      characters: normalizeCharacters(formData.characters).map(id => characterOptions[id]),
       status: normalizeStatus(formData.status),
-    });
+    }, formData.characters);
   };
 
   return (

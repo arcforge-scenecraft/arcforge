@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import SceneForm from "../../components/scenes/SceneForm";
@@ -22,14 +22,17 @@ const EditScene = () => {
     false
   );
 
+  const [sceneForm, setSceneForm] = useState(null);
   const [apiError, setApiError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const modifyScene = async () => {
       try {
-        setLoading(true);
-        setLoadError("");
+        setApiError("");
+
+        console.log("Initial scene for edit scene form:", scene);
 
         const characterList = await getCharacters(projectId);
 
@@ -38,27 +41,32 @@ const EditScene = () => {
         characterDict["Undecided"] = -1
         characterList.forEach(character => characterDict[character.name] = character.id);
 
+        const modifiedCharacters = scene.characters.map(name => characterDict[name]);
         let sceneData = {
           ...scene,
           // Ensures characters variable an array of character ids for editing.
-          characters: scene.characters.map(name => characterDict[name])
+          characters: modifiedCharacters ? modifiedCharacters : [-1]
         };
 
-        setInitialCharacters(initialData.characters.map(name => characterDict[name]));
+        if (modifiedCharacters && modifiedCharacters != []) {
+          setInitialCharacters(scene.characters.map(name => characterDict[name]));
+        } else {
+          setInitialCharacters([-1]);
+        }
 
-        setScene(sceneData);
+        setSceneForm(sceneData);
         console.log("Scene loaded:", sceneData);
       } catch (error) {
-        setLoadError(error.message || "Unable to load the scene.");
+        setApiError(error.message || "Unable to load the scene.");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    if (scene) {
+    if (scene && !loading && !error) {
       modifyScene();
     }
-  }, [projectId, sceneId]);
+  }, [projectId, sceneId, scene]);
 
   const handleUpdateScene = async (sceneData, characterData) => {
     if (isSubmitting) {
@@ -68,7 +76,7 @@ const EditScene = () => {
     try {
       setIsSubmitting(true);
       setApiError("");
-
+      console.log("New scene data:", sceneData)
       const updatedScene = await updateScene(projectId, sceneId, sceneData);
 
       if (!updatedScene?.id) {
@@ -87,17 +95,19 @@ const EditScene = () => {
 
         // console.log("Current Scene Characters", currentSceneCharacters);
 
-        for (let i = 0; i < characterData.length; i++) {
-          if (characterData[i] != -1 && !initialCharacters.find(c => c === characterData[i])) {
-            try {
-              const newSceneCharacter = await assignCharacterToScene(projectId, updatedScene.id, {
-                character_id: characterData[i],
-                role_in_scene: "",
-                knowledge_gained: "",
-              });
-              console.log("Added this scene-character assignment:", newSceneCharacter);
-            } catch (error) {
-              setApiError(error.message || "Unable to create the scene-character assignments.")
+        if (Array.isArray(characterData)) {
+          for (let i = 0; i < characterData.length; i++) {
+            if (characterData[i] != -1 && !initialCharacters.find(c => c === characterData[i])) {
+              try {
+                const newSceneCharacter = await assignCharacterToScene(projectId, updatedScene.id, {
+                  character_id: characterData[i],
+                  role_in_scene: "",
+                  knowledge_gained: "",
+                });
+                console.log("Added this scene-character assignment:", newSceneCharacter);
+              } catch (error) {
+                setApiError(error.message || "Unable to create the scene-character assignments.")
+              }
             }
           }
         }
@@ -105,15 +115,17 @@ const EditScene = () => {
         console.log("Trying to remove character-assignments from", initialCharacters, "to", characterData)
 
 
-        for (let j = 0; j < initialCharacters.length; j++) {
-          console.log("Is", initialCharacters[j], "in", characterData);
-          if (initialCharacters[j] != -1 && !characterData.find(c => c === initialCharacters[j])) {
-            console.log("About to remove character-assignments", initialCharacters[j])
-            try {
-              await deleteSceneCharacter(projectId, updatedScene.id, initialCharacters[j]);
-              console.log("Successfully deleted character", initialCharacters[j], "from the scene.");
-            } catch (error) {
-              console.log(error.message || "Unable to delete character", initialCharacters[j], "from the scene.");
+        if (Array.isArray(initialCharacters)) {
+          for (let j = 0; j < initialCharacters.length; j++) {
+            console.log("Is", initialCharacters[j], "in", characterData);
+            if (initialCharacters[j] != -1 && !characterData.find(c => c === initialCharacters[j])) {
+              console.log("About to remove character-assignments", initialCharacters[j])
+              try {
+                await deleteSceneCharacter(projectId, updatedScene.id, initialCharacters[j]);
+                console.log("Successfully deleted character", initialCharacters[j], "from the scene.");
+              } catch (error) {
+                console.log(error.message || "Unable to delete character", initialCharacters[j], "from the scene.");
+              }
             }
           }
         }
@@ -139,7 +151,7 @@ const EditScene = () => {
     }
   };
 
-  if (loading) {
+  if (loading || isLoading) {
     return <Loader text="Loading scene..." />;
   }
 
@@ -160,7 +172,7 @@ const EditScene = () => {
       />
 
       <SceneForm
-        initialValues={scene}
+        initialValues={sceneForm}
         onSubmit={handleUpdateScene}
         projectId={projectId}
         onCancel={() => navigate(`/projects/${projectId}/scenes/${sceneId}`)}
@@ -170,6 +182,7 @@ const EditScene = () => {
       />
     </main>
   );
+
 };
 
 export default EditScene;

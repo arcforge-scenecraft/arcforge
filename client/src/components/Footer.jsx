@@ -44,7 +44,7 @@ function Footer() {
 
       <div className="site-footer__bottom">
         <p>© {currentYear} ArcForge</p>
-        <p>CodePath WEB103 capstone project</p>
+        <p>CodePath WEB103 Capstone Project</p>
       </div>
     </footer>
   );

@@ -139,6 +139,7 @@ const SceneDetail = () => {
     loading,
     setLoading,
     error,
+    notFound,
     retry,
   } = useScene(projectId, sceneId, true);
 
@@ -227,7 +228,11 @@ const SceneDetail = () => {
       navigate(`/projects/${projectId}/scenes`, {
         replace: true,
         state: {
-          message: `"${scene.name}" was deleted successfully.`,
+          notification: {
+            type: "success",
+            title: "Scene Deleted",
+            message: `"${sceneName}" was deleted successfully.`,
+          },
         },
       });
     } catch (error) {
@@ -507,21 +512,6 @@ const SceneDetail = () => {
 
   const hasSceneElements = Boolean(sceneLocation) || sceneCharacters.length > 0;
 
-  const handleDeleteScene = async () => {
-    await deleteScene(projectId, sceneId);
-
-    navigate(`/projects/${projectId}/scenes`, {
-      replace: true,
-      state: {
-        notification: {
-          type: "success",
-          title: "Scene Deleted",
-          message: `"${sceneName}" was deleted successfully.`,
-        },
-      },
-    });
-  };
-
   return (
     <main className="detail-page">
       <article className="detail" aria-labelledby="scene-detail-heading">
@@ -622,7 +612,8 @@ const SceneDetail = () => {
             <h2>About this scene</h2>
 
             <p>
-              Review the scene's core information before, during, and after development.
+              Review the scene's core information, and compare where this scene appears in the written story with where
+              it occurs chronologically.
             </p>
           </div>
 
@@ -634,7 +625,8 @@ const SceneDetail = () => {
                   <span className="detail__genre">{scene.location[1]}</span>
                   : "No location"}
               </dd>
-
+            </div>
+            <div className="detail__information-row">
               <dt>Characters</dt>
               <dd className="detail__genres">
                 {scene.characters?.length ? (
@@ -652,7 +644,8 @@ const SceneDetail = () => {
                   </span>
                 )}
               </dd>
-
+            </div>
+            <div className="detail__information-row">
               <dt>Scene order</dt>
               <dd>{formatOrder(scene.scene_order)}</dd>
             </div>
@@ -1142,7 +1135,7 @@ const SceneDetail = () => {
               </fieldset>
             </div>
           </div>)}
-          <footer className="detail__footer-navigation">
+        <footer className="detail__footer-navigation">
           <Link
             to={`/projects/${projectId}`}
             className="button button--secondary"

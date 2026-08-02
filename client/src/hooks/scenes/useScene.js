@@ -4,7 +4,7 @@ import { getSceneById } from "../../services/sceneApi";
 import { getSceneCharacters } from "../../services/scene-characterApi";
 import { getLocations } from "../../services/locationApi";
 
-function useScene(projectId, sceneId) {
+function useScene(projectId, sceneId, getDetailed = false) {
   const [scene, setScene] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -31,14 +31,19 @@ function useScene(projectId, sceneId) {
 
         const normalizedData = {
           ...data,
-          characters: sceneCharacters && sceneCharacters.length != 0 ? sceneCharacters : [{character_id: -1, name: "Undecided", role_in_scene: "", knowledge_gained: ""}],
+          characters: sceneCharacters && sceneCharacters.length != 0 ? sceneCharacters : [{ character_id: -1, name: "Undecided", role_in_scene: "", knowledge_gained: "" }],
           location: sceneLocation ? [sceneLocation.id, sceneLocation.name, sceneLocation.description, sceneLocation.atmosphere] : [-1, "Undecided", "", ""]
         }
 
         console.log("Normalized scene data:", normalizedData)
+        console.log("Regular data:", data)
 
         if (isMounted) {
-          setScene(normalizedData || null);
+          if (getDetailed) {
+            setScene(normalizedData || null);
+          } else {
+            setScene(data || null);
+          }
         }
       } catch (err) {
         if (!isMounted) {
