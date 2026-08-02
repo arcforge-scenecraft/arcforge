@@ -8,10 +8,13 @@ function Navbar() {
   const isProjectSection =
     location.pathname === "/dashboard" ||
     location.pathname.startsWith("/projects/");
+  const isFeaturesSection =
+    location.pathname === "/" && location.hash === "#features";
+  const isHomeSection = location.pathname === "/" && !isFeaturesSection;
 
   useEffect(() => {
     setIsMenuOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, location.hash]);
 
   useEffect(() => {
     if (!isMenuOpen) return undefined;
@@ -73,17 +76,29 @@ function Navbar() {
           }`}
           aria-label="Primary navigation"
         >
-          <NavLink end className={navLinkClass} to="/" onClick={closeMenu}>
+          <Link
+            className={`site-navbar__link${
+              isHomeSection ? " site-navbar__link--active" : ""
+            }`}
+            to="/"
+            onClick={closeMenu}
+          >
             Home
-          </NavLink>
+          </Link>
 
           <Link
-            className="site-navbar__link"
+            className={`site-navbar__link${
+              isFeaturesSection ? " site-navbar__link--active" : ""
+            }`}
             to="/#features"
             onClick={closeMenu}
           >
             Features
           </Link>
+
+          <NavLink className={navLinkClass} to="/about" onClick={closeMenu}>
+            About
+          </NavLink>
 
           <Link
             className={`site-navbar__link${

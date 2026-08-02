@@ -19,10 +19,9 @@ function Footer() {
             />
             <span>ArcForge</span>
           </Link>
-
           <p className="site-footer__description">
-            Keep characters, scenes, locations, and story ideas connected as
-            your world grows.
+            Keep projects, scenes, characters, locations, and story ideas
+            connected as your world grows.
           </p>
         </div>
 
@@ -30,6 +29,7 @@ function Footer() {
           <p className="site-footer__heading">Explore</p>
           <Link to="/">Home</Link>
           <Link to="/#features">Features</Link>
+          <Link to="/about">About</Link>
           <Link to="/dashboard">Projects</Link>
         </nav>
 
@@ -44,7 +44,7 @@ function Footer() {
 
       <div className="site-footer__bottom">
         <p>© {currentYear} ArcForge</p>
-        <p>Forge ideas into stories.</p>
+        <p>CodePath WEB103 capstone project</p>
       </div>
     </footer>
   );
