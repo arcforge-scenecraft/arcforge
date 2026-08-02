@@ -7,6 +7,7 @@ export const DeleteButton = ({
   onDelete,
   warning,
   label,
+  variant = "detail",
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
@@ -45,7 +46,7 @@ export const DeleteButton = ({
   };
 
   return (
-    <div className="delete">
+    <div className={`delete delete--${variant}`}>
       <button
         type="button"
         className="delete__button"

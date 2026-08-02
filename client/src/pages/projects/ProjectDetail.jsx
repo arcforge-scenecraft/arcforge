@@ -206,6 +206,7 @@ const ProjectDetail = () => {
             </Link>
 
             <DeleteButton
+              variant="detail"
               itemName={project.title}
               itemType="project"
               label="Delete project"

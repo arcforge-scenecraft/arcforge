@@ -111,6 +111,7 @@ function LocationDetail() {
         </Link>
 
         <DeleteButton
+          variant="detail"
           itemName={location.name}
           itemType="location"
           warning="Scenes using this location will remain, but their location will be cleared."

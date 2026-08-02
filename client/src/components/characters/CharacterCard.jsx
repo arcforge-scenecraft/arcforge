@@ -1,46 +1,43 @@
 import { Link } from "react-router-dom";
-import { DeleteButton } from "../ui";
+import { CollectionCardActions } from "../ui";
 
 function CharacterCard({ character, projectId, onDelete }) {
+  const characterPath = `/projects/${projectId}/characters/${character.id}`;
+  const role = character.story_role?.trim() || "Role not specified";
+  const goal = character.goal?.trim();
+
   return (
-    <article className="detail-panel">
-      <h3>{character.name}</h3>
+    <article className="card collection-card">
+      <header className="card-header">
+        <span className="card-type">Character</span>
 
-      <p className="character-card__role">
-        {character.story_role || "Role not specified"}
-      </p>
+        <span className="card-meta-badge">{role}</span>
+      </header>
 
-      <p>{character.description || "No description provided."}</p>
+      <div className="card-content">
+        <h2 className="card-title">
+          <Link to={characterPath}>{character.name}</Link>
+        </h2>
 
-      {character.goal && (
-        <p>
-          <strong>Goal:</strong> {character.goal}
+        <p className="card-description">
+          {character.description || "No description has been added yet."}
         </p>
-      )}
 
-      <div className="page-actions">
-        <Link
-          to={`/projects/${projectId}/characters/${character.id}`}
-          className="button button--secondary"
-        >
-          View character
-        </Link>
+        <div className="card-details">
+          <span className="card-details__label">Goal</span>
 
-        <Link
-          to={`/projects/${projectId}/characters/${character.id}/edit`}
-          className="button button--secondary"
-        >
-          Edit character
-        </Link>
-
-        <DeleteButton
-          itemName={character.name}
-          itemType="character"
-          label="Delete"
-          warning="This also removes the character from every scene they appear in and clears their relationships."
-          onDelete={onDelete}
-        />
+          <p className="card-details__value">{goal || "No goal specified"}</p>
+        </div>
       </div>
+
+      <CollectionCardActions
+        viewTo={characterPath}
+        editTo={`${characterPath}/edit`}
+        itemName={character.name}
+        itemType="character"
+        warning="This also removes the character from every scene they appear in and clears their relationships."
+        onDelete={onDelete}
+      />
     </article>
   );
 }

@@ -135,6 +135,7 @@ const SceneDetail = () => {
             </Link>
 
             <DeleteButton
+              variant="detail"
               itemName={scene.name}
               itemType="scene"
               warning="This permanently removes the scene and its related scene data, but retains associated characters and locations."

@@ -2,7 +2,7 @@ import CharacterCard from "./CharacterCard";
 
 function CharacterList({ characters, projectId, onDeleteCharacter }) {
   return (
-    <div className="detail-grid">
+    <div className="collection-card-grid">
       {characters.map((character) => (
         <CharacterCard
           key={character.id}

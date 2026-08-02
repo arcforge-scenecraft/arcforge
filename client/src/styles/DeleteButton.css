@@ -1,0 +1,119 @@
+.delete {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.delete__button {
+  display: inline-flex;
+  width: auto;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--color-danger, #b42318);
+  border-radius: 0.5rem;
+  color: var(--color-danger, #b42318);
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.delete__button:hover:not(:disabled) {
+  border-color: var(--color-danger, #b42318);
+  color: #ffffff;
+  background: var(--color-danger, #b42318);
+  box-shadow: 0 6px 14px
+    color-mix(in srgb, var(--color-danger, #b42318) 20%, transparent);
+  transform: translateY(-1px);
+}
+
+.delete__button:focus-visible {
+  outline: 3px solid
+    color-mix(in srgb, var(--color-danger, #b42318) 25%, transparent);
+  outline-offset: 2px;
+}
+
+.delete__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.delete__icon {
+  display: block;
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 1.05rem;
+  stroke-width: 2;
+}
+
+/* Detail-page version */
+.delete--detail {
+  align-items: flex-end;
+}
+
+.delete--detail .delete__button {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.5rem;
+}
+
+/* Card version */
+.delete--compact {
+  align-items: flex-end;
+}
+
+.delete--compact .delete__button {
+  min-height: 2.4rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.68rem;
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.delete__error {
+  max-width: 18rem;
+  margin: 0;
+  color: var(--color-danger, #b42318);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  text-align: right;
+}
+
+@media (max-width: 520px) {
+  .delete--detail,
+  .delete--compact {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .delete__button {
+    width: 100%;
+  }
+
+  .delete__error {
+    max-width: none;
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .delete__button {
+    transition: none;
+  }
+
+  .delete__button:hover:not(:disabled) {
+    transform: none;
+  }
+}

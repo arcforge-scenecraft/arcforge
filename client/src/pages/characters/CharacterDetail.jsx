@@ -134,6 +134,7 @@ function CharacterDetail() {
         </Link>
 
         <DeleteButton
+          variant="detail"
           itemName={character.name}
           itemType="character"
           warning="This also removes the character from every scene they appear in and clears their relationships."
