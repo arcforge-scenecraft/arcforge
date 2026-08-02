@@ -44,7 +44,10 @@ const EditLocation = () => {
       navigate(`/projects/${projectId}/locations/${updatedLocation.id}`, {
         replace: true,
         state: {
-          message: "Location updated successfully.",
+          notification: {
+            type: "success",
+            message: "Location updated successfully.",
+          },
         },
       });
     } catch (submitError) {

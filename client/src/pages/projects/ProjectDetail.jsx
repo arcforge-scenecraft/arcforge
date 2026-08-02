@@ -87,7 +87,10 @@ const ProjectDetail = () => {
     navigate("/dashboard", {
       replace: true,
       state: {
-        message: `"${project.title}" was deleted successfully.`,
+        notification: {
+          type: "success",
+          message: `"${project.title}" was deleted successfully.`,
+        },
       },
     });
   };

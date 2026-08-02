@@ -40,7 +40,10 @@ const EditScene = () => {
       navigate(`/projects/${projectId}/scenes/${updatedScene.id}`, {
         replace: true,
         state: {
-          message: "Scene updated successfully.",
+          notification: {
+            type: "success",
+            message: "Scene updated successfully.",
+          },
         },
       });
     } catch (submitError) {

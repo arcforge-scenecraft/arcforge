@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import SceneList from "../../components/scenes/SceneList";
 import {
@@ -8,15 +8,19 @@ import {
   EmptyState,
   ErrorState,
   Loader,
+  Notification,
   NotFoundState,
 } from "../../components/ui";
 import useScenes from "../../hooks/scenes/useScenes";
 import useProject from "../../hooks/projects/useProject";
+import useRouteNotification from "../../hooks/useRouteNotification";
 import { deleteScene } from "../../services/sceneApi";
 
 function SceneLibrary() {
   const { projectId } = useParams();
-  const { state } = useLocation();
+
+  const { notification, showNotification, dismissNotification } =
+    useRouteNotification();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("scene-order");
@@ -89,8 +93,17 @@ function SceneLibrary() {
   }, [scenes, searchQuery, sortBy, statusFilter]);
 
   const handleDeleteScene = async (sceneId) => {
+    const deletedScene = scenes.find(
+      (scene) => String(scene.id) === String(sceneId),
+    );
+
     await deleteScene(projectId, sceneId);
     removeScene(sceneId);
+
+    showNotification({
+      type: "success",
+      message: `"${deletedScene?.name || "Scene"}" was deleted successfully.`,
+    });
   };
 
   if (projectLoading) {
@@ -129,10 +142,8 @@ function SceneLibrary() {
           actionLabel="Add scene"
         />
 
-        {state?.message && (
-          <div className="notice-card form-success" role="status">
-            <p>{state.message}</p>
-          </div>
+        {notification && (
+          <Notification {...notification} onDismiss={dismissNotification} />
         )}
 
         {loading && <Loader text="Loading scenes..." />}

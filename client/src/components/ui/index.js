@@ -7,3 +7,4 @@ export * from "./DetailPageState.jsx";
 export * from "./CollectionPageHeader.jsx";
 export * from "./CollectionToolbar.jsx";
 export * from "./CollectionCardActions.jsx";
+export * from "./Notification.jsx";

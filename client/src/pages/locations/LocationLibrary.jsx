@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import LocationList from "../../components/locations/LocationList";
 import {
@@ -8,10 +8,12 @@ import {
   EmptyState,
   ErrorState,
   Loader,
+  Notification,
   NotFoundState,
 } from "../../components/ui";
 import useLocations from "../../hooks/locations/useLocations";
 import useProject from "../../hooks/projects/useProject";
+import useRouteNotification from "../../hooks/useRouteNotification";
 import { deleteLocation } from "../../services/locationApi";
 
 const sortLocations = (locations, sortBy) => {
@@ -35,7 +37,9 @@ const sortLocations = (locations, sortBy) => {
 
 function LocationLibrary() {
   const { projectId } = useParams();
-  const { state } = useLocation();
+
+  const { notification, showNotification, dismissNotification } =
+    useRouteNotification();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
@@ -77,8 +81,17 @@ function LocationLibrary() {
   }, [locations, searchQuery, sortBy]);
 
   const handleDeleteLocation = async (locationId) => {
+    const deletedLocation = locations.find(
+      (location) => String(location.id) === String(locationId),
+    );
+
     await deleteLocation(projectId, locationId);
     removeLocation(locationId);
+
+    showNotification({
+      type: "success",
+      message: `"${deletedLocation?.name || "Location"}" was deleted successfully.`,
+    });
   };
 
   if (projectLoading) {
@@ -117,10 +130,8 @@ function LocationLibrary() {
           actionLabel="Add location"
         />
 
-        {state?.message && (
-          <div className="notice-card form-success" role="status">
-            <p>{state.message}</p>
-          </div>
+        {notification && (
+          <Notification {...notification} onDismiss={dismissNotification} />
         )}
 
         {loading && <Loader text="Loading locations..." />}

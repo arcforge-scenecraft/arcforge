@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import CharacterList from "../../components/characters/CharacterList";
 import {
@@ -8,10 +8,12 @@ import {
   EmptyState,
   ErrorState,
   Loader,
+  Notification,
   NotFoundState,
 } from "../../components/ui";
 import useCharacters from "../../hooks/characters/useCharacters";
 import useProject from "../../hooks/projects/useProject";
+import useRouteNotification from "../../hooks/useRouteNotification";
 import { deleteCharacter } from "../../services/characterApi";
 
 const sortCharacters = (characters, sortBy) => {
@@ -35,7 +37,9 @@ const sortCharacters = (characters, sortBy) => {
 
 function CharacterRoster() {
   const { projectId } = useParams();
-  const { state } = useLocation();
+
+  const { notification, showNotification, dismissNotification } =
+    useRouteNotification();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
@@ -78,8 +82,17 @@ function CharacterRoster() {
   }, [characters, searchQuery, sortBy]);
 
   const handleDeleteCharacter = async (characterId) => {
+    const deletedCharacter = characters.find(
+      (character) => String(character.id) === String(characterId),
+    );
+
     await deleteCharacter(projectId, characterId);
     removeCharacter(characterId);
+
+    showNotification({
+      type: "success",
+      message: `"${deletedCharacter?.name || "Character"}" was deleted successfully.`,
+    });
   };
 
   if (projectLoading) {
@@ -118,10 +131,8 @@ function CharacterRoster() {
           actionLabel="Add character"
         />
 
-        {state?.message && (
-          <div className="notice-card form-success" role="status">
-            <p>{state.message}</p>
-          </div>
+        {notification && (
+          <Notification {...notification} onDismiss={dismissNotification} />
         )}
 
         {loading && <Loader text="Loading characters..." />}

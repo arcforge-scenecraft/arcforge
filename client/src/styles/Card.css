@@ -475,39 +475,6 @@
 }
 
 /* =========================================================
-   Dashboard success message
-   Kept here for compatibility with the current dashboard.
-   ========================================================= */
-
-.dashboard__message {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
-  padding: 0.8rem 1rem;
-  border: 1px solid var(--color-success);
-  border-radius: var(--radius-sm);
-  color: var(--color-success);
-  background: var(--color-success-soft);
-}
-
-.dashboard__message p {
-  margin: 0;
-}
-
-.dashboard__message-close {
-  flex-shrink: 0;
-  padding: 0.1rem 0.4rem;
-  border: 0;
-  color: inherit;
-  background: transparent;
-  font-size: 1.4rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-/* =========================================================
    Responsive
    ========================================================= */
 

@@ -6,15 +6,15 @@ import {
   PencilSquareIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
-import {
-  Link,
-  useLocation as useRouteLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { DeleteButton, DetailPageState } from "../../components/ui";
+import {
+  DeleteButton,
+  DetailPageState,
+  Notification,
+} from "../../components/ui";
 import useLocationData from "../../hooks/locations/useLocation";
+import useRouteNotification from "../../hooks/useRouteNotification";
 import { deleteLocation } from "../../services/locationApi";
 
 const formatDate = (value) => {
@@ -46,23 +46,13 @@ const normalizeText = (value, fallback) => {
 function LocationDetail() {
   const { projectId, locationId } = useParams();
   const navigate = useNavigate();
-  const { state } = useRouteLocation();
+
+  const { notification, dismissNotification } = useRouteNotification();
 
   const { location, loading, error, notFound, retry } = useLocationData(
     projectId,
     locationId,
   );
-
-  const handleDeleteLocation = async () => {
-    await deleteLocation(projectId, locationId);
-
-    navigate(`/projects/${projectId}/locations`, {
-      replace: true,
-      state: {
-        message: `"${location.name}" was deleted successfully.`,
-      },
-    });
-  };
 
   if (loading) {
     return (
@@ -101,6 +91,18 @@ function LocationDetail() {
     );
   }
 
+  if (!location) {
+    return (
+      <DetailPageState
+        state="not-found"
+        resourceName="Location"
+        description="The selected location could not be found."
+        backTo={`/projects/${projectId}/locations`}
+        backLabel="Back to locations"
+      />
+    );
+  }
+
   const locationName = normalizeText(location.name, "Untitled location");
 
   const description = normalizeText(
@@ -113,6 +115,21 @@ function LocationDetail() {
     "Atmosphere not specified",
   );
 
+  const handleDeleteLocation = async () => {
+    await deleteLocation(projectId, locationId);
+
+    navigate(`/projects/${projectId}/locations`, {
+      replace: true,
+      state: {
+        notification: {
+          type: "success",
+          title: "Location deleted",
+          message: `"${locationName}" was deleted successfully.`,
+        },
+      },
+    });
+  };
+
   return (
     <main className="detail-page">
       <article className="detail" aria-labelledby="location-detail-heading">
@@ -124,14 +141,8 @@ function LocationDetail() {
           Back to locations
         </Link>
 
-        {state?.message && (
-          <div
-            className="notice-card form-success detail__notice"
-            role="status"
-            aria-live="polite"
-          >
-            <p>{state.message}</p>
-          </div>
+        {notification && (
+          <Notification {...notification} onDismiss={dismissNotification} />
         )}
 
         <header className="detail__hero detail__hero--location">

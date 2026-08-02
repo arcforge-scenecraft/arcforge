@@ -732,3 +732,34 @@
 .detail__controls-group--wide select {
   min-height: 8rem;
 }
+
+.detail__hero--scene {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--color-primary) 14%, transparent),
+      transparent 34%
+    ),
+    linear-gradient(135deg, var(--color-primary-soft), var(--color-surface) 68%);
+}
+
+.detail__feature-card--notes {
+  border-color: var(--color-border);
+  background: linear-gradient(
+    135deg,
+    var(--color-surface-subtle),
+    var(--color-surface)
+  );
+}
+
+.detail__feature-card--notes .detail__feature-icon {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.detail__feature-card--notes .detail__feature-label {
+  color: var(--color-text-muted);
+}

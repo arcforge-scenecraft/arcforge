@@ -8,15 +8,15 @@ import {
   PencilSquareIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
-import {
-  Link,
-  useLocation as useRouteLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { DeleteButton, DetailPageState } from "../../components/ui";
+import {
+  DeleteButton,
+  DetailPageState,
+  Notification,
+} from "../../components/ui";
 import useCharacter from "../../hooks/characters/useCharacter";
+import useRouteNotification from "../../hooks/useRouteNotification";
 import { deleteCharacter } from "../../services/characterApi";
 
 const formatDate = (value) => {
@@ -48,23 +48,13 @@ const normalizeText = (value, fallback) => {
 function CharacterDetail() {
   const { projectId, characterId } = useParams();
   const navigate = useNavigate();
-  const { state } = useRouteLocation();
+
+  const { notification, dismissNotification } = useRouteNotification();
 
   const { character, loading, error, notFound, retry } = useCharacter(
     projectId,
     characterId,
   );
-
-  const handleDeleteCharacter = async () => {
-    await deleteCharacter(projectId, characterId);
-
-    navigate(`/projects/${projectId}/characters`, {
-      replace: true,
-      state: {
-        message: `"${character.name}" was deleted successfully.`,
-      },
-    });
-  };
 
   if (loading) {
     return (
@@ -103,6 +93,18 @@ function CharacterDetail() {
     );
   }
 
+  if (!character) {
+    return (
+      <DetailPageState
+        state="not-found"
+        resourceName="character"
+        description="The selected character could not be found."
+        backTo={`/projects/${projectId}/characters`}
+        backLabel="Back to characters"
+      />
+    );
+  }
+
   const characterName = normalizeText(character.name, "Untitled character");
 
   const storyRole = normalizeText(character.story_role, "Role not specified");
@@ -122,6 +124,21 @@ function CharacterDetail() {
     "No knowledge notes have been recorded for this character yet.",
   );
 
+  const handleDeleteCharacter = async () => {
+    await deleteCharacter(projectId, characterId);
+
+    navigate(`/projects/${projectId}/characters`, {
+      replace: true,
+      state: {
+        notification: {
+          type: "success",
+          title: "Character deleted",
+          message: `"${characterName}" was deleted successfully.`,
+        },
+      },
+    });
+  };
+
   return (
     <main className="detail-page">
       <article className="detail" aria-labelledby="character-detail-heading">
@@ -133,14 +150,8 @@ function CharacterDetail() {
           Back to characters
         </Link>
 
-        {state?.message && (
-          <div
-            className="notice-card form-success detail__notice"
-            role="status"
-            aria-live="polite"
-          >
-            <p>{state.message}</p>
-          </div>
+        {notification && (
+          <Notification {...notification} onDismiss={dismissNotification} />
         )}
 
         <header className="detail__hero detail__hero--character">

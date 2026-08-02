@@ -32,7 +32,10 @@ const CreateCharacter = () => {
       navigate(`/projects/${projectId}/characters/${createdCharacter.id}`, {
         replace: true,
         state: {
-          message: "Character created successfully.",
+          notification: {
+            type: "success",
+            message: "Character created successfully.",
+          },
         },
       });
     } catch (error) {
