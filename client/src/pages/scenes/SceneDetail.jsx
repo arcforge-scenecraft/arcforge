@@ -2,7 +2,6 @@ import {
   ArrowLeftIcon,
   CalendarDaysIcon,
   ClockIcon,
-  DocumentTextIcon,
   MapPinIcon,
   PencilSquareIcon,
   UserGroupIcon,
@@ -21,7 +20,7 @@ import useCharacters from "../../hooks/characters/useCharacters";
 import { deleteScene, updateScene } from "../../services/sceneApi";
 import { assignCharacterToScene, deleteSceneCharacter, updateSceneCharacter } from "../../services/scene-characterApi";
 import { getCharacters, getCharacter } from "../../services/characterApi";
-import { deleteLocation, getLocations } from "../../services/locationApi";
+import { getLocations } from "../../services/locationApi";
 import MiniCard from "../../components/ui/MiniCard";
 import useRouteNotification from "../../hooks/useRouteNotification";
 
@@ -165,10 +164,6 @@ const SceneDetail = () => {
 
         setLocationOptions(locations);
 
-        console.log("Character Dictionary:", characterDict)
-        console.log("CharacterId Options:", ids)
-        console.log("Location Options:", locations)
-
       } catch (err) {
         console.error("Error loading character options:", err);
       }
@@ -178,7 +173,7 @@ const SceneDetail = () => {
     if (scene && !loading && !error) {
       fetchOptions();
     }
-  }, [projectId, scene]);
+  });
 
   const { characters } = useCharacters(projectId);
 
@@ -510,7 +505,7 @@ const SceneDetail = () => {
 
   const sceneLocation = normalizeLocation(scene.location);
 
-  const hasSceneElements = Boolean(sceneLocation) || sceneCharacters.length > 0;
+  // const hasSceneElements = Boolean(sceneLocation) || sceneCharacters.length > 0;
 
   return (
     <main className="detail-page">

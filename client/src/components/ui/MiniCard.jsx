@@ -9,30 +9,25 @@ const MiniCard = ({ heading = "", fields = [], data = {} }) => {
                         return (<p key={f} className="detail__location-description">
                             {data.description || "No description added yet."}
                         </p>)
-                        break;
                     case "atmosphere":
                         return (<p className="detail__location-atmosphere">
                             <strong>{f}: </strong>
                             {data.atmosphere}
                         </p>)
-                        break;
                     case "story_role":
                         return (<p key={f} className="detail__location-atmosphere">
                             <strong>{data.story_role}</strong>
                         </p>)
-                        break;
                     case "goal":
                         return (<p key={f} className="detail__location-atmosphere">
                             <strong>Story goal: </strong>
                             {data.goal}
                         </p>)
-                        break;
                     case "knowledge_notes":
                         return (<p key={f} className="detail__location-atmosphere">
                             <strong>Knowledge notes: </strong>
                             {data.knowledge_notes}
                         </p>)
-                        break;
                     default:
                         ""
                 }

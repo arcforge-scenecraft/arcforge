@@ -81,7 +81,7 @@ function useScene(projectId, sceneId, getDetailed = false) {
     return () => {
       isMounted = false;
     };
-  }, [projectId, sceneId, retryCount]);
+  }, [projectId, sceneId, getDetailed, retryCount]);
 
   const retry = () => {
     setRetryCount((currentCount) => currentCount + 1);

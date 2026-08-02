@@ -6,7 +6,7 @@ import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { ErrorState, Loader } from "../../components/ui";
 import useScene from "../../hooks/scenes/useScene";
 import { updateScene } from "../../services/sceneApi";
-import { assignCharacterToScene, deleteSceneCharacter, getSceneCharacters } from "../../services/scene-characterApi";
+import { assignCharacterToScene, deleteSceneCharacter } from "../../services/scene-characterApi";
 import { getCharacters } from "../../services/characterApi";
 import NotFound from "../NotFound";
 
@@ -16,7 +16,7 @@ const EditScene = () => {
 
   // const [scene, setScene] = useState(null);
   const [initialCharacters, setInitialCharacters] = useState(null);
-  const { scene, setScene, loading, setLoading, error, notFound, retry } = useScene(
+  const { scene, loading, error, notFound, retry } = useScene(
     projectId,
     sceneId,
     false
@@ -66,7 +66,7 @@ const EditScene = () => {
     if (scene && !loading && !error) {
       modifyScene();
     }
-  }, [projectId, sceneId, scene]);
+  });
 
   const handleUpdateScene = async (sceneData, characterData) => {
     if (isSubmitting) {
