@@ -78,14 +78,15 @@ const EditProject = () => {
 
       const updatedProject = await updateProject(projectId, projectData);
 
-      // Some PATCH endpoints return the updated object, while others
-      // return 204 No Content. The existing route ID is safe as fallback.
       const updatedProjectId = updatedProject?.id ?? projectId;
 
       navigate(`/projects/${updatedProjectId}`, {
         replace: true,
         state: {
-          message: "Project updated successfully.",
+          notification: {
+            type: "success",
+            message: "Project updated successfully.",
+          },
         },
       });
     } catch (error) {

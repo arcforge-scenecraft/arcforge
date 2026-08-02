@@ -1,82 +1,66 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import SceneForm from "../../components/scenes/SceneForm";
 import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { ErrorState, Loader } from "../../components/ui";
-import { getSceneById } from "../../services/sceneApi";
+import useScene from "../../hooks/scenes/useScene";
 import { updateScene } from "../../services/sceneApi";
 import { assignCharacterToScene, deleteSceneCharacter, getSceneCharacters } from "../../services/scene-characterApi";
 import { getCharacters } from "../../services/characterApi";
+import NotFound from "../NotFound";
 
 const EditScene = () => {
   const { projectId, sceneId } = useParams();
   const navigate = useNavigate();
 
-  const [scene, setScene] = useState(null);
+  // const [scene, setScene] = useState(null);
   const [initialCharacters, setInitialCharacters] = useState(null);
+  const { scene, setScene, loading, setLoading, error, notFound, retry } = useScene(
+    projectId,
+    sceneId,
+    false
+  );
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
   const [apiError, setApiError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const normalizeSceneValues = async () => {
-    const values = await getSceneById(projectId, sceneId);
-    const characterList = await getCharacters(projectId);
+  useEffect(() => {
+    const modifyScene = async () => {
+      try {
+        setLoading(true);
+        setLoadError("");
 
-    // gets all characters in the project and puts them into a dictionary with names as keys and ids as values
-    let characterDict = {};
-    characterDict["Undecided"] = -1
-    characterList.forEach(character => characterDict[character.name] = character.id);
+        const characterList = await getCharacters(projectId);
 
-    let sceneValues = {
-      ...values,
-      // Ensures characters variable an array of character ids for editing.
-      characters: values.characters.map(name => characterDict[name])
+        // gets all characters in the project and puts them into a dictionary with names as keys and ids as values
+        let characterDict = {};
+        characterDict["Undecided"] = -1
+        characterList.forEach(character => characterDict[character.name] = character.id);
+
+        let sceneData = {
+          ...scene,
+          // Ensures characters variable an array of character ids for editing.
+          characters: scene.characters.map(name => characterDict[name])
+        };
+
+        setInitialCharacters(initialData.characters.map(name => characterDict[name]));
+
+        setScene(sceneData);
+        console.log("Scene loaded:", sceneData);
+      } catch (error) {
+        setLoadError(error.message || "Unable to load the scene.");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setInitialCharacters(values.characters.map(name => characterDict[name]));
-
-    console.log("Normalized Scene Values:", sceneValues);
-
-    return (sceneValues)
-  };
-
-  const loadScene = async () => {
-    try {
-      setIsLoading(true);
-      setLoadError("");
-
-      const initialData = await getSceneById(projectId, sceneId);
-      const characterList = await getCharacters(projectId);
-
-      // gets all characters in the project and puts them into a dictionary with names as keys and ids as values
-      let characterDict = {};
-      characterDict["Undecided"] = -1
-      characterList.forEach(character => characterDict[character.name] = character.id);
-
-      let sceneData = {
-        ...initialData,
-        // Ensures characters variable an array of character ids for editing.
-        characters: initialData.characters.map(name => characterDict[name])
-      };
-
-      setInitialCharacters(initialData.characters.map(name => characterDict[name]));
-
-      setScene(sceneData);
-      console.log("Scene loaded:", sceneData);
-    } catch (error) {
-      setLoadError(error.message || "Unable to load the scene.");
-    } finally {
-      setIsLoading(false);
+    if (scene) {
+      modifyScene();
     }
-  };
-
-  useEffect(() => {
-    loadScene();
   }, [projectId, sceneId]);
 
-  const handleUpdateProject = async (sceneData, characterData) => {
+  const handleUpdateScene = async (sceneData, characterData) => {
     if (isSubmitting) {
       return;
     }
@@ -86,8 +70,6 @@ const EditScene = () => {
       setApiError("");
 
       const updatedScene = await updateScene(projectId, sceneId, sceneData);
-
-      console.log("Updated scene:", updatedScene);
 
       if (!updatedScene?.id) {
         throw new Error(
@@ -140,22 +122,33 @@ const EditScene = () => {
       navigate(`/projects/${projectId}/scenes/${updatedScene.id}`, {
         replace: true,
         state: {
-          message: "Scene and scene-character connections updated successfully.",
+          notification: {
+            type: "success",
+            message: "Scene updated successfully.",
+          },
         },
       });
-    } catch (error) {
-      setApiError(error.message || "Unable to update the scene or scene-character connections.");
+    } catch (submitError) {
+      setApiError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to update the scene.",
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return <Loader text="Loading scene..." />;
   }
 
-  if (loadError) {
-    return <ErrorState message={loadError} onRetry={loadScene} />;
+  if (notFound) {
+    return <NotFound />;
+  }
+
+  if (error) {
+    return <ErrorState message={error} onRetry={retry} />;
   }
 
   return (
@@ -163,14 +156,14 @@ const EditScene = () => {
       <ProjectFormHeader
         eyebrow="Scene settings"
         title={`Edit ${scene.name}`}
-        description="Update the information for this scene."
+        description="Update the events, order, location, characters, and planning notes for this scene."
       />
 
       <SceneForm
         initialValues={scene}
-        onSubmit={handleUpdateProject}
+        onSubmit={handleUpdateScene}
         projectId={projectId}
-        onCancel={() => navigate(`/projects/${projectId}/scenes`)}
+        onCancel={() => navigate(`/projects/${projectId}/scenes/${sceneId}`)}
         submitLabel="Save Changes"
         isSubmitting={isSubmitting}
         apiError={apiError}

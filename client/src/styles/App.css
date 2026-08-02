@@ -8,6 +8,8 @@
    Reusable UI components
 ======================================== */
 
+@import "./Navbar.css";
+@import "./Footer.css";
 @import "./UIStates.css";
 @import "./Card.css";
 @import "./Form.css";
@@ -15,6 +17,8 @@
 @import "./LatestLocation.css";
 @import "./Character.css";
 @import "./Popup.css";
+@import "./Overview.css";
+@import "./Notification.css";
 
 /* ========================================
    Page layouts
@@ -22,5 +26,8 @@
 
 @import "./Dashboard.css";
 @import "./Landing.css";
+@import "./About.css";
 @import "./NotFound.css";
 @import "./Detail.css";
+@import "./CollectionPage.css";
+@import "./DeleteButton.css";

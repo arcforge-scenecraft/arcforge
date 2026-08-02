@@ -1,0 +1,420 @@
+.about-page {
+  flex: 1;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 88% 4%,
+      rgba(230, 106, 22, 0.13),
+      transparent 24%
+    ),
+    radial-gradient(circle at 5% 40%, rgba(23, 36, 59, 0.06), transparent 22%),
+    var(--color-background);
+}
+
+.about-hero {
+  display: flex;
+  max-width: 900px;
+  align-items: center;
+  flex-direction: column;
+  margin: 0 auto;
+  padding: clamp(4.5rem, 10vw, 8rem) 20px clamp(4rem, 8vw, 6rem);
+  text-align: center;
+}
+
+.about-hero__icon {
+  display: inline-flex;
+  width: 64px;
+  height: 64px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+  border: 1px solid rgba(230, 106, 22, 0.2);
+  border-radius: 20px;
+  color: var(--color-primary-text);
+  background: var(--color-primary-soft);
+  box-shadow: var(--shadow-sm);
+}
+
+.about-hero__icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.about-eyebrow {
+  margin: 0 0 14px;
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.about-hero h1,
+.about-story h2,
+.about-section__header h2,
+.about-closing h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(2.25rem, 5vw, 4.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.055em;
+}
+
+.about-hero__description {
+  max-width: 760px;
+  margin: 24px 0 0;
+  color: var(--color-text-muted);
+  font-size: 1.12rem;
+  line-height: 1.8;
+}
+
+.about-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.about-hero__actions svg,
+.about-closing .primary-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.about-story,
+.about-section,
+.about-closing {
+  width: min(var(--content-width), calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.about-story {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  align-items: stretch;
+  gap: 28px;
+  padding-bottom: clamp(4.5rem, 9vw, 7rem);
+}
+
+.about-story__content {
+  padding: clamp(2rem, 5vw, 3.5rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow-md);
+}
+
+.about-story h2,
+.about-section__header h2,
+.about-closing h2 {
+  font-size: clamp(2rem, 4vw, 3.35rem);
+  line-height: 1.09;
+}
+
+.about-story__content > p:not(.about-eyebrow) {
+  margin: 18px 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+
+.about-course-card {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(2rem, 5vw, 3rem);
+  border-radius: var(--radius-xl);
+  color: #ffffff;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(230, 106, 22, 0.35),
+      transparent 38%
+    ),
+    var(--color-footer);
+  box-shadow: var(--shadow-lg);
+}
+
+.about-course-card > svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: auto;
+  color: #ffb985;
+}
+
+.about-course-card > p {
+  margin: 32px 0 8px;
+  color: #ffb985;
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.about-course-card h3 {
+  margin: 0;
+  font-size: 1.55rem;
+  line-height: 1.25;
+}
+
+.about-course-card span {
+  margin-top: 12px;
+  color: var(--color-footer-muted);
+  line-height: 1.5;
+}
+
+.about-section {
+  padding: clamp(4.5rem, 9vw, 7rem) 0;
+}
+
+.about-section__header {
+  max-width: 780px;
+  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+}
+
+.about-section__header > p:last-child {
+  margin: 18px 0 0;
+  color: var(--color-text-muted);
+  font-size: 1.04rem;
+  line-height: 1.75;
+}
+
+.about-team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.about-team-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 26px;
+  border: 1px solid var(--color-border);
+  border-top: 4px solid var(--color-primary);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.about-team-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.about-team-card__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.about-team-card__avatar {
+  display: inline-flex;
+  width: 50px;
+  height: 50px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  color: var(--color-primary-text);
+  background: var(--color-primary-soft);
+  font-weight: 850;
+}
+
+.about-team-card h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.about-team-card__header p {
+  margin: 4px 0 0;
+  color: var(--color-text-soft);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.about-team-card__contribution {
+  margin: 22px 0;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.about-team-card > a {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  color: var(--color-primary-text);
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.about-team-card > a:hover {
+  color: var(--color-primary);
+}
+
+.about-team-card > a svg {
+  width: 16px;
+  height: 16px;
+}
+
+.about-stack-section {
+  width: 100%;
+  max-width: none;
+  padding-inline: max(20px, calc((100% - var(--content-width)) / 2));
+  background: var(--color-surface-warm);
+  border-block: 1px solid rgba(230, 106, 22, 0.12);
+}
+
+.about-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.about-stack-card {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid rgba(230, 106, 22, 0.16);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.about-stack-card > span {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 13px;
+  color: var(--color-primary-text);
+  background: var(--color-primary-soft);
+}
+
+.about-stack-card svg {
+  width: 23px;
+  height: 23px;
+}
+
+.about-stack-card h3 {
+  margin: 20px 0 8px;
+  color: var(--color-text);
+  font-size: 1.12rem;
+}
+
+.about-stack-card p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+
+.about-closing {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  margin-block: clamp(4.5rem, 9vw, 7rem);
+  padding: clamp(2rem, 5vw, 3rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-md);
+}
+
+.about-closing > svg {
+  width: 54px;
+  height: 54px;
+  padding: 12px;
+  border-radius: 16px;
+  color: var(--color-primary-text);
+  background: var(--color-primary-soft);
+}
+
+.about-closing h2 {
+  font-size: clamp(1.8rem, 3.5vw, 2.7rem);
+}
+
+.about-closing div > p:last-child {
+  margin: 10px 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+
+.about-closing .primary-button {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 940px) {
+  .about-team-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-stack-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .about-story {
+    grid-template-columns: 1fr;
+  }
+
+  .about-course-card {
+    min-height: 320px;
+  }
+
+  .about-closing {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .about-closing .primary-button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+@media (max-width: 580px) {
+  .about-story,
+  .about-section,
+  .about-closing {
+    width: min(100% - 28px, var(--content-width));
+  }
+
+  .about-hero__actions {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .about-hero__actions a {
+    width: 100%;
+  }
+
+  .about-team-grid,
+  .about-stack-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-story__content,
+  .about-course-card,
+  .about-team-card,
+  .about-closing {
+    padding: 24px;
+  }
+
+  .about-closing {
+    grid-template-columns: 1fr;
+  }
+
+  .about-closing > svg {
+    width: 50px;
+    height: 50px;
+  }
+}

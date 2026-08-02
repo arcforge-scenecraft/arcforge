@@ -44,7 +44,10 @@ const EditCharacter = () => {
       navigate(`/projects/${projectId}/characters/${updatedCharacter.id}`, {
         replace: true,
         state: {
-          message: "Character updated successfully.",
+          notification: {
+            type: "success",
+            message: "Character updated successfully.",
+          },
         },
       });
     } catch (submitError) {
