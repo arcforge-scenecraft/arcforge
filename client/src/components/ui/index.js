@@ -4,3 +4,5 @@ export * from "./ErrorState.jsx";
 export * from "./NotFoundState.jsx";
 export * from "./DeleteButton.jsx";
 export * from "./DetailPageState.jsx";
+export * from "./CollectionPageHeader.jsx";
+export * from "./CollectionToolbar.jsx";

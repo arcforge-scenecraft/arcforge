@@ -56,11 +56,20 @@ const useLocations = (projectId) => {
     setRetryCount((currentCount) => currentCount + 1);
   }, []);
 
+  const removeLocation = useCallback((locationId) => {
+    setLocations((currentLocations) =>
+      currentLocations.filter(
+        (location) => String(location.id) !== String(locationId),
+      ),
+    );
+  }, []);
+
   return {
     locations,
     loading,
     error,
     retry,
+    removeLocation,
   };
 };
 

@@ -1,110 +1,198 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { useMemo, useState } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
+
 import LocationList from "../../components/locations/LocationList";
-import { deleteLocation, getLocations } from "../../services/locationApi";
+import {
+  CollectionPageHeader,
+  CollectionToolbar,
+  EmptyState,
+  ErrorState,
+  Loader,
+  NotFoundState,
+} from "../../components/ui";
+import useLocations from "../../hooks/locations/useLocations";
+import useProject from "../../hooks/projects/useProject";
+import { deleteLocation } from "../../services/locationApi";
+
+const sortLocations = (locations, sortBy) => {
+  return [...locations].sort((first, second) => {
+    if (sortBy === "name") {
+      return String(first.name || "").localeCompare(String(second.name || ""));
+    }
+
+    if (sortBy === "atmosphere") {
+      return String(first.atmosphere || "").localeCompare(
+        String(second.atmosphere || ""),
+      );
+    }
+
+    return (
+      new Date(second.created_at || 0).getTime() -
+      new Date(first.created_at || 0).getTime()
+    );
+  });
+};
 
 function LocationLibrary() {
   const { projectId } = useParams();
+  const { state } = useLocation();
 
-  const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
 
-  useEffect(() => {
-    let isMounted = true;
+  const {
+    project,
+    loading: projectLoading,
+    error: projectError,
+    notFound: projectNotFound,
+    retry: retryProject,
+  } = useProject(projectId);
 
-    const fetchLocations = async () => {
-      try {
-        setLoading(true);
-        setError("");
+  const resolvedProjectId = project?.id ?? null;
 
-        const data = await getLocations(projectId);
+  const { locations, loading, error, retry, removeLocation } =
+    useLocations(resolvedProjectId);
 
-        if (isMounted) {
-          setLocations(Array.isArray(data) ? data : []);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(
-            err.message || "Failed to load locations. Please try again.",
-          );
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+  const visibleLocations = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    const filteredLocations = locations.filter((location) => {
+      if (!normalizedQuery) {
+        return true;
       }
-    };
 
-    fetchLocations();
+      const searchableText = [
+        location.name,
+        location.description,
+        location.atmosphere,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
 
-    return () => {
-      isMounted = false;
-    };
-  }, [projectId]);
+      return searchableText.includes(normalizedQuery);
+    });
+
+    return sortLocations(filteredLocations, sortBy);
+  }, [locations, searchQuery, sortBy]);
 
   const handleDeleteLocation = async (locationId) => {
     await deleteLocation(projectId, locationId);
-
-    setLocations((currentLocations) =>
-      currentLocations.filter(
-        (location) => String(location.id) !== String(locationId),
-      ),
-    );
+    removeLocation(locationId);
   };
 
+  if (projectLoading) {
+    return <Loader text="Loading location library..." />;
+  }
+
+  if (projectNotFound) {
+    return (
+      <NotFoundState
+        title="Project not found"
+        description="This location library belongs to a project that does not exist or may have been deleted."
+        action={
+          <Link to="/dashboard" className="primary-button">
+            Back to dashboard
+          </Link>
+        }
+      />
+    );
+  }
+
+  if (projectError) {
+    return <ErrorState message={projectError} onRetry={retryProject} />;
+  }
+
   return (
-    <main className="detail-page">
-      <Link to={`/projects/${projectId}`} className="detail__back-link">
-        <ArrowLeftIcon aria-hidden="true" />
-        Back to project
-      </Link>
-
-      <header className="page-header">
-        <p className="eyebrow">Location library</p>
-
-        <h1 className="page-title">Locations</h1>
-
-        <p className="page-copy">
-          Browse reusable locations that belong to this story project.
-        </p>
-      </header>
-
-      <div className="page-actions page-actions--header">
-        <Link
-          to={`/projects/${projectId}/locations/new`}
-          className="button button--primary"
-        >
-          Create location
-        </Link>
-      </div>
-
-      {loading && (
-        <div className="notice-card">
-          <p>Loading locations...</p>
-        </div>
-      )}
-
-      {!loading && error && (
-        <div className="notice-card error-message" role="alert">
-          <p>{error}</p>
-        </div>
-      )}
-
-      {!loading && !error && locations.length === 0 && (
-        <div className="notice-card">
-          <p>No locations have been added to this project yet.</p>
-        </div>
-      )}
-
-      {!loading && !error && locations.length > 0 && (
-        <LocationList
-          locations={locations}
-          projectId={projectId}
-          onDeleteLocation={handleDeleteLocation}
+    <main className="collection-page">
+      <div className="collection-page__content">
+        <CollectionPageHeader
+          backTo={`/projects/${projectId}`}
+          eyebrow={project.title}
+          title="Locations"
+          count={locations.length}
+          countLabel="locations"
+          description="Manage the settings, environments, and places used throughout this story."
+          actionTo={`/projects/${projectId}/locations/new`}
+          actionLabel="Add location"
         />
-      )}
+
+        {state?.message && (
+          <div className="notice-card form-success" role="status">
+            <p>{state.message}</p>
+          </div>
+        )}
+
+        {loading && <Loader text="Loading locations..." />}
+
+        {!loading && error && <ErrorState message={error} onRetry={retry} />}
+
+        {!loading && !error && locations.length === 0 && (
+          <EmptyState
+            title="No locations yet"
+            description="Add the first location to begin building this project's cast."
+            action={
+              <Link
+                to={`/projects/${projectId}/locations/new`}
+                className="primary-button"
+              >
+                Add location
+              </Link>
+            }
+          />
+        )}
+
+        {!loading && !error && locations.length > 0 && (
+          <>
+            <CollectionToolbar
+              resourceName="locations"
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
+              searchPlaceholder="Search by name, description, atmosphere..."
+              sortValue={sortBy}
+              onSortChange={setSortBy}
+              sortOptions={[
+                {
+                  value: "newest",
+                  label: "Newest first",
+                },
+                {
+                  value: "name",
+                  label: "Name A-Z",
+                },
+                {
+                  value: "atmosphere",
+                  label: "Atmosphere",
+                },
+              ]}
+              visibleCount={visibleLocations.length}
+              totalCount={locations.length}
+            />
+
+            {visibleLocations.length === 0 ? (
+              <EmptyState
+                title="No matching locations"
+                description="Try changing your search."
+                action={
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    Clear search
+                  </button>
+                }
+              />
+            ) : (
+              <LocationList
+                locations={visibleLocations}
+                projectId={projectId}
+                onDeleteLocation={handleDeleteLocation}
+              />
+            )}
+          </>
+        )}
+      </div>
     </main>
   );
 }

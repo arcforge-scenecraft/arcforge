@@ -56,11 +56,18 @@ const useScenes = (projectId) => {
     setRetryCount((currentCount) => currentCount + 1);
   }, []);
 
+  const removeScene = useCallback((sceneId) => {
+    setScenes((currentScenes) =>
+      currentScenes.filter((scene) => String(scene.id) !== String(sceneId)),
+    );
+  }, []);
+
   return {
     scenes,
     loading,
     error,
     retry,
+    removeScene,
   };
 };
 
