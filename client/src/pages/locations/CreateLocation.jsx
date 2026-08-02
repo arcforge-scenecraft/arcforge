@@ -32,7 +32,10 @@ const CreateLocation = () => {
       navigate(`/projects/${projectId}/locations/${createdLocation.id}`, {
         replace: true,
         state: {
-          message: "Location created successfully.",
+          notification: {
+            type: "success",
+            message: "Location created successfully.",
+          },
         },
       });
     } catch (error) {

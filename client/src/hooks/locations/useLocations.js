@@ -1,7 +1,4 @@
-/*useLocations.js is responsible for fetching all locations belonging to a project using only projectId. It is used by the Project Detail and Location Library pages.*/
-
 import { useCallback, useEffect, useState } from "react";
-
 import { getLocations } from "../../services/locationApi";
 
 const useLocations = (projectId) => {
@@ -11,34 +8,38 @@ const useLocations = (projectId) => {
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    let isActive = true;
+    if (!projectId) {
+      setLocations([]);
+      setError("");
+      setLoading(true);
+      return undefined;
+    }
+
+    const controller = new AbortController();
 
     const loadLocations = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const locationData = await getLocations(projectId);
+        const locationData = await getLocations(projectId, {
+          signal: controller.signal,
+        });
 
-        if (isActive) {
-          setLocations(locationData || []);
-        }
+        setLocations(Array.isArray(locationData) ? locationData : []);
       } catch (loadError) {
-        if (!isActive) {
+        if (loadError.name === "AbortError") {
           return;
         }
 
-        console.error("Failed to load project locations:", loadError);
-
         setLocations([]);
-
         setError(
           loadError instanceof Error
             ? loadError.message
             : "Unable to load project locations.",
         );
       } finally {
-        if (isActive) {
+        if (!controller.signal.aborted) {
           setLoading(false);
         }
       }
@@ -47,7 +48,7 @@ const useLocations = (projectId) => {
     loadLocations();
 
     return () => {
-      isActive = false;
+      controller.abort();
     };
   }, [projectId, retryCount]);
 
@@ -55,11 +56,20 @@ const useLocations = (projectId) => {
     setRetryCount((currentCount) => currentCount + 1);
   }, []);
 
+  const removeLocation = useCallback((locationId) => {
+    setLocations((currentLocations) =>
+      currentLocations.filter(
+        (location) => String(location.id) !== String(locationId),
+      ),
+    );
+  }, []);
+
   return {
     locations,
     loading,
     error,
     retry,
+    removeLocation,
   };
 };
 

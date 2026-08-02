@@ -31,14 +31,17 @@ function useCharacter(projectId, characterId) {
           return;
         }
 
-        if (err.message === "Character not found.") {
+        const isMissingResource =
+          err?.status === 404 ||
+          err?.message === "Character not found." ||
+          err?.message === "Project not found.";
+
+        if (isMissingResource) {
           setCharacter(null);
           setNotFound(true);
           setError("");
           return;
         }
-
-        console.error("Failed to load character:", err);
 
         setCharacter(null);
         setNotFound(false);

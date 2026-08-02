@@ -2,7 +2,7 @@ import LocationCard from "./LocationCard";
 
 function LocationList({ locations, projectId, onDeleteLocation }) {
   return (
-    <div className="detail-grid">
+    <div className="collection-card-grid">
       {locations.map((location) => (
         <LocationCard
           key={location.id}

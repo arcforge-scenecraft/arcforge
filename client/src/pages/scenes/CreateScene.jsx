@@ -5,63 +5,70 @@ import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { createScene } from "../../services/sceneApi";
 
 const CreateScene = () => {
-    const { projectId } = useParams();
-    const navigate = useNavigate();
-    
-    const [apiError, setApiError] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const { projectId } = useParams();
+  const navigate = useNavigate();
 
-    const handleCreateScene = async (sceneData) => {
+  const [apiError, setApiError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleCreateScene = async (sceneData) => {
     if (isSubmitting) {
-        return;
+      return;
     }
 
     try {
-        setIsSubmitting(true);
-        setApiError("");
+      setIsSubmitting(true);
+      setApiError("");
 
-        console.log("About to call createScene for project", projectId, "and sceneData:", sceneData)
+      console.log(
+        "About to call createScene for project",
+        projectId,
+        "and sceneData:",
+        sceneData,
+      );
 
-        const createdScene = await createScene(projectId, sceneData);
+      const createdScene = await createScene(projectId, sceneData);
 
-        if (!createdScene?.id) {
+      if (!createdScene?.id) {
         throw new Error(
-            "The scene was created, but the API did not return its ID.",
+          "The scene was created, but the API did not return its ID.",
         );
-        }
+      }
 
-        navigate(`/projects/${projectId}/scenes`, {
+      navigate(`/projects/${projectId}/scenes`, {
         replace: true,
         state: {
+          notification: {
+            type: "success",
             message: "Scene created successfully.",
+          },
         },
-        });
+      });
     } catch (error) {
-        setApiError(error.message || "Unable to create the scene.");
+      setApiError(error.message || "Unable to create the scene.");
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
-    };
+  };
 
-    return (
-        <main className="page-container">
-            <ProjectFormHeader
-            eyebrow="New Scene"
-            title="Create a scene"
-            description="Add the basic information for your new scene."
-            />
+  return (
+    <main className="page-container">
+      <ProjectFormHeader
+        eyebrow="New Scene"
+        title="Create a scene"
+        description="Add the basic information for your new scene."
+      />
 
-            <SceneForm
-            onSubmit={handleCreateScene}
-            projectId={projectId}
-            onCancel={() => navigate(`/projects/${projectId}/scenes`)}
-            submitLabel="Create Scene"
-            isSubmitting={isSubmitting}
-            apiError={apiError}
-            />
-        </main>
-    );
+      <SceneForm
+        onSubmit={handleCreateScene}
+        projectId={projectId}
+        onCancel={() => navigate(`/projects/${projectId}/scenes`)}
+        submitLabel="Create Scene"
+        isSubmitting={isSubmitting}
+        apiError={apiError}
+      />
+    </main>
+  );
 };
 
 export default CreateScene;

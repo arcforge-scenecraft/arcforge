@@ -31,7 +31,12 @@ function useLocation(projectId, locationId) {
           return;
         }
 
-        if (err.message === "Location not found.") {
+        const isMissingResource =
+          err?.status === 404 ||
+          err?.message === "Location not found." ||
+          err?.message === "Project not found.";
+
+        if (isMissingResource) {
           setLocation(null);
           setNotFound(true);
           setError("");

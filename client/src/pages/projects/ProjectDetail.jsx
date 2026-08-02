@@ -7,11 +7,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import LatestCharacters from "../../components/characters/LatestCharacters";
-import LatestLocations from "../../components/locations/LatestLocations";
-import ProjectDeleteButton from "../../components/projects/ProjectDeleteButton";
+import CharacterOverview from "../../components/characters/CharacterOverview";
+import LocationOverview from "../../components/locations/LocationOverview";
 import ProjectOverview from "../../components/projects/ProjectOverview";
-import { ErrorState, Loader } from "../../components/ui";
+import { DeleteButton, DetailPageState } from "../../components/ui";
 import useProject from "../../hooks/projects/useProject";
 import useCharacters from "../../hooks/characters/useCharacters";
 import useLocations from "../../hooks/locations/useLocations";
@@ -55,40 +54,32 @@ const ProjectDetail = () => {
     project,
     loading: projectLoading,
     error: projectError,
+    notFound: projectNotFound,
     retry: retryProject,
   } = useProject(projectId);
+
+  const relatedProjectId = project?.id ?? null;
 
   const {
     locations,
     loading: locationsLoading,
     error: locationsError,
     retry: retryLocations,
-  } = useLocations(projectId);
+  } = useLocations(relatedProjectId);
 
   const {
     characters,
     loading: charactersLoading,
     error: charactersError,
     retry: retryCharacters,
-  } = useCharacters(projectId);
+  } = useCharacters(relatedProjectId);
 
   const {
     scenes,
-    loading: sceneLoading,
-    error: sceneError,
+    loading: scenesLoading,
+    error: scenesError,
     retry: retryScenes,
-  } = useScenes(projectId);
-
-  const loading =
-    projectLoading || locationsLoading || charactersLoading || sceneLoading;
-  const error = projectError || locationsError || charactersError || sceneError;
-
-  const retry = () => {
-    retryProject();
-    retryLocations();
-    retryCharacters();
-    retryScenes();
-  };
+  } = useScenes(relatedProjectId);
 
   const handleDeleteProject = async () => {
     await deleteProject(project.id);
@@ -96,67 +87,81 @@ const ProjectDetail = () => {
     navigate("/dashboard", {
       replace: true,
       state: {
-        message: `"${project.title}" was deleted successfully.`,
+        notification: {
+          type: "success",
+          message: `"${project.title}" was deleted successfully.`,
+        },
       },
     });
   };
 
-  if (loading) {
+  if (projectLoading) {
     return (
-      <main className="detail-page">
-        <section className="detail">
-          <Link to="/dashboard" className="detail__back-link">
-            <ArrowLeftIcon aria-hidden="true" />
-            Back to dashboard
-          </Link>
-
-          <div className="detail__state">
-            <Loader text="Loading project details..." />
-          </div>
-        </section>
-      </main>
+      <DetailPageState
+        state="loading"
+        resourceName="project"
+        loadingText="Loading project details..."
+        backTo="/dashboard"
+        backLabel="Back to dashboard"
+      />
     );
   }
 
-  if (error) {
+  if (projectNotFound) {
     return (
-      <main className="detail-page">
-        <section className="detail">
-          <Link to="/dashboard" className="detail__back-link">
-            <ArrowLeftIcon aria-hidden="true" />
-            Back to dashboard
-          </Link>
-
-          <header className="detail__error-header">
-            <p className="detail__eyebrow">Project workspace</p>
-            <h1>Unable to open project</h1>
-            <p>We could not retrieve the selected story project.</p>
-          </header>
-
-          <div className="detail__state">
-            <ErrorState message={error} onRetry={retry} />
-          </div>
-        </section>
-      </main>
+      <DetailPageState
+        state="not-found"
+        resourceName="project"
+        description="The selected project does not exist or may have been deleted."
+        backTo="/dashboard"
+        backLabel="Back to dashboard"
+      />
     );
   }
 
-  if (!project) {
+  if (projectError) {
     return (
-      <main className="detail-page">
-        <section className="detail">
-          <Link to="/dashboard" className="detail__back-link">
-            <ArrowLeftIcon aria-hidden="true" />
-            Back to dashboard
-          </Link>
+      <DetailPageState
+        state="error"
+        resourceName="project"
+        message={projectError}
+        onRetry={retryProject}
+        backTo="/dashboard"
+        backLabel="Back to dashboard"
+      />
+    );
+  }
 
-          <header className="detail__error-header">
-            <p className="detail__eyebrow">Project workspace</p>
-            <h1>Project not found</h1>
-            <p>The selected project could not be located.</p>
-          </header>
-        </section>
-      </main>
+  const relatedLoading = locationsLoading || charactersLoading || scenesLoading;
+
+  const relatedError = locationsError || charactersError || scenesError;
+
+  if (relatedLoading) {
+    return (
+      <DetailPageState
+        state="loading"
+        resourceName="project"
+        loadingText="Loading project workspace..."
+        backTo="/dashboard"
+        backLabel="Back to dashboard"
+      />
+    );
+  }
+
+  if (relatedError) {
+    return (
+      <DetailPageState
+        state="error"
+        resourceName="project workspace"
+        message={relatedError}
+        onRetry={() => {
+          retryLocations();
+          retryCharacters();
+          retryScenes();
+        }}
+        backTo="/dashboard"
+        backLabel="Back to dashboard"
+      />
     );
   }
 
@@ -203,8 +208,12 @@ const ProjectDetail = () => {
               Edit project
             </Link>
 
-            <ProjectDeleteButton
-              projectTitle={project.title}
+            <DeleteButton
+              variant="detail"
+              itemName={project.title}
+              itemType="project"
+              label="Delete project"
+              warning="This permanently removes the project and all of its related story data."
               onDelete={handleDeleteProject}
             />
           </div>
@@ -260,16 +269,14 @@ const ProjectDetail = () => {
           </article>
         </section>
 
-        {/* Project Overview */}
-        <ProjectOverview project={project} status={status} genres={genres} />
-
-        {/* Latest Locations */}
-        <LatestLocations projectId={projectId} locations={locations} />
-
-        {/* Latest Characters */}
-        <LatestCharacters projectId={projectId} characters={characters} />
-        {/* Scene Overview */}
-        <SceneOverview projectId={projectId} scenes={scenes}/>
+        <ProjectOverview
+          scenes={scenes}
+          characters={characters}
+          locations={locations}
+        />
+        <LocationOverview projectId={projectId} locations={locations} />
+        <CharacterOverview projectId={projectId} characters={characters} />
+        <SceneOverview projectId={projectId} scenes={scenes} />
       </article>
     </main>
   );

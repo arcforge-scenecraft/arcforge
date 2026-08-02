@@ -37,7 +37,10 @@ const CreateProject = () => {
       navigate(`/projects/${createdProjectId}`, {
         replace: true,
         state: {
-          message: "Project created successfully.",
+          notification: {
+            type: "success",
+            message: "Project created successfully.",
+          },
         },
       });
     } catch (error) {

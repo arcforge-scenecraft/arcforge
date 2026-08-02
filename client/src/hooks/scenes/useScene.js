@@ -29,7 +29,12 @@ function useScene(projectId, sceneId) {
           return;
         }
 
-        if (err.message === "Scene not found.") {
+        const isMissingResource =
+          err?.status === 404 ||
+          err?.message === "Scene not found." ||
+          err?.message === "Project not found.";
+
+        if (isMissingResource) {
           setScene(null);
           setNotFound(true);
           setError("");

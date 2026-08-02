@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
-
 import { getProjectById } from "../../services/projectApi";
+import { isAbortError, isNotFoundError } from "../../utils/apiErrors";
 
 const useProject = (projectId) => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -15,6 +16,8 @@ const useProject = (projectId) => {
       try {
         setLoading(true);
         setError("");
+        setNotFound(false);
+        setProject(null);
 
         const projectData = await getProjectById(projectId, {
           signal: controller.signal,
@@ -26,14 +29,19 @@ const useProject = (projectId) => {
 
         setProject(projectData);
       } catch (loadError) {
-        if (loadError.name === "AbortError") {
+        if (isAbortError(loadError)) {
           return;
         }
 
-        console.error("Failed to load project:", loadError);
-
         setProject(null);
 
+        if (isNotFoundError(loadError)) {
+          setNotFound(true);
+          setError("");
+          return;
+        }
+
+        setNotFound(false);
         setError(
           loadError instanceof Error
             ? loadError.message
@@ -61,6 +69,7 @@ const useProject = (projectId) => {
     project,
     loading,
     error,
+    notFound,
     retry,
   };
 };

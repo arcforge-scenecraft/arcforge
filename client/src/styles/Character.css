@@ -27,10 +27,3 @@
   gap: 1.25rem;
   margin-top: 1rem;
 }
-
-.form-success {
-  border-left: 4px solid #2f855a;
-  background-color: #f0fff6;
-  color: #22633f;
-  font-weight: 600;
-}

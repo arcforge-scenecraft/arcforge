@@ -1,163 +1,36 @@
-// import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-// import { useEffect, useState } from "react";
-// import { Link, useNavigate, useParams } from "react-router-dom";
-// import SceneCard from "../../components/scenes/SceneCard";
-// import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
-// import { ErrorState, Loader } from "../../components/ui";
-// import { deleteScene } from "../../services/sceneApi";
-// import useScene from "../../hooks/scenes/useScene";
-
-// const SceneDetail = () => {
-//     const {projectId, sceneId } = useParams();
-//     const navigate = useNavigate();
-
-//     const { 
-//         scene,
-//         loading,
-//         error,
-//         notFound,
-//         retry
-//     } = useScene( projectId, sceneId);
-
-//     const handleDeleteScene = async () => {
-//         await deleteScene(projectId, sceneId);
-    
-//         navigate(`/projects/${projectId}/scenes`, {
-//           replace: true,
-//         });
-//     };
-
-//     if (loading) {
-//         return (
-//             <main className="detail-page">
-//             <section className="detail">
-//                 <Link to="/dashboard" className="detail__back-link">
-//                 <ArrowLeftIcon aria-hidden="true" />
-//                 Back to dashboard
-//                 </Link>
-
-//                 <div className="detail__state">
-//                 <Loader text="Loading scene details..." />
-//                 </div>
-//             </section>
-//             </main>
-//         );
-//     }
-
-//     if (notFound) {
-//         return <NotFound />;
-//     }
-
-//     if (error) {
-//         return (
-//             <main className="detail-page">
-//             <section className="detail">
-//                 <Link
-//                 to={`/projects/${projectId}/scenes`}
-//                 className="detail__back-link"
-//                 >
-//                 <ArrowLeftIcon aria-hidden="true" />
-//                 Back to scenes
-//                 </Link>
-
-//                 <header className="detail__error-header">
-//                 <p className="detail__eyebrow">Scene workspace</p>
-
-//                 <h1>Unable to open scene</h1>
-
-//                 <p>We could not retrieve the selected scene.</p>
-//                 </header>
-
-//                 <div className="detail__state">
-//                 <ErrorState message={error} onRetry={retry} />
-//                 </div>
-//             </section>
-//             </main>
-//         );
-//     }
-
-//     return (
-//     <main className="page-container">
-//         <Link
-//         to={`/projects/${projectId}/scenes`}
-//         className="detail__back-link"
-//         >
-//         <ArrowLeftIcon aria-hidden="true" />
-//         Back to scenes
-//         </Link>
-
-//         <ProjectFormHeader
-//         eyebrow="Scene details"
-//         title={`${scene.name}`}
-//         description={`${scene.description}`}
-//         />
-
-//         <header className="page-header">
-//         <p className="eyebrow">Scene details</p>
-
-//         <h1 className="page-title">{scene.name}</h1>
-//         </header>
-
-//         <section className="detail-panel">
-//         <SceneCard 
-//         key={scene.id}
-//         scene={scene}
-//         onDelete={handleDeleteScene}
-//         />
-//         </section>
-
-//         {/* <div className="page-actions">
-//         <Link
-//             to={`/projects/${projectId}/locations/${locationId}/edit`}
-//             className="button button--primary"
-//         >
-//             Edit location
-//         </Link>
-
-//         <Link
-//             to={`/projects/${projectId}`}
-//             className="button button--secondary"
-//         >
-//             Back to project
-//         </Link>
-
-//         <Link
-//             to={`/projects/${projectId}/locations`}
-//             className="button button--secondary"
-//         >
-//             View all locations
-//         </Link>
-
-//         <LocationDeleteButton
-//             locationName={location.name}
-//             onDelete={handleDeleteLocation}
-//         />
-//         </div> */}
-//     </main>
-//     );
-// }
-
-// export default SceneDetail;
-
 import {
   ArrowLeftIcon,
   CalendarDaysIcon,
   ClockIcon,
+  DocumentTextIcon,
   MapPinIcon,
   PencilSquareIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import SceneDeleteButton from "../../components/scenes/SceneDeleteButton";
-import { ErrorState, Loader } from "../../components/ui";
+import {
+  DeleteButton,
+  DetailPageState,
+  Notification,
+} from "../../components/ui";
 import useScene from "../../hooks/scenes/useScene";
+import useRouteNotification from "../../hooks/useRouteNotification";
 import { deleteScene } from "../../services/sceneApi";
 
+const UNDECIDED = "undecided";
+const UNDEFINED_TEXT = "undefined";
+
 const formatDate = (value) => {
-  if (!value) return "Not available";
+  if (!value) {
+    return "Not available";
+  }
 
   const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Not available";
+  }
 
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -166,149 +39,235 @@ const formatDate = (value) => {
   }).format(date);
 };
 
+const normalizeText = (value, fallback) => {
+  if (typeof value !== "string" || !value.trim()) {
+    return fallback;
+  }
+
+  return value.trim();
+};
+
+const normalizeCharacters = (value) => {
+  const characters = Array.isArray(value)
+    ? value
+    : typeof value === "string"
+      ? [value]
+      : [];
+
+  return [
+    ...new Set(
+      characters
+        .filter((character) => typeof character === "string")
+        .map((character) => character.trim())
+        .filter((character) => {
+          const normalizedCharacter = character.toLowerCase();
+
+          return (
+            character &&
+            normalizedCharacter !== UNDECIDED &&
+            normalizedCharacter !== UNDEFINED_TEXT
+          );
+        }),
+    ),
+  ];
+};
+
+const normalizeLocation = (value) => {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  const location = value.trim();
+  const normalizedLocation = location.toLowerCase();
+
+  if (
+    !location ||
+    normalizedLocation === UNDECIDED ||
+    normalizedLocation === UNDEFINED_TEXT
+  ) {
+    return "";
+  }
+
+  return location;
+};
+
+const formatOrder = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return "Not set";
+  }
+
+  const order = Number(value);
+
+  if (!Number.isInteger(order) || order <= 0) {
+    return "Not set";
+  }
+
+  return `#${order}`;
+};
+
 const SceneDetail = () => {
   const { projectId, sceneId } = useParams();
   const navigate = useNavigate();
 
-  const {
-    scene,
-    loading,
-    error,
-    retry,
-  } = useScene(projectId, sceneId);
+  const { notification, dismissNotification } = useRouteNotification();
 
-  const handleDeleteScene = async () => {
-    await deleteScene(projectId, scene.id);
-
-    navigate(`/projects/${projectId}/scenes`, {
-      replace: true,
-      state: {
-        message: `"${scene.name}" was deleted successfully.`,
-      },
-    });
-  };
+  const { scene, loading, error, notFound, retry } = useScene(
+    projectId,
+    sceneId,
+  );
 
   if (loading) {
     return (
-      <main className="detail-page">
-        <section className="detail">
-          <Link
-            to={`/projects/${projectId}/scenes`}
-            className="detail__back-link"
-          >
-            <ArrowLeftIcon />
-            Back to scenes
-          </Link>
+      <DetailPageState
+        state="loading"
+        resourceName="Scene"
+        loadingText="Loading scene details..."
+        backTo={`/projects/${projectId}/scenes`}
+        backLabel="Back to scenes"
+      />
+    );
+  }
 
-          <div className="detail__state">
-            <Loader text="Loading scene..." />
-          </div>
-        </section>
-      </main>
+  if (notFound) {
+    return (
+      <DetailPageState
+        state="not-found"
+        resourceName="Scene"
+        description="The selected scene or its project does not exist."
+        backTo={`/projects/${projectId}/scenes`}
+        backLabel="Back to scenes"
+      />
     );
   }
 
   if (error) {
     return (
-      <main className="detail-page">
-        <section className="detail">
-          <Link
-            to={`/projects/${projectId}/scenes`}
-            className="detail__back-link"
-          >
-            <ArrowLeftIcon />
-            Back to scenes
-          </Link>
-
-          <header className="detail__error-header">
-            <p className="detail__eyebrow">Scene</p>
-            <h1>Unable to open scene</h1>
-          </header>
-
-          <div className="detail__state">
-            <ErrorState message={error} onRetry={retry} />
-          </div>
-        </section>
-      </main>
+      <DetailPageState
+        state="error"
+        resourceName="Scene"
+        message={error}
+        onRetry={retry}
+        backTo={`/projects/${projectId}/scenes`}
+        backLabel="Back to scenes"
+      />
     );
   }
 
+  if (!scene) {
+    return (
+      <DetailPageState
+        state="not-found"
+        resourceName="Scene"
+        description="The selected scene could not be found."
+        backTo={`/projects/${projectId}/scenes`}
+        backLabel="Back to scenes"
+      />
+    );
+  }
+
+  const sceneName = normalizeText(scene.name, "Untitled scene");
+
+  const sceneDescription = normalizeText(
+    scene.description,
+    "No description has been added for this scene yet.",
+  );
+
+  const sceneStatus = normalizeText(scene.status, "Planning");
+
+  const sceneNotes = normalizeText(
+    scene.notes,
+    "No planning notes have been added for this scene yet.",
+  );
+
+  const sceneCharacters = normalizeCharacters(scene.characters);
+
+  const sceneLocation = normalizeLocation(scene.location);
+
+  const hasSceneElements = Boolean(sceneLocation) || sceneCharacters.length > 0;
+
+  const handleDeleteScene = async () => {
+    await deleteScene(projectId, sceneId);
+
+    navigate(`/projects/${projectId}/scenes`, {
+      replace: true,
+      state: {
+        notification: {
+          type: "success",
+          title: "Scene Deleted",
+          message: `"${sceneName}" was deleted successfully.`,
+        },
+      },
+    });
+  };
+
   return (
     <main className="detail-page">
-      <article className="detail">
-
+      <article className="detail" aria-labelledby="scene-detail-heading">
         <Link
           to={`/projects/${projectId}/scenes`}
           className="detail__back-link"
         >
-          <ArrowLeftIcon />
+          <ArrowLeftIcon aria-hidden="true" />
           Back to scenes
         </Link>
 
-        <header className="detail__hero">
+        {notification && (
+          <Notification {...notification} onDismiss={dismissNotification} />
+        )}
+
+        <header className="detail__hero detail__hero--scene">
           <div className="detail__hero-content">
-
             <div className="detail__heading-row">
-              <p className="detail__eyebrow">Scene Workspace</p>
+              <p className="detail__eyebrow">Scene workspace</p>
 
-              <span className="detail__status">
-                {scene.status}
-              </span>
+              <span className="detail__status">{sceneStatus}</span>
             </div>
 
-            <h1>{scene.name}</h1>
+            <h1 id="scene-detail-heading">{sceneName}</h1>
 
-            <p className="detail__description">
-              {scene.description ||
-                "No scene description has been added."}
-            </p>
-
+            <p className="detail__description">{sceneDescription}</p>
           </div>
 
           <div className="detail__actions">
-
             <Link
-              to={`/projects/${projectId}/scenes/${scene.id}/edit`}
+              to={`/projects/${projectId}/scenes/${sceneId}/edit`}
               className="detail__edit-link"
             >
-              <PencilSquareIcon />
+              <PencilSquareIcon aria-hidden="true" />
               Edit scene
             </Link>
 
-            <SceneDeleteButton
-              sceneName={scene.name}
+            <DeleteButton
+              variant="detail"
+              itemName={sceneName}
+              itemType="scene"
+              label="Delete scene"
+              warning="This permanently removes the scene and its related scene data, but retains associated characters and locations."
               onDelete={handleDeleteScene}
             />
-
           </div>
         </header>
 
-        <section className="detail__metadata">
+        <section className="detail__metadata" aria-label="Scene information">
           <article className="detail__metadata-card">
             <div className="detail__metadata-icon">
-              <PencilSquareIcon />
+              <PencilSquareIcon aria-hidden="true" />
             </div>
 
             <div>
-              <span className="detail__metadata-label">
-                Status
-              </span>
+              <span className="detail__metadata-label">Status</span>
 
-              <strong className="detail__metadata-value">
-                {scene.status}
-              </strong>
+              <strong className="detail__metadata-value">{sceneStatus}</strong>
             </div>
           </article>
 
           <article className="detail__metadata-card">
             <div className="detail__metadata-icon">
-              <CalendarDaysIcon />
+              <CalendarDaysIcon aria-hidden="true" />
             </div>
 
             <div>
-              <span className="detail__metadata-label">
-                Created
-              </span>
+              <span className="detail__metadata-label">Created</span>
 
               <strong className="detail__metadata-value">
                 {formatDate(scene.created_at)}
@@ -318,13 +277,11 @@ const SceneDetail = () => {
 
           <article className="detail__metadata-card">
             <div className="detail__metadata-icon">
-              <ClockIcon />
+              <ClockIcon aria-hidden="true" />
             </div>
 
             <div>
-              <span className="detail__metadata-label">
-                Last Updated
-              </span>
+              <span className="detail__metadata-label">Last updated</span>
 
               <strong className="detail__metadata-value">
                 {formatDate(scene.updated_at)}
@@ -333,123 +290,128 @@ const SceneDetail = () => {
           </article>
         </section>
 
-        <section className="detail__overview">
-            <div className="detail__section-heading">
-                <p className="detail__eyebrow">Overview</p>
+        <section
+          className="detail__overview"
+          aria-labelledby="scene-structure-heading"
+        >
+          <div className="detail__section-heading">
+            <p className="detail__eyebrow">Structure</p>
 
-                <h2>About this scene</h2>
+            <h2 id="scene-structure-heading">Story and timeline order</h2>
 
-                <p>
-                Review the scene's core information before, during, and after development.
-                </p>
+            <p>
+              Compare where this scene appears in the written story with where
+              it occurs chronologically.
+            </p>
+          </div>
+
+          <dl className="detail__information-list">
+            <div className="detail__information-row">
+              <dt>Scene order</dt>
+              <dd>{formatOrder(scene.scene_order)}</dd>
             </div>
 
-            <dl className="detail__information-list">
-                <div className="detail__information-row">
-                    <dt>Location</dt>
-                    <dd className="detail__genres">
-                      <span className={scene.location && scene.location != "Undecided"?"detail__genre":""}>{scene.location ||"Undecided"}</span>
-                    </dd>
-                </div>
-                <div className="detail__information-row">
-                    <dt>Characters</dt>
-                    <dd className="detail__genres">
-                        {scene.characters?.length ? (
-                        scene.characters.map(character => (
-                            <span
-                            key={character}
-                            className={character != "Undecided"?"detail__genre":""}
-                            >
-                            {character}
-                            </span>
-                        ))
-                        ) : (
-                        <span className="detail__metadata-value">
-                            No characters
-                        </span>
-                        )}
-                    </dd>
-                </div>
-
-                <div className="detail__information-row">
-                    <dt>Scene Order</dt>
-                    <dd>#{scene.scene_order}</dd>
-                </div>
-
-                <div className="detail__information-row">
-                    <dt>Timeline Order</dt>
-                    <dd>#{scene.timeline_order}</dd>
-                </div>
-            </dl>
+            <div className="detail__information-row">
+              <dt>Timeline order</dt>
+              <dd>{formatOrder(scene.timeline_order)}</dd>
+            </div>
+          </dl>
         </section>
 
-        <section className="detail__overview-single">
-            <div className="detail__section-heading">
-                <p className="detail__eyebrow">Elements</p>
-                <h2>Location & Characters</h2>
+        <section
+          className="detail__overview-single"
+          aria-labelledby="scene-elements-heading"
+        >
+          <div className="detail__section-heading">
+            <p className="detail__eyebrow">Elements</p>
+
+            <h2 id="scene-elements-heading">Location and characters</h2>
+
+            <p>Review the setting and cast connected to this scene.</p>
+          </div>
+
+          {hasSceneElements ? (
+            <div className="detail__related-grid">
+              {sceneLocation && (
+                <article className="detail__related-card">
+                  <MapPinIcon
+                    className="detail__related-icon"
+                    aria-hidden="true"
+                  />
+
+                  <span className="detail__related-label">Location</span>
+
+                  <strong className="detail__related-title">
+                    {sceneLocation}
+                  </strong>
+                </article>
+              )}
+
+              {sceneCharacters.map((character) => (
+                <article key={character} className="detail__related-card">
+                  <UserGroupIcon
+                    className="detail__related-icon"
+                    aria-hidden="true"
+                  />
+
+                  <span className="detail__related-label">Character</span>
+
+                  <strong className="detail__related-title">{character}</strong>
+                </article>
+              ))}
             </div>
-
-            {scene.characters == ["Undecided"]?<div className="detail__related-grid">
-                {/* <Link
-                to={`/projects/${projectId}/locations/${scene.location}`}
-                className="detail__related-card"
-                > */}
-                {scene.location && scene.location != "Undecided"?
-                <div className="detail__related-card">
-                    <MapPinIcon className="detail__related-icon" />
-
-                    <span className="detail__related-label">Location</span>
-
-                    <strong className="detail__related-title">
-                        {scene.location}
-                    </strong>
-                </div>: ""
-                }
-                {/* </Link> */}
-
-                {scene.characters != ["Undecided"]?.map((character) => (
-                // <Link
-                //     key={character.id}
-                //     to={`/projects/${projectId}/characters/${character.id}`}
-                //     className="detail__related-card"
-                // >
-                <div className="detail__related-card">
-                    <UserGroupIcon className="detail__related-icon" />
-
-                    <span className="detail__related-label">Character</span>
-
-                    <strong className="detail__related-title">
-                    {character}
-                    </strong>
-                </div>
-                // </Link> 
-                ))}
-            </div>: <span className="detail__metadata-value">No characters or locations have been selected for this scene.</span>}
+          ) : (
+            <div className="detail__prose">
+              <p>
+                No characters or locations have been selected for this scene.
+              </p>
+            </div>
+          )}
         </section>
 
-        <section className="detail__overview-single">
-            <div className="detail__section-heading">
-                <p className="detail__eyebrow">Planning</p>
+        <section
+          className="detail__overview-single"
+          aria-labelledby="scene-notes-heading"
+        >
+          <div className="detail__section-heading">
+            <p className="detail__eyebrow">Planning</p>
 
-                <h2>Creator's Notes</h2>
+            <h2 id="scene-notes-heading">Creator&apos;s notes</h2>
 
-                {/* <p>{scene.notes}</p> */}
-                <textarea
-                className="detail__notes"
-                value={scene.notes || "No notes have been added for this scene."}
-                readOnly
-                rows={6}
-                style={{ height: "auto"}}
-                ref={(el) => {
-                    if (el) {
-                    el.style.height = "auto";
-                    el.style.height = `${el.scrollHeight}px`;
-                    }
-                }}
-                />
+            <p>
+              Keep planning details, reminders, and development ideas connected
+              to this scene.
+            </p>
+          </div>
+
+          <div className="detail__feature-card detail__feature-card--notes">
+            <div className="detail__feature-icon">
+              <DocumentTextIcon aria-hidden="true" />
             </div>
-         </section>
 
+            <div className="detail__feature-content">
+              <span className="detail__feature-label">Scene notes</span>
+
+              <p className="detail__feature-value">{sceneNotes}</p>
+            </div>
+          </div>
+        </section>
+
+        <footer className="detail__footer-navigation">
+          <Link
+            to={`/projects/${projectId}`}
+            className="button button--secondary"
+          >
+            Back to project
+          </Link>
+
+          <Link
+            to={`/projects/${projectId}/scenes`}
+            className="button button--secondary"
+          >
+            View all scenes
+          </Link>
+        </footer>
       </article>
     </main>
   );
