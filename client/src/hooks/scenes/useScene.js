@@ -79,7 +79,9 @@ function useScene(projectId, sceneId) {
 
   return {
     scene,
+    setScene,
     loading,
+    setLoading,
     error,
     notFound,
     retry,

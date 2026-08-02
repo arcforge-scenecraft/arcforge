@@ -125,7 +125,7 @@ const EditScene = () => {
 
         for (let j = 0; j < initialCharacters.length; j++) {
           console.log("Is", initialCharacters[j], "in", characterData);
-          if (!characterData.find(c => c === initialCharacters[j])) {
+          if (initialCharacters[j] != -1 && !characterData.find(c => c === initialCharacters[j])) {
             console.log("About to remove character-assignments", initialCharacters[j])
             try {
               await deleteSceneCharacter(projectId, updatedScene.id, initialCharacters[j]);

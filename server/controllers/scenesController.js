@@ -46,7 +46,7 @@ const validateSceneFields = (
     errorString += "Timeline order must be a positive number. ";
   }
 
-  if (notes !== undefined && typeof notes !== "string") {
+  if (notes !== null && typeof notes !== "string") {
     errorString += "Scene notes must be text. ";
   }
 
@@ -317,10 +317,10 @@ export const createScene = async (req, res) => {
       [
         projectId,
         name.trim(),
-        description.trim() || null,
+        description.trim() || "",
         scene_order || 0,
         timeline_order || 0,
-        notes || null,
+        notes || "",
         location,
         cleanedCharacters,
         status,
@@ -402,10 +402,10 @@ export const updateScene = async (req, res) => {
        RETURNING *`,
       [
         name.trim(),
-        description.trim() || null,
+        description.trim() || "",
         scene_order || 0,
         timeline_order || 0,
-        notes || null,
+        notes || "",
         location,
         cleanedCharacters,
         status,

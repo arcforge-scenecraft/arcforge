@@ -50,11 +50,13 @@ const SceneDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
   const {
     scene,
+    setScene,
     loading,
+    setLoading,
     error,
     retry,
   } = useScene(projectId, sceneId);
@@ -62,7 +64,7 @@ const SceneDetail = () => {
 
   useEffect(() => {
     const fetchOptions = async () => {
-      setIsLoading(true);
+      setLoading(true);
       try {
         const [characters, locations] = await Promise.all([
           getCharacters(projectId),
@@ -71,7 +73,7 @@ const SceneDetail = () => {
 
         let characterDict = {};
         characters.forEach(character => characterDict[character.id] = character.name);
-        const currentCharacters = scene.characters.map(character => character.character_id)
+        const currentCharacters = Array.isArray(scene.characters) && scene.characters.length > 0 ? scene.characters.map(character => character.character_id) : [-1]
         console.log("Current Characters:", currentCharacters)
         const ids = characters.map(character => character.id).filter(id => !currentCharacters.includes(id));
 
@@ -88,7 +90,7 @@ const SceneDetail = () => {
       } catch (err) {
         console.error("Error loading character options:", err);
       }
-      setIsLoading(false);
+      setLoading(false);
     };
 
     if (scene && !loading && !error) {
@@ -157,11 +159,22 @@ const SceneDetail = () => {
   const handleDeleteSceneCharacter = async () => {
     try {
       setIsDeleting(true);
+      console.log("Character to delete", selectedCharacter, "from", scene.characters)
+      console.log("Name list w/o character", scene.characters.filter(c => c != selectedCharacter.name))
+
+
       await deleteSceneCharacter(projectId, scene.id, selectedCharacter.character_id);
-      await updateScene(projectId, scene.id, { ...scene, location: scene.location[1], characters: scene.characters.filter(c => c === selectedCharacter.name) })
+
+      if (scene.characters.length == 1) {
+        await updateScene(projectId, scene.id, { ...scene, location: scene.location[1], characters: ["Undecided"] })
+        setScene({ ...scene, characters: [{ character_id: -1, name: "Undecided", role_in_scene: "", knowledge_gained: "" }] })
+      } else {
+        await updateScene(projectId, scene.id, { ...scene, location: scene.location[1], characters: scene.characters.map(c => c.name).filter(c => c != selectedCharacter.name) })
+        setScene({ ...scene, characters: scene.characters.filter(c => c.character_id != selectedCharacter.character_id) });
+      }
+
       setSelectedCharacter(null);
       setIsEditing(false);
-      retry();
     } catch (error) {
       console.log("Failed to remove scene character:", error.message);
     } finally {
@@ -174,7 +187,7 @@ const SceneDetail = () => {
       setIsDeleting(true);
       await updateScene(projectId, scene.id, { ...scene, location: "Undecided" })
       setViewLocation(false);
-      retry();
+      setScene({ ...scene, location: [-1, "Undecided", "", ""] });
     } catch (error) {
       console.log("Failed to remove scene location:", error.message);
     } finally {
@@ -206,7 +219,7 @@ const SceneDetail = () => {
 
       setIsEditing(false);
       setFormData(null);
-      retry();
+      setScene({ ...scene, notes: formData.notes });
     } catch (error) {
       console.log(error.message || "Unable to update the scene notes.");
     } finally {
@@ -215,6 +228,7 @@ const SceneDetail = () => {
   };
 
   const handleUpdateSceneCharacter = async (event) => {
+    console.log("Calling handleUpdateSceneCharacter", formData);
     event.preventDefault();
 
     if (isSubmitting) {
@@ -224,7 +238,8 @@ const SceneDetail = () => {
     try {
       setIsSubmitting(true);
 
-      const updatedSceneCharacter = await updateSceneCharacter(
+      const updatedSceneCharacter = { ...selectedCharacter, role_in_scene: formData.role_in_scene.trim(), knowledge_gained: formData.knowledge_gained.trim() };
+      await updateSceneCharacter(
         projectId, sceneId,
         selectedCharacter.character_id,
         {
@@ -237,7 +252,7 @@ const SceneDetail = () => {
       setIsEditing(false);
       setSelectedCharacter(updatedSceneCharacter);
 
-      retry();
+      setScene({ ...scene, characters: scene.characters.map(c => c.character_id == selectedCharacter.character_id ? updatedSceneCharacter : c) })
     } catch (error) {
       console.log(error.message || "Unable to update the scene or scene-character connection.");
     } finally {
@@ -246,17 +261,19 @@ const SceneDetail = () => {
   };
 
   const handleAddSceneCharacter = async (event) => {
+    console.log("Calling handleAddSceneCharacter", formData);
+
     event.preventDefault();
 
     if (isSubmitting) {
       return;
     }
 
-    if (formData.character_id == null || formData.character_id == "") {
-      console.log("Unable to add scene-character connection.")
+    if (formData.character_id == null || formData.character_id == -1 || formData.character_id == "") {
       setIsEditing(false);
       setSelectedCharacter(null);
       setFormData(null);
+      console.log("Unable to add scene-character connection.")
       return;
     } else {
       try {
@@ -272,14 +289,27 @@ const SceneDetail = () => {
             knowledge_gained: formData.knowledge_gained.trim()
           });
 
-        console.log("Added scene-character:", addSceneCharacter);
+        if (scene.characters.map(c => c.character_id).includes(-1)) {
+          await updateScene(projectId, sceneId, {
+            ...scene,
+            location: scene.location[1],
+            characters: [characterData.name]
+          })
+          setScene({ ...scene, characters: [{ ...addSceneCharacter, ...characterData }] })
+        } else {
+          await updateScene(projectId, sceneId, {
+            ...scene,
+            location: scene.location[1],
+            characters: [...scene.characters.map(c => c.name), characterData.name]
+          })
+          setScene({ ...scene, characters: [...scene.characters, { ...addSceneCharacter, ...characterData }] });
+        }
 
         setIsEditing(false);
         setSelectedCharacter({ ...addSceneCharacter, ...characterData });
 
-        retry();
       } catch (error) {
-        console.log(error.message || "Unable to update the scene or scene-character connections.");
+        console.log(error.message || "Unable to update the scene or add the scene-character connections.");
       } finally {
         setIsSubmitting(false);
       }
@@ -303,8 +333,6 @@ const SceneDetail = () => {
       try {
         setIsSubmitting(true);
 
-        // const locationName = locationOptions.find(l => l.id == formData.location_id).name;
-
         await updateScene(
           projectId, sceneId,
           {
@@ -319,9 +347,8 @@ const SceneDetail = () => {
         setIsEditing(false);
         setAddLocation(false);
         setViewLocation(true);
-        setFormData(null);
 
-        retry();
+        setScene({ ...scene, location: [formData.location_id, formData.name, formData.description || "", formData.atmosphere || ""] });
       } catch (error) {
         console.log(error.message || "Unable to update the scene or scene-character connections.");
       } finally {
@@ -330,7 +357,7 @@ const SceneDetail = () => {
     }
   };
 
-  if (loading || isLoading) {
+  if (loading) {
     return (
       <main className="detail-page">
         <section className="detail">
@@ -501,7 +528,7 @@ const SceneDetail = () => {
                 {scene.characters?.length ? (
                   scene.characters.map(character => (
                     <span
-                      key={character.character_id}
+                      key={`Character${character.character_id}`}
                       className={character.name != "Undecided" ? "detail__genre" : ""}
                     >
                       {character.name}
@@ -536,10 +563,13 @@ const SceneDetail = () => {
           <div className="detail__related-grid">
             {scene.location && scene.location[0] != -1 ?
               <button
-                key={`Location${scene.location[0]}`}
+                key={`LocationCard${scene.location[0]}`}
                 type="button"
                 className="detail__related-card"
-                onClick={() => setViewLocation(true)}
+                onClick={() => {
+                  setViewLocation(true);
+                  setFormData({ location_id: scene.location[0], name: scene.location[1], description: scene.location[2], atmosphere: scene.location[3] })
+                }}
               >
                 <MapPinIcon className="detail__related-icon" />
 
@@ -549,9 +579,9 @@ const SceneDetail = () => {
               </button> : ""
             }
 
-            {scene.characters?.filter(item => item.name !== "Undecided").map((character) => (
+            {Array.isArray(scene.characters) && scene.characters?.filter(item => item.name !== "Undecided").map((character) => (
               <button
-                key={`Character${character.character_id}`}
+                key={`CharacterCard${character.character_id}`}
                 type="button"
                 className="detail__related-card"
                 onClick={() => {
@@ -591,7 +621,7 @@ const SceneDetail = () => {
                 type="button"
                 className="detail__related-card2"
                 onClick={() => {
-                  setSelectedCharacter({ name: "Undecided", character_id: -1, role_in_scene: "", knowledge_gained: "" });
+                  setSelectedCharacter({ name: "", character_id: -1, role_in_scene: "", knowledge_gained: "" });
                   setFormData({ character_id: "", role_in_scene: "", knowledge_gained: "" })
                   setIsEditing(true);
                 }
@@ -615,7 +645,7 @@ const SceneDetail = () => {
               <h2>Creator's Notes</h2>
             </div>
 
-            {!isEditing ? (
+            {!isEditing || !formData.notes ? (
               <div className="detail__notes-buttons">
                 <button
                   className="detail__edit-link"
@@ -628,7 +658,7 @@ const SceneDetail = () => {
                   Edit
                 </button>
               </div>
-              
+
             ) :
               <div className="detail__notes-buttons">
                 <button
@@ -651,9 +681,9 @@ const SceneDetail = () => {
                   Cancel
                 </button>
               </div>}
-            </div>
+          </div>
 
-          {!isEditing ? (
+          {!isEditing || !formData.notes ? (
             <textarea
               className="detail__notes"
               value={scene.notes || "No notes have been added for this scene."}
@@ -745,7 +775,7 @@ const SceneDetail = () => {
                   </div>
                 </fieldset>
               ) : (
-                <form onSubmit={selectedCharacter.character_id != -1 ? handleUpdateSceneCharacter : handleAddSceneCharacter}>
+                <form onSubmit={scene.characters && scene.characters.map(c => c.character_id).includes(selectedCharacter.character_id) && !scene.characters.map(c => c.character_id).includes(-1) ? handleUpdateSceneCharacter : handleAddSceneCharacter}>
                   <fieldset className="form-fields" disabled={isSubmitting}>
                     <label></label>
 
@@ -757,7 +787,7 @@ const SceneDetail = () => {
 
                             return (
                               <label
-                                key={id}
+                                key={`CharacterOption${id}`}
                                 className={`genre-option ${isSelected ? "genre-option-selected" : ""}`}
                               >
                                 <input
@@ -871,7 +901,7 @@ const SceneDetail = () => {
 
                       return (
                         <label
-                          key={location.id}
+                          key={`LocationOption${location.id}`}
                           className={`genre-option ${isSelected ? "genre-option-selected" : ""}`}
                         >
                           <input
@@ -897,17 +927,6 @@ const SceneDetail = () => {
 
                   {formData.location_id ?
                     <>
-                      {/* <div className="form-field">
-                        <h3>{formData.name}</h3>
-
-                        <label>Description</label>
-
-                        <p>{formData.description || "No description listed."}</p>
-
-                        <label>Atmosphere</label>
-
-                        <p>{formData.atmosphere || "No atmosphere listed."}</p>
-                      </div> */}
                       < MiniCard
                         heading={formData.name}
                         fields={["Description", "Atmosphere"]}
@@ -921,13 +940,16 @@ const SceneDetail = () => {
                       type="submit"
                       disabled={isSubmitting}
                     >
-                      {isEditing ? (isSubmitting ? "Editing..." : "Edit") : (isSubmitting ? "Adding..." : "Add")}
+                      {isEditing ? (isSubmitting ? "Saving..." : "Save") : (isSubmitting ? "Adding..." : "Add")}
                     </button>
 
                     <button className="secondary-button"
                       onClick={() => {
                         setIsEditing(false);
                         setAddLocation(null);
+                        if (scene.location[0] != -1) {
+                          setViewLocation(true);
+                        }
                       }}
                     >
                       Cancel
@@ -975,9 +997,9 @@ const SceneDetail = () => {
                   <button className="detail__edit-link"
                     onClick={() => {
                       setFormData({ location_id: scene.location[0], name: scene.location[1], description: scene.location[2], atmosphere: scene.location[3] })
-                      handleDeleteSceneLocation()
                       setIsEditing(true)
                       setAddLocation(true)
+                      setViewLocation(false)
                     }}
                   >
                     <PencilSquareIcon />
