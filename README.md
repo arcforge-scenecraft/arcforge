@@ -49,11 +49,11 @@ The client and API are automatically deployed from the project’s GitHub reposi
 
 ## Features
 
-### Story Project Dashboard
+### ✅ Story Project Dashboard
 
 Users can view all story projects from a main dashboard. Each project card shows basic information such as the project title, description, number of scenes, and overall progress.
 
-[gif goes here]
+![Story Project Dashboard](./gifs/Story_Project_Dashboard.gif)
 
 ### ✅ Create and Edit Story Projects
 
@@ -61,23 +61,23 @@ Users can create a new story project and update project details such as title, d
 
 ![Create and Edit Story Projects](./gifs/Create_and_Edit_Story_Projects.gif)
 
-### Scene Manager
+### ✅ Scene Manager
 
 Users can add, view, edit, and delete scenes within a story project. Each scene can include details such as title, summary, timeline order, mood, status, purpose, and conflict.
 
-[gif goes here]
+![Scene Manager](./gifs/Scene_Manager.gif)
 
-### Character Profiles
+### ✅ Character Profiles
 
 Users can create and manage character profiles with details such as name, role, description, motivation, and notes. This helps creators keep character information organized instead of scattered across separate documents.
 
-[gif goes here]
+![Character Profiles](./gifs/Character_Profiles.gif)
 
-### Location Library
+### ✅ Location Library
 
 Users can create reusable story locations and connect scenes to those locations. This helps creators track where events happen and reuse important settings across multiple scenes.
 
-[gif goes here]
+![Location Library](./gifs/Location_Library.gif)
 
 ### Scene Character Assignments
 
@@ -85,19 +85,19 @@ Users can assign multiple characters to a scene and describe each character's ro
 
 [gif goes here]
 
-### Scene Filtering and Sorting
+### ✅ Scene Filtering and Sorting
 
 Users can filter or sort scenes by character, location, mood, status, or timeline order. This makes it easier to find specific story moments and review the structure of a project.
 
-[gif goes here]
+![Scene Filtering and Sorting](./gifs/Scene_Filtering_and_Sorting.gif)
 
-### Story Progress Overview
+### ✅ Story Progress Overview
 
 Users can view calculated story progress, such as how many scenes are completed compared to the total number of scenes. This gives creators a quick summary of how much planning work is finished.
 
-[gif goes here]
+![Story Progress Overview](./gifs/Story_Progress_Overview.gif)
 
-### Dynamic Detail Pages
+### ✅ Dynamic Detail Pages
 
 Users can navigate to individual story, scene, character, and location pages. These pages use dynamic React Router routes based on the selected item's ID.
 
@@ -111,7 +111,7 @@ Example routes include:
 
 - `/locations/:locationId`
 
-[gif goes here]
+![Dynamic Detail Pages](./gifs/Dynamic_Detail_Pages.gif)
 
 ### ✅ Form Validation
 
@@ -125,7 +125,7 @@ Before deleting a story project, scene, character, or location, the app displays
 
 ![Deleting Confirmation Modal](./gifs/Confirmation_Modal.gif)
 
-### Notifications
+### ✅ Notifications
 
 The app displays temporary success or error messages after important actions, such as creating, updating, or deleting content.
 
@@ -137,15 +137,15 @@ Examples include:
 
 - “Unable to delete location.”
 
-[gif goes here]
+![Notifications](./gifs/Notifications.gif)
 
-### Loading and Submission States
+### ✅ Loading and Submission States
 
 The app displays a loading spinner while retrieving data. Form inputs and submission buttons are temporarily disabled while a request is being processed to prevent duplicate submissions.
 
 For example, a submit button may change from Save Scene to Saving... until the request is completed.
 
-[gif goes here]
+![Loading and Submission States](./gifs/Loading_and_Submission_States.gif)
 
 ### User Authentication and Login
 
