@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { getSceneById } from "../../services/sceneApi";
-import { getSceneCharacters } from "../../services/scene-characterApi";
-import { getLocations } from "../../services/locationApi";
 
 function useScene(projectId, sceneId) {
   const [scene, setScene] = useState(null);

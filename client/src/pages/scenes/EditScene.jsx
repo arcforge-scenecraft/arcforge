@@ -6,7 +6,7 @@ import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { ErrorState, Loader } from "../../components/ui";
 import useScene from "../../hooks/scenes/useScene";
 import { updateScene } from "../../services/sceneApi";
-import { assignCharacterToScene, deleteSceneCharacter, getSceneCharacters } from "../../services/scene-characterApi";
+import { assignCharacterToScene, deleteSceneCharacter } from "../../services/scene-characterApi";
 import { getCharacters } from "../../services/characterApi";
 import NotFound from "../NotFound";
 
@@ -15,7 +15,7 @@ const EditScene = () => {
   const navigate = useNavigate();
 
   const [initialCharacters, setInitialCharacters] = useState(null);
-  const { scene, setScene, loading, setLoading, error, notFound, retry } = useScene(
+  const { scene, loading, error, notFound, retry } = useScene(
     projectId,
     sceneId,
     false
@@ -62,7 +62,7 @@ const EditScene = () => {
     if (scene && !loading && !error) {
       modifyScene();
     }
-  }, [projectId, sceneId, scene]);
+  }, [projectId, sceneId, scene, error, loading]);
 
   const handleUpdateScene = async (sceneData, characterData) => {
     if (isSubmitting) {
@@ -85,7 +85,7 @@ const EditScene = () => {
           for (let i = 0; i < characterData.length; i++) {
             if (characterData[i] != -1 && !initialCharacters.find(c => c === characterData[i])) {
               try {
-                const newSceneCharacter = await assignCharacterToScene(projectId, updatedScene.id, {
+                assignCharacterToScene(projectId, updatedScene.id, {
                   character_id: characterData[i],
                   role_in_scene: "",
                   knowledge_gained: "",

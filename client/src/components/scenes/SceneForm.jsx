@@ -90,6 +90,7 @@ const SceneForm = ({
   isSubmitting = false,
   apiError = "",
 }) => {
+  console.log(initialValues, normalizeSceneValues(initialValues));
   const [formData, setFormData] = useState(() =>
     normalizeSceneValues(initialValues),
   );

@@ -29,22 +29,23 @@ const CreateScene = () => {
         );
       }
 
-        if (createdScene && createdScene.id) {
-            for (let i = 0; i < characterData.length; i++) {
-                if (characterData[i] != -1) {
-                    try {
-                        const newSceneCharacter = await assignCharacterToScene(projectId, createdScene.id, {
-                        character_id: characterData[i],
-                        role_in_scene: "",
-                        knowledge_gained: "",});
-                    } catch (error) {
-                        setApiError(error.message || "Unable to create the scene-character assignments.")
-                    }
-                }
+      if (createdScene && createdScene.id) {
+        for (let i = 0; i < characterData.length; i++) {
+          if (characterData[i] != -1) {
+            try {
+              await assignCharacterToScene(projectId, createdScene.id, {
+                character_id: characterData[i],
+                role_in_scene: "",
+                knowledge_gained: "",
+              });
+            } catch (error) {
+              setApiError(error.message || "Unable to create the scene-character assignments.")
             }
+          }
         }
+      }
 
-        navigate(`/projects/${projectId}/scenes`, {
+      navigate(`/projects/${projectId}/scenes`, {
         replace: true,
         state: {
           notification: {

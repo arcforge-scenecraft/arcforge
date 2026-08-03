@@ -2,7 +2,6 @@ import {
   ArrowLeftIcon,
   CalendarDaysIcon,
   ClockIcon,
-  DocumentTextIcon,
   MapPinIcon,
   PencilSquareIcon,
   UserGroupIcon,
@@ -23,8 +22,6 @@ import useLocations from "../../hooks/locations/useLocations";
 import { deleteScene, updateScene } from "../../services/sceneApi";
 import normalizeSceneValues from "../../hooks/scenes/normalizeScene";
 import { assignCharacterToScene, deleteSceneCharacter, updateSceneCharacter } from "../../services/scene-characterApi";
-import { getCharacters, getCharacter } from "../../services/characterApi";
-import { deleteLocation, getLocations } from "../../services/locationApi";
 import MiniCard from "../../components/ui/MiniCard";
 import useRouteNotification from "../../hooks/useRouteNotification";
 
@@ -132,7 +129,6 @@ const SceneDetail = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isStart, setIsStart] = useState(true);
 
   const {
     scene,
@@ -176,7 +172,7 @@ const SceneDetail = () => {
         c => !currentIds.has(Number(c.id))
       );
     }
-  }, [projectCharacters, sceneCharactersDetailed]);
+  }, [projectCharacters, sceneCharactersDetailed, loading, projectCharactersLoading, sceneCharactersLoading]);
 
 
   useEffect(() => {
@@ -194,14 +190,12 @@ const SceneDetail = () => {
     if (scene && locations) {
       loadData();
     }
-  }, [scene, locations]);
-
-  const { characters } = useCharacters(projectId);
+  }, [scene, locations, setLoading]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    setFormData((currentData) => ({
+    setFormData(() => ({
       ...formData,
       [name]: value,
     }));
@@ -212,7 +206,7 @@ const SceneDetail = () => {
 
     const newCharacter = projectCharacters.find(c => c.id == value);
 
-    setFormData((currentData) => ({
+    setFormData(() => ({
       ...formData,
       [name]: value,
       name: newCharacter.name,
@@ -228,7 +222,7 @@ const SceneDetail = () => {
 
     const newLocation = locations.find(l => l.id == value);
 
-    setFormData((currentData) => ({
+    setFormData(() => ({
       [name]: value,
       name: newLocation.name,
       description: newLocation.description,
@@ -327,6 +321,7 @@ const SceneDetail = () => {
 
     try {
       setIsSubmitting(true);
+      const characterData = projectCharacters.find(c => c.id == formData.character_id);
       const updatedSceneCharacter = {
         ...selectedCharacter,
         role_in_scene: normalizeText(formData.role_in_scene, ""),
@@ -343,7 +338,6 @@ const SceneDetail = () => {
 
       setIsEditing(false);
       setSelectedCharacter(updatedSceneCharacter);
-      setSceneCharactersDetailed([...sceneCharactersDetailed, { ...characterData, ...characterSceneData }])
     } catch (error) {
       console.log(error.message || "Unable to update the scene or scene-character connection.");
     } finally {
@@ -556,12 +550,12 @@ const SceneDetail = () => {
 
   const sceneStatus = normalizeText(scene.status, "Planning");
 
-  const sceneNotes = normalizeText(
-    scene.notes,
-    "No planning notes have been added for this scene yet.",
-  );
+  // const sceneNotes = normalizeText(
+  //   scene.notes,
+  //   "No planning notes have been added for this scene yet.",
+  // );
 
-  const sceneCharacters = normalizeCharacters(scene.characters);
+  // const sceneCharacters = normalizeCharacters(scene.characters);
 
   const sceneLocation = normalizeLocation(scene.location);
 
@@ -857,7 +851,7 @@ const SceneDetail = () => {
           {!isEditing ? (
             <textarea
               className="detail__notes"
-              value={scene.notes || "No notes have been added for this scene."}
+              value={scene.notes || "No planning notes have been added for this scene."}
               readOnly
               rows={6}
             />
