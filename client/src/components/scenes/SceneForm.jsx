@@ -29,7 +29,7 @@ const normalizeOrder = (value) => {
   const parsedValue = Number(value);
 
   return Number.isInteger(parsedValue) && parsedValue >= 0
-    ? String(parsedValue)
+    ? Number(parsedValue)
     : "";
 };
 
@@ -45,7 +45,7 @@ const normalizeCharacters = (value) => {
     ),
   ];
 
-  if (characters.includes(-1) && characters.length > 1) {
+  if (characters.includes(-1)) {
     return characters.filter((character) => character !== -1);
   }
 
@@ -133,10 +133,6 @@ const SceneForm = ({
         setCharacterOptions(updatedCharacters);
         setCharacterIds(updatedCharacterIds);
         setLocationOptions(updatedLocations);
-
-        console.log(updatedCharacters);
-        console.log(updatedCharacterIds);
-        console.log(updatedLocations);
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
           return;

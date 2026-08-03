@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
-import { getCharacters } from "../../services/characterApi";
+import { getSceneCharacters } from "../../services/scene-characterApi";
 
-const useCharacters = (projectId) => {
+const useSceneCharacters = (projectId, sceneId) => {
   const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    if (!projectId) {
+    if (!projectId || !sceneId) {
       setCharacters([]);
       setError("");
       setLoading(true);
@@ -17,16 +17,16 @@ const useCharacters = (projectId) => {
 
     const controller = new AbortController();
 
-    const loadCharacters = async () => {
+    const loadSceneCharacters = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const characterData = await getCharacters(projectId, {
+        const sceneCharacterData = await getSceneCharacters(projectId, sceneId, {
           signal: controller.signal,
         });
 
-        setCharacters(Array.isArray(characterData) ? characterData : []);
+        setCharacters(Array.isArray(sceneCharacterData) ? sceneCharacterData : []);
       } catch (loadError) {
         if (loadError.name === "AbortError") {
           return;
@@ -45,24 +45,15 @@ const useCharacters = (projectId) => {
       }
     };
 
-    loadCharacters();
+    loadSceneCharacters();
 
     return () => {
       controller.abort();
     };
-  }, [projectId, retryCount]);
+  }, [projectId, sceneId, retryCount]);
 
   const retry = useCallback(() => {
     setRetryCount((currentCount) => currentCount + 1);
-  }, []);
-
-  // Lets pages drop a deleted character without refetching the whole list.
-  const removeCharacter = useCallback((characterId) => {
-    setCharacters((currentCharacters) =>
-      currentCharacters.filter(
-        (character) => String(character.id) !== String(characterId),
-      ),
-    );
   }, []);
 
   return {
@@ -71,8 +62,7 @@ const useCharacters = (projectId) => {
     loading,
     error,
     retry,
-    removeCharacter,
   };
 };
 
-export default useCharacters;
+export default useSceneCharacters;

@@ -6,7 +6,7 @@ import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { ErrorState, Loader } from "../../components/ui";
 import useScene from "../../hooks/scenes/useScene";
 import { updateScene } from "../../services/sceneApi";
-import { assignCharacterToScene, deleteSceneCharacter } from "../../services/scene-characterApi";
+import { assignCharacterToScene, deleteSceneCharacter, getSceneCharacters } from "../../services/scene-characterApi";
 import { getCharacters } from "../../services/characterApi";
 import NotFound from "../NotFound";
 
@@ -14,9 +14,8 @@ const EditScene = () => {
   const { projectId, sceneId } = useParams();
   const navigate = useNavigate();
 
-  // const [scene, setScene] = useState(null);
   const [initialCharacters, setInitialCharacters] = useState(null);
-  const { scene, loading, error, notFound, retry } = useScene(
+  const { scene, setScene, loading, setLoading, error, notFound, retry } = useScene(
     projectId,
     sceneId,
     false
@@ -31,8 +30,6 @@ const EditScene = () => {
     const modifyScene = async () => {
       try {
         setApiError("");
-
-        console.log("Initial scene for edit scene form:", scene);
 
         const characterList = await getCharacters(projectId);
 
@@ -55,7 +52,6 @@ const EditScene = () => {
         }
 
         setSceneForm(sceneData);
-        console.log("Scene loaded:", sceneData);
       } catch (error) {
         setApiError(error.message || "Unable to load the scene.");
       } finally {
@@ -66,7 +62,7 @@ const EditScene = () => {
     if (scene && !loading && !error) {
       modifyScene();
     }
-  });
+  }, [projectId, sceneId, scene]);
 
   const handleUpdateScene = async (sceneData, characterData) => {
     if (isSubmitting) {
@@ -76,7 +72,6 @@ const EditScene = () => {
     try {
       setIsSubmitting(true);
       setApiError("");
-      console.log("New scene data:", sceneData)
       const updatedScene = await updateScene(projectId, sceneId, sceneData);
 
       if (!updatedScene?.id) {
@@ -86,15 +81,6 @@ const EditScene = () => {
       }
 
       if (updatedScene && updatedScene.id) {
-        console.log("About to update scene-character assignments for scene", updatedScene.id, "in project", projectId, "with these character ids:", characterData)
-
-        console.log("Remember, these are the initial character ids:", initialCharacters);
-
-        // const currentSceneCharacters = await getSceneCharacters(projectId, updatedScene.id)
-        // currentSceneCharacters = currentSceneCharacters.map(character => character.character_id);
-
-        // console.log("Current Scene Characters", currentSceneCharacters);
-
         if (Array.isArray(characterData)) {
           for (let i = 0; i < characterData.length; i++) {
             if (characterData[i] != -1 && !initialCharacters.find(c => c === characterData[i])) {
@@ -104,7 +90,6 @@ const EditScene = () => {
                   role_in_scene: "",
                   knowledge_gained: "",
                 });
-                console.log("Added this scene-character assignment:", newSceneCharacter);
               } catch (error) {
                 setApiError(error.message || "Unable to create the scene-character assignments.")
               }
@@ -112,17 +97,11 @@ const EditScene = () => {
           }
         }
 
-        console.log("Trying to remove character-assignments from", initialCharacters, "to", characterData)
-
-
         if (Array.isArray(initialCharacters)) {
           for (let j = 0; j < initialCharacters.length; j++) {
-            console.log("Is", initialCharacters[j], "in", characterData);
             if (initialCharacters[j] != -1 && !characterData.find(c => c === initialCharacters[j])) {
-              console.log("About to remove character-assignments", initialCharacters[j])
               try {
                 await deleteSceneCharacter(projectId, updatedScene.id, initialCharacters[j]);
-                console.log("Successfully deleted character", initialCharacters[j], "from the scene.");
               } catch (error) {
                 console.log(error.message || "Unable to delete character", initialCharacters[j], "from the scene.");
               }

@@ -21,13 +21,6 @@ const CreateScene = () => {
       setIsSubmitting(true);
       setApiError("");
 
-      console.log(
-        "About to call createScene for project",
-        projectId,
-        "and sceneData:",
-        sceneData,
-      );
-
       const createdScene = await createScene(projectId, sceneData);
 
       if (!createdScene?.id) {
@@ -37,8 +30,6 @@ const CreateScene = () => {
       }
 
         if (createdScene && createdScene.id) {
-            console.log("About to call assignCharacterToScene for project", projectId, "and scene", createdScene.id, "with these characters:", characterData)
-
             for (let i = 0; i < characterData.length; i++) {
                 if (characterData[i] != -1) {
                     try {
@@ -46,7 +37,6 @@ const CreateScene = () => {
                         character_id: characterData[i],
                         role_in_scene: "",
                         knowledge_gained: "",});
-                        console.log(newSceneCharacter);
                     } catch (error) {
                         setApiError(error.message || "Unable to create the scene-character assignments.")
                     }

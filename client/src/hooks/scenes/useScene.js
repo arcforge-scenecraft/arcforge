@@ -4,7 +4,7 @@ import { getSceneById } from "../../services/sceneApi";
 import { getSceneCharacters } from "../../services/scene-characterApi";
 import { getLocations } from "../../services/locationApi";
 
-function useScene(projectId, sceneId, getDetailed = false) {
+function useScene(projectId, sceneId) {
   const [scene, setScene] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,27 +23,8 @@ function useScene(projectId, sceneId, getDetailed = false) {
 
         const data = await getSceneById(projectId, sceneId);
 
-        const sceneCharacters = await getSceneCharacters(projectId, sceneId);
-
-        const sceneLocations = await getLocations(projectId);
-
-        const sceneLocation = sceneLocations.find(location => location.name === data.location);
-
-        const normalizedData = {
-          ...data,
-          characters: sceneCharacters && sceneCharacters.length != 0 ? sceneCharacters : [{ character_id: -1, name: "Undecided", role_in_scene: "", knowledge_gained: "" }],
-          location: sceneLocation ? [sceneLocation.id, sceneLocation.name, sceneLocation.description, sceneLocation.atmosphere] : [-1, "Undecided", "", ""]
-        }
-
-        console.log("Normalized scene data:", normalizedData)
-        console.log("Regular data:", data)
-
         if (isMounted) {
-          if (getDetailed) {
-            setScene(normalizedData || null);
-          } else {
-            setScene(data || null);
-          }
+          setScene(data || null);
         }
       } catch (err) {
         if (!isMounted) {
@@ -81,7 +62,7 @@ function useScene(projectId, sceneId, getDetailed = false) {
     return () => {
       isMounted = false;
     };
-  }, [projectId, sceneId, getDetailed, retryCount]);
+  }, [projectId, sceneId, retryCount]);
 
   const retry = () => {
     setRetryCount((currentCount) => currentCount + 1);
