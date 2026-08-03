@@ -721,7 +721,7 @@ const SceneDetail = () => {
               <button
                 key={`LocationCard${sceneLocationDetailed.id}`}
                 type="button"
-                className="detail__related-card"
+                className="detail__related-card scene-card"
                 onClick={() => {
                   setViewLocation(true);
                   setFormData({
@@ -744,7 +744,7 @@ const SceneDetail = () => {
               <button
                 key={`CharacterCard${character.character_id}`}
                 type="button"
-                className="detail__related-card"
+                className="detail__related-card scene-card"
                 onClick={() => {
                   setSelectedCharacter(character);
                   setFormData({ role_in_scene: character.role_in_scene || "", knowledge_gained: character.knowledge_gained || "" })
@@ -799,7 +799,7 @@ const SceneDetail = () => {
           </div>
         </section>
 
-        <section className="detail__overview-single">
+        {/* <section className="detail__overview-single">
           <div className="detail__section-heading detail__section-header">
             <div>
               <p className="detail__eyebrow">Planning</p>
@@ -863,6 +863,77 @@ const SceneDetail = () => {
                 value={formData.notes || ""}
                 onChange={handleChange}
                 placeholder="Add any relevant notes about the scene."
+                rows={6}
+              />
+            </div>
+          )}
+        </section> */}
+
+        <section className="detail__overview-single">
+          <div className="detail__notes-header">
+            <div className="detail__hero-content">
+              <p className="detail__eyebrow">Planning</p>
+
+              <h2>Creator&apos;s Notes</h2>
+
+              <p>
+                Keep planning details, reminders, and development ideas connected
+                to this scene.
+              </p>
+            </div>
+
+            <div className="detail__notes-buttons">
+              {!isEditing ? (
+                <button
+                  className="detail__edit-link"
+                  onClick={() => {
+                    setFormData({ notes: scene.notes || "" });
+                    setIsEditing(true);
+                  }}
+                >
+                  <PencilSquareIcon />
+                  Edit
+                </button>
+              ) : (
+                <>
+                  <button
+                    className="detail__edit-link"
+                    onClick={handleUpdateNotes}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Saving..." : "Save"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setFormData(null);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {!isEditing ? (
+            <textarea
+              className="detail__notes"
+              value={scene.notes || "No planning notes have been added for this scene."}
+              readOnly
+              rows={6}
+            />
+          ) : (
+            <div className="form-field">
+              <textarea
+                id="notes"
+                name="notes"
+                value={formData.notes || ""}
+                onChange={handleChange}
+                className="detail__notes"
                 rows={6}
               />
             </div>
