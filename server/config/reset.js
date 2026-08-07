@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+
 import { pool } from "./database.js";
 
 const currentPath = fileURLToPath(import.meta.url);
@@ -40,24 +41,33 @@ const seedDatabase = async () => {
      RETURNING id`,
     [project.title, project.description, project.genre, project.status],
   );
+
   const projectId = projectResult.rows[0].id;
 
-  const locationIds = {};
+  // Seed locations
   for (const location of project.locations) {
-    const result = await pool.query(
-      `INSERT INTO locations (project_id, name, description, atmosphere)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id`,
+    await pool.query(
+      `INSERT INTO locations
+        (project_id, name, description, atmosphere)
+       VALUES ($1, $2, $3, $4)`,
       [projectId, location.name, location.description, location.atmosphere],
     );
-    locationIds[location.key] = result.rows[0].id;
   }
 
+  // Seed characters
   const characterIds = {};
+
   for (const character of project.characters) {
     const result = await pool.query(
       `INSERT INTO characters
-        (project_id, name, story_role, description, goal, knowledge_notes)
+        (
+          project_id,
+          name,
+          story_role,
+          description,
+          goal,
+          knowledge_notes
+        )
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id`,
       [
@@ -69,21 +79,28 @@ const seedDatabase = async () => {
         character.knowledge_notes,
       ],
     );
+
     characterIds[character.key] = result.rows[0].id;
   }
 
+  // Seed items
   const itemIds = {};
+
   for (const item of project.items) {
     const result = await pool.query(
-      `INSERT INTO items (project_id, name, description, significance)
+      `INSERT INTO items
+        (project_id, name, description, significance)
        VALUES ($1, $2, $3, $4)
        RETURNING id`,
       [projectId, item.name, item.description, item.significance],
     );
+
     itemIds[item.key] = result.rows[0].id;
   }
 
+  // Seed scenes
   const sceneIds = {};
+
   for (const scene of project.scenes) {
     const result = await pool.query(
       `INSERT INTO scenes
@@ -109,16 +126,23 @@ const seedDatabase = async () => {
         scene.notes,
         scene.location,
         scene.characters,
-        scene.status
+        scene.status,
       ],
     );
+
     sceneIds[scene.key] = result.rows[0].id;
   }
 
+  // Seed scene-character relationships
   for (const assignment of project.scene_characters) {
     await pool.query(
       `INSERT INTO scene_characters
-        (scene_id, character_id, role_in_scene, knowledge_gained)
+        (
+          scene_id,
+          character_id,
+          role_in_scene,
+          knowledge_gained
+        )
        VALUES ($1, $2, $3, $4)`,
       [
         sceneIds[assignment.scene_key],
@@ -129,9 +153,11 @@ const seedDatabase = async () => {
     );
   }
 
+  // Seed scene-item relationships
   for (const assignment of project.scene_items) {
     await pool.query(
-      `INSERT INTO scene_items (scene_id, item_id, purpose_in_scene)
+      `INSERT INTO scene_items
+        (scene_id, item_id, purpose_in_scene)
        VALUES ($1, $2, $3)`,
       [
         sceneIds[assignment.scene_key],
@@ -141,6 +167,7 @@ const seedDatabase = async () => {
     );
   }
 
+  // Seed character relationships
   for (const relationship of project.character_relationships) {
     await pool.query(
       `INSERT INTO character_relationships
@@ -168,10 +195,13 @@ const resetDatabase = async () => {
     await dropAllTables();
     await createTables();
     await seedDatabase();
+
     console.log("Database reset complete.");
   } catch (error) {
     console.error("Error resetting database:");
     console.error(error);
+
+    process.exitCode = 1;
   } finally {
     await pool.end();
   }
