@@ -1,184 +1,758 @@
+<div align="center">
+
+<img src="./client/public/arcforge-logo.png" alt="ArcForge logo" width="120" />
+
 # ArcForge
 
-ArcForge is a full-stack story planning application for organizing projects, characters, scenes, locations, and character appearances.
+**A full-stack story planning workspace for organizing projects, scenes, characters, locations, and story progress.**
 
-CodePath WEB103 Final Project
+[Live Application](https://arcforge-client.onrender.com/) ·
+[API](https://arcforge-api.onrender.com/) ·
+[API Health](https://arcforge-api.onrender.com/api/health)
 
-Designed and developed by Jingyi He, Bingying Li, Adeline Greene, Abdelrahman Mohamed, Allen Ramirez, and Salman Khan.
+</div>
+
+---
+
+## Overview
+
+ArcForge is a full-stack story planning application designed for writers, game designers, and other creators who need a structured way to organize complex story ideas.
+
+Instead of keeping characters, scenes, locations, timelines, and notes across separate documents or spreadsheets, ArcForge brings them together inside project-based workspaces. Creators can build story projects, manage their scenes and characters, organize locations, track scene progress, and connect characters to the scenes in which they appear.
+
+ArcForge was built as the final team project for **CodePath WEB103**.
+
+> **Project status:** The course project has been completed, submitted, and demonstrated. Ongoing work focuses on post-course documentation, maintenance, and portfolio polish while preserving the functionality of the submitted application.
+
+---
 
 ## Live Application
 
-- [Launch ArcForge](https://arcforge-client.onrender.com)
-- [View the ArcForge API](https://arcforge-api.onrender.com)
-- [Check API Health](https://arcforge-api.onrender.com/api/health)
+| Service    | Link                                                         |
+| ---------- | ------------------------------------------------------------ |
+| Web App    | [Launch ArcForge](https://arcforge-client.onrender.com/)     |
+| REST API   | [ArcForge API](https://arcforge-api.onrender.com/)           |
+| API Health | [Health Check](https://arcforge-api.onrender.com/api/health) |
 
-> The free API service may take longer to respond after a period of inactivity.
+> The deployed API may take a little longer to respond after a period of inactivity.
 
-## About
+---
 
-### Description and Purpose
+## Preview
 
-**ArcForge** is a full-stack story planning web app that helps writers, game designers, and creative teams organize their story ideas in one place. Users can create story projects, add scenes, build character profiles, define locations, and connect characters to specific scenes. Instead of keeping ideas scattered across documents, notes, and spreadsheets, ArcForge gives users a structured workspace for planning story timelines, tracking scene progress, and managing relationships between characters, locations, and story events.
+### Project Dashboard
 
-The purpose of ArcForge is to make story development easier and more organized. It helps creators see how each scene fits into the larger story, which characters appear in each scene, where events take place, and what still needs to be completed. This is especially useful for people working on novels, short films, comics, visual novels, or story-driven games.
+Create and organize multiple story projects from a central dashboard.
 
-### Inspiration
+![ArcForge story project dashboard](./gifs/Story_Project_Dashboard.gif)
 
-ArcForge was inspired by the challenge of planning creative projects with many connected pieces. When building a story, it can be difficult to remember which characters appear in each scene, what role they play, where events happen, and whether each scene is still a draft or finished. Many creators use separate notes, documents, or spreadsheets, but those tools are not always designed for visualizing story structure.
+### Scene Planning
 
-We wanted to build an app that feels both creative and practical: something that gives storytellers a clean way to organize their ideas while also helping them track progress. ArcForge combines the structure of a project management tool with the creativity of a storyboarding workspace, making it useful for writers, student creators, game designers, and small creative teams.
+Create, edit, organize, search, filter, and sort scenes within each story project.
 
-## Tech Stack
+![ArcForge scene manager](./gifs/Scene_Manager.gif)
 
-- **Frontend:** React, React Router, Vite, JavaScript, HTML, CSS
-- **Backend:** Node.js, Express.js, RESTful API
-- **Database:** PostgreSQL, `pg`
-- **Configuration:** dotenv
-- **Deployment:** Render and Neon
-- **Version Control:** Git and GitHub
+### Character Management
 
-## Deployment
+Build reusable character profiles and organize character information within a project.
 
-ArcForge is deployed using:
+![ArcForge character profiles](./gifs/Character_Profiles.gif)
 
-- **Render Static Site** for the React/Vite client
-- **Render Web Service** for the Express API
-- **Neon PostgreSQL** for persistent application data
+Additional feature demonstrations are available in the [`gifs/`](./gifs) directory.
 
-The client and API are automatically deployed from the project’s GitHub repository.
+---
 
 ## Features
 
-### ✅ Story Project Dashboard
+### Story Project Management
 
-Users can view all story projects from a main dashboard. Each project card shows basic information such as the project title, description, number of scenes, and overall progress.
+Users can create, view, edit, and delete story projects.
 
-![Story Project Dashboard](./gifs/Story_Project_Dashboard.gif)
+Each project can include:
 
-### ✅ Create and Edit Story Projects
+- Title
+- Description
+- Multiple genres
+- Project status
+- Scenes
+- Characters
+- Locations
 
-Users can create a new story project and update project details such as title, description, genre, and project status. This gives creators a starting point for organizing each story separately.
+The project dashboard provides a central place for managing multiple stories.
 
-![Create and Edit Story Projects](./gifs/Create_and_Edit_Story_Projects.gif)
+---
 
-### ✅ Scene Manager
+### Scene Management
 
-Users can add, view, edit, and delete scenes within a story project. Each scene can include details such as title, summary, timeline order, mood, status, purpose, and conflict.
+Scenes are organized within individual story projects and support full create, read, update, and delete workflows.
 
-![Scene Manager](./gifs/Scene_Manager.gif)
+Scene information includes:
 
-### ✅ Character Profiles
+- Name
+- Description
+- Scene order
+- Timeline order
+- Notes
+- Location
+- Characters
+- Status
 
-Users can create and manage character profiles with details such as name, role, description, motivation, and notes. This helps creators keep character information organized instead of scattered across separate documents.
+This allows creators to organize both the presentation order of scenes and their chronological position within the story.
 
-![Character Profiles](./gifs/Character_Profiles.gif)
+---
 
-### ✅ Location Library
+### Scene Search, Filtering, and Sorting
 
-Users can create reusable story locations and connect scenes to those locations. This helps creators track where events happen and reuse important settings across multiple scenes.
+The scene library includes tools for navigating larger projects.
 
-![Location Library](./gifs/Location_Library.gif)
+Users can:
 
-### Scene Character Assignments
+- Search scene names
+- Search descriptions
+- Search locations
+- Search character names
+- Filter scenes by status
+- Sort by scene order
+- Sort by timeline order
+- Sort alphabetically
+- Sort by newest
 
-Users can assign multiple characters to a scene and describe each character's role in that scene. This feature demonstrates a many-to-many relationship between scenes and characters using a join table.
+![ArcForge scene filtering and sorting](./gifs/Scene_Filtering_and_Sorting.gif)
 
-[gif goes here]
+---
 
-### ✅ Scene Filtering and Sorting
+### Character Profiles
 
-Users can filter or sort scenes by character, location, mood, status, or timeline order. This makes it easier to find specific story moments and review the structure of a project.
+Characters belong to individual story projects and can be created, viewed, edited, and deleted.
 
-![Scene Filtering and Sorting](./gifs/Scene_Filtering_and_Sorting.gif)
+Character profiles can include:
 
-### ✅ Story Progress Overview
+- Name
+- Story role
+- Description
+- Goal
+- Knowledge notes
 
-Users can view calculated story progress, such as how many scenes are completed compared to the total number of scenes. This gives creators a quick summary of how much planning work is finished.
+This keeps important character information connected to the story project rather than scattered across separate notes.
 
-![Story Progress Overview](./gifs/Story_Progress_Overview.gif)
+---
 
-### ✅ Dynamic Detail Pages
+### Location Library
 
-Users can navigate to individual story, scene, character, and location pages. These pages use dynamic React Router routes based on the selected item's ID.
+Each project includes its own reusable location library.
 
-Example routes include:
+Locations can include:
 
-- `/projects/:projectId`
+- Name
+- Description
+- Atmosphere
 
-- `/projects/:projectId/scenes/:sceneId`
+Users can create, edit, view, and delete locations as their story world develops.
 
-- `/characters/:characterId`
+![ArcForge location library](./gifs/Location_Library.gif)
 
-- `/locations/:locationId`
+---
 
-![Dynamic Detail Pages](./gifs/Dynamic_Detail_Pages.gif)
+### Scene-Character Assignments
 
-### ✅ Form Validation
+Characters can be assigned to specific scenes through a many-to-many relationship.
 
-The app checks required form fields before creating or updating database records. Invalid or incomplete information is not submitted, and the user receives a clear error message.
+Assignments can track additional information such as:
 
-![Form Validation](./gifs/Form_Validation.gif)
+- A character's role in the scene
+- Knowledge gained during the scene
 
-### ✅ Confirmation Modal
+This provides more context than simply listing which characters appear.
 
-Before deleting a story project, scene, character, or location, the app displays a confirmation modal to prevent accidental deletion.
+---
 
-![Deleting Confirmation Modal](./gifs/Confirmation_Modal.gif)
+### Story Progress Overview
 
-### ✅ Notifications
+ArcForge summarizes project activity and scene progress so creators can quickly understand the current state of a story project.
 
-The app displays temporary success or error messages after important actions, such as creating, updating, or deleting content.
+![ArcForge story progress overview](./gifs/Story_Progress_Overview.gif)
+
+---
+
+### Dynamic Project-Scoped Navigation
+
+ArcForge uses React Router to organize project resources through dynamic routes.
 
 Examples include:
 
-- “Scene created successfully.”
+```text
+/projects/:projectId
+/projects/:projectId/edit
 
-- “Character updated successfully.”
+/projects/:projectId/scenes
+/projects/:projectId/scenes/new
+/projects/:projectId/scenes/:sceneId
+/projects/:projectId/scenes/:sceneId/edit
 
-- “Unable to delete location.”
+/projects/:projectId/characters
+/projects/:projectId/characters/new
+/projects/:projectId/characters/:characterId
+/projects/:projectId/characters/:characterId/edit
 
-![Notifications](./gifs/Notifications.gif)
+/projects/:projectId/locations
+/projects/:projectId/locations/new
+/projects/:projectId/locations/:locationId
+/projects/:projectId/locations/:locationId/edit
+```
 
-### ✅ Loading and Submission States
+Keeping resources scoped to a project makes it easier to navigate between related story information.
 
-The app displays a loading spinner while retrieving data. Form inputs and submission buttons are temporarily disabled while a request is being processed to prevent duplicate submissions.
+---
 
-For example, a submit button may change from Save Scene to Saving... until the request is completed.
+### Form Validation
 
-![Loading and Submission States](./gifs/Loading_and_Submission_States.gif)
+Forms validate required information before submitting data to the API.
 
-### User Authentication and Login
+Users receive clear feedback when submitted information is missing or invalid.
 
-Users must login using an authentication mechanism before saving their projects
+![ArcForge form validation](./gifs/Form_Validation.gif)
 
-[gif goes here]
+---
 
-### Automatically Generated Project Templates
+### Confirmation Modals
 
-A project template, containing placholder scenes and characters, is automatically generated from on user inputs (eg. the type of project)
+Destructive actions such as deleting projects, scenes, characters, or locations require confirmation to reduce accidental data loss.
 
-[gif goes here]
+![ArcForge confirmation modal](./gifs/Confirmation_Modal.gif)
 
-### ✅ Core PostgreSQL Database Schema
+---
 
-ArcForge includes a PostgreSQL database schema for managing story projects, scenes, characters, locations, items, and relationships between these entities. The database supports one-to-many, many-to-many, and self-referencing relationships.
+### Notifications
 
-![Core PostgreSQL Database Schema Demo](./gifs/database-schema.gif)
+ArcForge displays success and error notifications after important actions such as:
 
-### ✅ Project API Read Routes
+- Creating records
+- Updating records
+- Deleting records
+- Handling failed API requests
 
-The backend provides REST API routes for retrieving story projects. Users can retrieve all projects or request information for a specific project using its project ID.
+![ArcForge notifications](./gifs/Notifications.gif)
 
-![Project API Read Routes Demo](./gifs/project-api-read.gif)
+---
 
-### [ADDITIONAL FEATURES GO HERE - ADD ALL FEATURES HERE IN THE FORMAT ABOVE; you will check these off and add gifs as you complete them]
+### Loading and Submission States
 
-### [Name of Feature]
+The application provides loading indicators while retrieving data and disables relevant controls while requests are being submitted.
 
-[short description goes here]
+This helps prevent duplicate submissions and gives users feedback while asynchronous operations are running.
 
-[gif goes here]
+![ArcForge loading and submission states](./gifs/Loading_and_Submission_States.gif)
 
-## Installation Instructions
+---
 
-[instructions go here]
+### Responsive Interface
+
+ArcForge includes responsive navigation and layouts designed to keep the application usable across desktop and smaller screen sizes.
+
+The application also includes shared UI patterns for:
+
+- Loading states
+- Error states
+- Empty states
+- Not-found states
+- Notifications
+- Forms
+- Detail pages
+- Collection pages
+
+---
+
+## Tech Stack
+
+| Layer           | Technologies                                          |
+| --------------- | ----------------------------------------------------- |
+| Frontend        | React 19, React Router, Vite 7, JavaScript, HTML, CSS |
+| UI              | Heroicons, reusable React components                  |
+| Backend         | Node.js, Express.js                                   |
+| API             | REST                                                  |
+| Database        | PostgreSQL, `pg`                                      |
+| Configuration   | dotenv, CORS                                          |
+| Deployment      | Render, Neon                                          |
+| CI/CD           | GitHub Actions                                        |
+| Code Quality    | ESLint                                                |
+| Version Control | Git, GitHub                                           |
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+    USER["User Browser"]
+    CLIENT["React + Vite Client<br/>Render Static Site"]
+    API["Node.js + Express API<br/>Render Web Service"]
+    DB[("PostgreSQL<br/>Neon")]
+
+    USER --> CLIENT
+    CLIENT -->|"REST /api"| API
+    API --> DB
+```
+
+ArcForge separates the application into three primary layers:
+
+1. **React client** — renders the user interface and handles browser-side navigation.
+2. **Express API** — handles application requests and database operations.
+3. **PostgreSQL database** — stores projects and their related story data.
+
+---
+
+## Application Data
+
+### Currently Exposed Through the Application
+
+| Entity             | Purpose                             |
+| ------------------ | ----------------------------------- |
+| `story_projects`   | Stores top-level story projects     |
+| `scenes`           | Stores scenes belonging to projects |
+| `characters`       | Stores project character profiles   |
+| `locations`        | Stores project locations            |
+| `scene_characters` | Connects characters to scenes       |
+
+### Schema Foundations for Future Features
+
+The database schema also contains foundations for additional story-planning functionality:
+
+| Entity                    | Planned Use                            |
+| ------------------------- | -------------------------------------- |
+| `items`                   | Important objects or story items       |
+| `scene_items`             | Connect items to scenes                |
+| `character_relationships` | Track relationships between characters |
+
+These database structures are present in the schema, but their complete application workflows are part of the future roadmap.
+
+See [`server/data/schema.sql`](./server/data/schema.sql) for the current database definition.
+
+---
+
+## API Overview
+
+The Express backend exposes project-scoped REST resources under `/api`.
+
+### Health
+
+```text
+GET /api/health
+```
+
+### Projects
+
+```text
+/api/projects
+```
+
+### Scenes
+
+```text
+/api/projects/:projectId/scenes
+```
+
+### Characters
+
+```text
+/api/projects/:projectId/characters
+```
+
+### Locations
+
+```text
+/api/projects/:projectId/locations
+```
+
+### Scene-Character Assignments
+
+```text
+/api/projects/:projectId/scenes/:sceneId/scene-characters
+```
+
+The client communicates with these endpoints through shared API service utilities.
+
+---
+
+## Local Installation
+
+### Prerequisites
+
+Before running ArcForge locally, install:
+
+- [Node.js](https://nodejs.org/) 20.19+ or another version compatible with Vite 7
+- npm
+- PostgreSQL or access to a hosted PostgreSQL database
+- Git
+
+---
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/arcforge-scenecraft/arcforge.git
+cd arcforge
+```
+
+---
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+All project dependencies are managed from the root `package.json`.
+
+---
+
+### 3. Create Your Environment File
+
+Copy the included example configuration:
+
+#### macOS / Linux
+
+```bash
+cp .env.example .env
+```
+
+#### Windows PowerShell
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Then update `.env` with your PostgreSQL configuration.
+
+Example local configuration:
+
+```env
+NODE_ENV=development
+PORT=3001
+
+VITE_API_BASE_URL=http://localhost:3001
+CLIENT_URL=http://localhost:5173
+
+PGUSER=your_postgres_user
+PGPASSWORD=your_postgres_password
+PGHOST=localhost
+PGPORT=5432
+PGDATABASE=arcforge
+
+DB_SSL=false
+```
+
+For a hosted PostgreSQL database that requires SSL:
+
+```env
+DB_SSL=true
+```
+
+> Never commit your real `.env` file. Database credentials and other secrets should remain private.
+
+See [`.env.example`](./.env.example) for the complete environment variable reference.
+
+---
+
+### 4. Initialize the Database
+
+ArcForge includes a reset script that creates the database tables and loads sample story data.
+
+```bash
+npm run reset
+```
+
+> **Warning:** `npm run reset` drops the ArcForge tables in the configured database before recreating and seeding them. Do not run this command against a database containing data you need to preserve.
+
+---
+
+### 5. Start the Development Environment
+
+```bash
+npm run dev
+```
+
+This starts both:
+
+- Vite frontend
+- Express backend
+
+Open the application at:
+
+```text
+http://localhost:5173
+```
+
+The API runs at:
+
+```text
+http://localhost:3001
+```
+
+The local health endpoint is:
+
+```text
+http://localhost:3001/api/health
+```
+
+---
+
+## Available Scripts
+
+| Command         | Description                                        |
+| --------------- | -------------------------------------------------- |
+| `npm run dev`   | Starts the Vite client and Express server together |
+| `npm run start` | Starts the Express server                          |
+| `npm run build` | Builds the production Vite client                  |
+| `npm run lint`  | Runs ESLint across the project                     |
+| `npm run reset` | Drops, recreates, and seeds the database           |
+
+Before submitting changes, run:
+
+```bash
+npm run lint
+npm run build
+```
+
+---
+
+## Continuous Integration
+
+ArcForge uses **GitHub Actions** for continuous integration.
+
+The CI workflow runs on:
+
+- Pull requests targeting `main`
+- Pushes to `main`
+
+The workflow:
+
+1. Checks out the repository
+2. Uses Node.js 22
+3. Installs dependencies with `npm ci`
+4. Runs ESLint
+5. Runs tests when a test script is available
+6. Builds the production client
+
+The workflow configuration is available at:
+
+[`/.github/workflows/ci.yml`](./.github/workflows/ci.yml)
+
+---
+
+## Deployment
+
+ArcForge is deployed using separate frontend, backend, and database services.
+
+### Frontend
+
+**Render Static Site**
+
+Hosts the React/Vite production build.
+
+### Backend
+
+**Render Web Service**
+
+Runs the Node.js and Express REST API.
+
+### Database
+
+**Neon PostgreSQL**
+
+Provides the persistent PostgreSQL database used by the deployed API.
+
+Production environment variables configure the client API URL, CORS origin, database connection, and SSL behavior.
+
+---
+
+## Project Structure
+
+```text
+arcforge/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+│
+├── client/
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       ├── hooks/
+│       ├── pages/
+│       ├── services/
+│       └── styles/
+│
+├── gifs/
+│
+├── milestones/
+│
+├── planning/
+│   ├── wireframes/
+│   ├── entity_relationship_diagram.md
+│   ├── user_stories.md
+│   └── wireframes.md
+│
+├── server/
+│   ├── config/
+│   ├── controllers/
+│   ├── data/
+│   ├── routes/
+│   └── server.js
+│
+├── .env.example
+├── eslint.config.js
+├── package.json
+└── README.md
+```
+
+---
+
+## Project Documentation
+
+Additional planning and development documentation is available in the repository.
+
+- [User Stories](./planning/user_stories.md)
+- [Entity Relationship Diagram](./planning/entity_relationship_diagram.md)
+- [Wireframes](./planning/wireframes.md)
+- [Milestone Documentation](./milestones)
+
+These documents capture both the original planning process and the evolution of the application during development.
+
+---
+
+## Future Roadmap
+
+The submitted version of ArcForge establishes the core story-planning workflow. Future development could expand the platform with additional creator and collaboration features.
+
+### Authentication and Roles
+
+Add user authentication and authorization so projects can belong to specific users and support different access levels.
+
+Potential roles include:
+
+- Project owner
+- Collaborator
+- Viewer
+
+---
+
+### Project Workspace Navigation
+
+Add persistent project-level navigation so creators can quickly move between:
+
+- Overview
+- Scenes
+- Characters
+- Locations
+- Items
+
+without returning to the project detail page between sections.
+
+---
+
+### Image Uploads
+
+Allow creators to attach reference images to:
+
+- Projects
+- Characters
+- Scenes
+- Locations
+
+This would make ArcForge more useful for visual storytelling, game design, comics, and film planning.
+
+---
+
+### Story Item Management
+
+Build the frontend and API workflows for the existing `items` and `scene_items` database structures.
+
+Creators could track important objects, props, weapons, clues, or other story elements and identify the scenes in which they appear.
+
+---
+
+### Character Relationships
+
+Expose the existing `character_relationships` schema through the API and user interface.
+
+This could allow creators to visualize relationships such as:
+
+- Family
+- Allies
+- Rivals
+- Mentors
+- Romantic relationships
+- Other custom connections
+
+---
+
+### Project Templates
+
+Allow users to start projects from predefined structures based on story type or creative workflow.
+
+Examples could include:
+
+- Novel
+- Screenplay
+- Short film
+- Visual novel
+- Story-driven game
+
+---
+
+### Expanded Automated Testing
+
+Increase automated coverage across:
+
+- API endpoints
+- Form validation
+- Data normalization
+- CRUD workflows
+- Navigation
+- Shared UI components
+
+---
+
+## Team
+
+ArcForge was designed and developed by a six-person team for CodePath WEB103.
+
+| Team Member                                       | Focus and Contributions                                                                                                                                                                                                                      |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Jingyi He](https://github.com/jing2003)          | **Project integration and delivery** — Led project coordination and final integration; built project workflows, shared UI and styling patterns, deployment and CI, production API fixes, responsive navigation, and application-wide polish. |
+| [Bingying Li](https://github.com/bing-ying-li)    | **Locations and character API** — Built the location library and location detail experience, implemented the character REST API, and introduced reusable overview components for project and location pages.                                 |
+| [Adeline Greene](https://github.com/AdelineG218)  | **Scene management** — Expanded the scene model and API and built scene creation, editing, detail, library, and deletion workflows for structured story planning.                                                                            |
+| [Abdelrahman Mohamed](https://github.com/fukubie) | **Shared UI and API foundations** — Created reusable loading, error, empty, and not-found states; added the shared API request utility; and implemented backend scene creation, update, and deletion routes.                                 |
+| [Allen Ramirez](https://github.com/drizzyallen)   | **Database and backend structure** — Built reset and seed tooling, early API read routes, location REST routes, project-scoped scene routes, route/controller separation, and scene-character relationship support.                          |
+| [Salman Khan](https://github.com/salman-khan03)   | **Character management** — Built character creation and editing forms and added character deletion support to complete the character management workflow.                                                                                    |
+
+---
+
+## Course
+
+ArcForge was created as the final capstone project for **CodePath WEB103**.
+
+The project provided hands-on experience with:
+
+- Full-stack web development
+- REST API design
+- Relational database modeling
+- React component architecture
+- Responsive interface development
+- Production deployment
+- Continuous integration
+- Git and GitHub collaboration
+- Pull request workflows
+- Code review
+- Debugging across local and production environments
+
+---
+
+<div align="center">
+
+**Built with React, Express, and PostgreSQL.**
+
+[Launch ArcForge](https://arcforge-client.onrender.com/) ·
+[View Repository](https://github.com/arcforge-scenecraft/arcforge)
+
+</div>

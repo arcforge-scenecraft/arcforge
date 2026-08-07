@@ -30,7 +30,7 @@ const FEATURES = [
   {
     title: "Plan detailed scenes",
     description:
-      "Track summaries, timeline order, purpose, conflict, mood, status, and the setting for each scene.",
+      "Track descriptions, scene order, timeline order, notes, status, locations, and character appearances.",
     icon: BookOpenIcon,
   },
   {
@@ -48,13 +48,13 @@ const FEATURES = [
   {
     title: "Connect the cast",
     description:
-      "Assign characters to scenes and record the role each person plays in an important story moment.",
+      "Assign characters to scenes and keep track of who appears throughout your story.",
     icon: ArrowsRightLeftIcon,
   },
   {
     title: "Find details quickly",
     description:
-      "Use search, sorting, responsive collection pages, and clear status indicators to review your story structure.",
+      "Use search, filtering, sorting, responsive collection pages, and clear status indicators to review your story structure.",
     icon: MagnifyingGlassIcon,
   },
 ];
