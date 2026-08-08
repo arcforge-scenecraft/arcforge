@@ -29,7 +29,7 @@ const normalizeOrder = (value) => {
   const parsedValue = Number(value);
 
   return Number.isInteger(parsedValue) && parsedValue >= 0
-    ? String(parsedValue)
+    ? Number(parsedValue)
     : "";
 };
 
@@ -41,14 +41,12 @@ const normalizeCharacters = (value) => {
   const characters = [
     ...new Set(
       value
-        .filter((character) => typeof character === "string")
-        .map((character) => character.trim())
-        .filter(Boolean),
+        .filter((character) => typeof character === "number")
     ),
   ];
 
-  if (characters.includes(UNDECIDED) && characters.length > 1) {
-    return characters.filter((character) => character !== UNDECIDED);
+  if (characters.includes(-1)) {
+    return characters.filter((character) => character !== -1);
   }
 
   return characters;
@@ -92,12 +90,14 @@ const SceneForm = ({
   isSubmitting = false,
   apiError = "",
 }) => {
+  console.log(initialValues, normalizeSceneValues(initialValues));
   const [formData, setFormData] = useState(() =>
     normalizeSceneValues(initialValues),
   );
   const [validationErrors, setValidationErrors] = useState({});
-  const [characterOptions, setCharacterOptions] = useState([UNDECIDED]);
-  const [locationOptions, setLocationOptions] = useState([UNDECIDED]);
+  const [characterOptions, setCharacterOptions] = useState({});
+  const [characterIds, setCharacterIds] = useState([]);
+  const [locationOptions, setLocationOptions] = useState([]);
   const [optionsError, setOptionsError] = useState("");
 
   useEffect(() => {
@@ -125,33 +125,15 @@ const SceneForm = ({
           }),
         ]);
 
-        const characterNames = Array.isArray(characters)
-          ? characters
-              .map((character) => character?.name)
-              .filter(
-                (name) =>
-                  typeof name === "string" &&
-                  name.trim() &&
-                  name.trim() !== UNDECIDED,
-              )
-              .map((name) => name.trim())
-          : [];
+        let updatedCharacters = {};
+        updatedCharacters[-1] = "Undecided"
+        characters.forEach(character => updatedCharacters[character.id] = character.name);
+        const updatedCharacterIds = [...characters.map(character => character.id), -1];
+        const updatedLocations = ["Undecided", ...locations.map((location) => location.name)];
 
-        const locationNames = Array.isArray(locations)
-          ? locations
-              .map((location) => location?.name)
-              .filter(
-                (name) =>
-                  typeof name === "string" &&
-                  name.trim() &&
-                  name.trim() !== UNDECIDED,
-              )
-              .map((name) => name.trim())
-          : [];
-
-        setCharacterOptions([UNDECIDED, ...new Set(characterNames)]);
-
-        setLocationOptions([UNDECIDED, ...new Set(locationNames)]);
+        setCharacterOptions(updatedCharacters);
+        setCharacterIds(updatedCharacterIds);
+        setLocationOptions(updatedLocations);
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
           return;
@@ -200,17 +182,20 @@ const SceneForm = ({
         ? currentData.characters
         : [];
 
-      if (selectedCharacter === "Undecided") {
+      /*
+       * Undecided is exclusive:
+       * - Selecting it removes all specific characters.
+       * - Selecting a specific character removes Undecided.
+       */
+      if (selectedCharacter === -1) {
         return {
           ...currentData,
-          characters: currentCharacters.includes("Undecided")
-            ? []
-            : ["Undecided"],
+          characters: currentCharacters.includes(-1) ? [] : [-1],
         };
       }
 
       const charactersWithoutUndecided = currentCharacters.filter(
-        (character) => character !== "Undecided",
+        (character) => character !== -1,
       );
 
       const isAlreadySelected =
@@ -218,13 +203,15 @@ const SceneForm = ({
 
       const updatedCharacters = isAlreadySelected
         ? charactersWithoutUndecided.filter(
-            (character) => character !== selectedCharacter,
-          )
+          (character) => character !== selectedCharacter,
+        )
         : [...charactersWithoutUndecided, selectedCharacter];
 
+      const finalUpdatedCharacters = updatedCharacters.length === 0
+        ? [-1] : updatedCharacters;
       return {
         ...currentData,
-        characters: updatedCharacters,
+        characters: finalUpdatedCharacters,
       };
     });
 
@@ -299,9 +286,9 @@ const SceneForm = ({
         formData.timeline_order === "" ? 0 : Number(formData.timeline_order),
       notes: normalizeText(formData.notes).trim(),
       location: normalizeLocation(formData.location),
-      characters: normalizeCharacters(formData.characters),
+      characters: normalizeCharacters(formData.characters).map(id => characterOptions[id]),
       status: normalizeStatus(formData.status),
-    });
+    }, formData.characters);
   };
 
   return (
@@ -473,22 +460,21 @@ const SceneForm = ({
           </p>
 
           <div className="genre-options">
-            {characterOptions.map((character) => {
-              const isSelected = formData.characters.includes(character);
+            {characterIds.map((id) => {
+              const isSelected = formData.characters.includes(id);
 
               return (
                 <label
-                  key={character}
-                  className={`genre-option ${
-                    isSelected ? "genre-option-selected" : ""
-                  }`}
+                  key={id}
+                  className={`genre-option ${isSelected ? "genre-option-selected" : ""
+                    }`}
                 >
                   <input
                     type="checkbox"
                     name="characters"
-                    value={character}
+                    value={characterOptions[id]}
                     checked={isSelected}
-                    onChange={() => handleCharacterChange(character)}
+                    onChange={() => handleCharacterChange(id)}
                   />
 
                   <span className="genre-option-content">
@@ -496,7 +482,7 @@ const SceneForm = ({
                       {isSelected ? "✓" : ""}
                     </span>
 
-                    {character}
+                    {characterOptions[id]}
                   </span>
                 </label>
               );
@@ -512,9 +498,9 @@ const SceneForm = ({
 
             {formData.characters.length > 0 ? (
               <div className="selected-genre-list">
-                {formData.characters.map((character) => (
-                  <span key={character} className="selected-genre">
-                    {character}
+                {formData.characters.map((id) => (
+                  <span key={id} className="selected-genre">
+                    {characterOptions[id]}
                   </span>
                 ))}
               </div>

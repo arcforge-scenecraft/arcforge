@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import SceneForm from "../../components/scenes/SceneForm";
 import ProjectFormHeader from "../../components/projects/ProjectFormHeader";
 import { createScene } from "../../services/sceneApi";
+import { assignCharacterToScene } from "../../services/scene-characterApi";
 
 const CreateScene = () => {
   const { projectId } = useParams();
@@ -11,7 +12,7 @@ const CreateScene = () => {
   const [apiError, setApiError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCreateScene = async (sceneData) => {
+  const handleCreateScene = async (sceneData, characterData) => {
     if (isSubmitting) {
       return;
     }
@@ -19,13 +20,6 @@ const CreateScene = () => {
     try {
       setIsSubmitting(true);
       setApiError("");
-
-      console.log(
-        "About to call createScene for project",
-        projectId,
-        "and sceneData:",
-        sceneData,
-      );
 
       const createdScene = await createScene(projectId, sceneData);
 
@@ -35,13 +29,29 @@ const CreateScene = () => {
         );
       }
 
+      if (createdScene && createdScene.id) {
+        for (let i = 0; i < characterData.length; i++) {
+          if (characterData[i] != -1) {
+            try {
+              await assignCharacterToScene(projectId, createdScene.id, {
+                character_id: characterData[i],
+                role_in_scene: "",
+                knowledge_gained: "",
+              });
+            } catch (error) {
+              setApiError(error.message || "Unable to create the scene-character assignments.")
+            }
+          }
+        }
+      }
+
       navigate(`/projects/${projectId}/scenes`, {
         replace: true,
         state: {
           notification: {
             type: "success",
             message: "Scene created successfully.",
-          },
+          }
         },
       });
     } catch (error) {

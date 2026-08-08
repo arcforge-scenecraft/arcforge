@@ -1,0 +1,92 @@
+.popup {
+    position: relative;
+
+    width: min(650px, 100%);
+    /* max-height: 85vh; */
+
+    overflow-y: scroll;
+    overscroll-behavior: contain;
+
+    padding: 2rem;
+
+    border-radius: 1rem;
+    /* background: white; */
+    box-shadow: 0 25px 50px rgb(0 0 0 / 20%);
+    padding: 1.4rem;
+    overflow: hidden;
+    border: 1px solid rgba(112, 85, 184, 0.15);
+    border-radius: 1.15rem;
+    background: linear-gradient(145deg,
+            rgba(255, 255, 255, 0.99),
+            rgba(249, 247, 255, 0.97));
+}
+
+.popup::before {
+    position: absolute;
+    z-index: -1;
+    top: -4rem;
+    right: -4rem;
+    width: 10rem;
+    height: 10rem;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+            rgba(112, 85, 184, 0.13),
+            rgba(112, 85, 184, 0));
+    pointer-events: none;
+    content: "";
+}
+
+/* Small accent line */
+.popup::after {
+    position: absolute;
+    top: 0;
+    left: 1.4rem;
+    width: 3.25rem;
+    height: 3px;
+    border-radius: 0 0 999px 999px;
+    background-color: var(--card-accent);
+    content: "";
+}
+
+.popup__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 2rem;
+
+    background: rgb(0 0 0 / 45%);
+
+    overflow-y: scroll;
+    overscroll-behavior: contain;
+
+}
+
+.popup__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+
+    border: none;
+    background: transparent;
+
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.popup__actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 820px) {
+    .popup__actions {
+        flex-direction: column;
+        margin-top: 0rem;
+    }
+}

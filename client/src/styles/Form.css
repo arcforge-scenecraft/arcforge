@@ -4,11 +4,9 @@
   padding: clamp(1.25rem, 4vw, 2.25rem);
   border: 1px solid rgba(95, 70, 164, 0.16);
   border-radius: 1.25rem;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.98),
-    rgba(248, 246, 255, 0.98)
-  );
+  background: linear-gradient(145deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(248, 246, 255, 0.98));
   box-shadow:
     0 20px 48px rgba(43, 35, 72, 0.08),
     0 3px 10px rgba(43, 35, 72, 0.05);
@@ -57,6 +55,29 @@
     border-color 160ms ease,
     box-shadow 160ms ease,
     background-color 160ms ease;
+}
+
+.form-field input[readonly],
+.form-field textarea[readonly] {
+  border: 1px solid #d7e1f0;
+  border-radius: 0.75rem;
+  background: var(--soft-background, #f2f4f7);
+  color: var(--heading-color, #344054);
+  cursor: default;
+  transition: none;
+}
+
+.form-field input[readonly]:hover,
+.form-field textarea[readonly]:hover {
+  border-color: #d7e1f0;
+  outline: none;
+}
+
+.form-field input[readonly]:focus,
+.form-field textarea[readonly]:focus {
+  border-color: #d7e1f0;
+  outline: none;
+  box-shadow: none;
 }
 
 .form-field textarea {
@@ -189,7 +210,7 @@
   color: #ffffff;
 }
 
-.genre-option input:focus-visible + .genre-option-content {
+.genre-option input:focus-visible+.genre-option-content {
   outline: 3px solid rgba(112, 85, 184, 0.3);
   outline-offset: 3px;
 }
@@ -356,6 +377,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .form-field input,
   .form-field textarea,
   .form-field select,

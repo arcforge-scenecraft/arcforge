@@ -3,7 +3,7 @@ import { pool } from "../config/database.js";
 const isValidId = (id) => Number.isInteger(Number(id)) && Number(id) > 0;
 const validOrderColumns = ["created_at", "sceneOrder", "timelineOrder"];
 
-const validSceneStatuses = ["Planning", "In Progress", "Completed", "On Hold"];
+const validSceneStatuses = ["", "Planning", "In Progress", "Completed", "On Hold"];
 
 const validateSceneFields = (
   {

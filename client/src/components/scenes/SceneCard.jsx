@@ -84,9 +84,9 @@ const SceneCard = ({ scene, projectId, onDelete }) => {
         </p>
 
         <div className="card-badges">
-          {location && (
-            <span className="card-badge card-badge--location">{location}</span>
-          )}
+          {scene.location && scene.location != "Undecided"?
+            <span className="card-badge card-badge--location">{scene.location}</span>
+          : ""}
 
           {visibleCharacters.map((character) => (
             <span key={character} className="card-badge">
